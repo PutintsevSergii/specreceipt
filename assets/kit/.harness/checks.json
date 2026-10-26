@@ -18,7 +18,7 @@
         "harness",
         "self-test"
       ],
-      "timeout_seconds": 120,
+      "timeout_seconds": 1800,
       "approved": true,
       "approval_reference": "Selected Strict engineering profile",
       "purpose": "Run isolated harness regressions"

@@ -1,0 +1,179 @@
+{
+  "acceptance_results": [
+    {
+      "checks": [
+        "harness-tests",
+        "native-node"
+      ],
+      "criterion": "WIN-001",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-tests",
+        "native-node"
+      ],
+      "criterion": "WIN-002",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-tests"
+      ],
+      "criterion": "WIN-003",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "native-indexes",
+        "native-node"
+      ],
+      "criterion": "WIN-004",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-tests",
+        "native-node"
+      ],
+      "criterion": "WIN-005",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "harness-tests",
+        "native-typecheck",
+        "native-node",
+        "native-indexes"
+      ],
+      "criterion": "WIN-006",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "harness-tests"
+      ],
+      "criterion": "WIN-007",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-tests"
+      ],
+      "criterion": "PERF-001",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-tests"
+      ],
+      "criterion": "PERF-002",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-tests"
+      ],
+      "criterion": "PERF-003",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-tests"
+      ],
+      "criterion": "PERF-004",
+      "result": "PASS"
+    }
+  ],
+  "check_config_hash": "67d44c23ea11296f97ac97b325608519a364be295f4b922614c8890ea055b743",
+  "checked_tasks": [
+    "WIN-001"
+  ],
+  "created_at": "2026-10-26T21:36:55.955937+00:00",
+  "definition_hash": "cc05e346b5a2872c909a5e46e700faa7766aa3a7887c6af2533623b097956915",
+  "environment": {
+    "declared": {
+      "application_runtime": "UNCONFIGURED",
+      "note": "Declare application versions during onboarding."
+    },
+    "machine": "AMD64",
+    "platform": "Windows",
+    "python": "3.12.14"
+  },
+  "fingerprint": "b76a3f6013b7ac6767a739a7b79ba08f3386e30e4d44e692970b82dd51e43931",
+  "id": "55bba3ba-ddf3-4390-9312-4ac203bf8591",
+  "result": "PASS",
+  "results": [
+    {
+      "check": "harness-tests",
+      "command": [
+        "{python}",
+        "-B",
+        "harness",
+        "self-test"
+      ],
+      "exit_code": 0,
+      "log": ".harness/evidence/logs/745e25d0-6da1-4ac6-b56b-cfcea3251352.log",
+      "log_hash": "3fa5f393bc51240d02d527a17bda7be37604a95ef0231a504b775b95cdaade5a",
+      "result": "PASS",
+      "summary": "al) ... ok\n\ntest_final_consent_requires_prior_review (test_workflow.WorkflowTests.test_final_consent_requires_prior_review) ... ok\n\ntest_floor_and_stricter_or_simpler_selection (test_workflow.WorkflowTests.test_floor_and_stricter_or_simpler_selection) ... ok\n\ntest_guards_allow_negatives_but_block_new_ambiguity_and_sensitive_code (test_workflow.WorkflowTests.test_guards_allow_negatives_but_block_new_ambiguity_and_sensitive_code) ... ok\n\ntest_identical_assessment_preserves_confirmation (test_workflow.WorkflowTests.test_identical_assessment_preserves_confirmation) ... ok\n\ntest_known_metadata_and_previous_advisor_conclusions_do_not_reinforce_risk (test_workflow.WorkflowTests.test_known_metadata_and_previous_advisor_conclusions_do_not_reinforce_risk) ... ok\n\ntest_material_changes_invalidate_but_implementation_does_not (test_workflow.WorkflowTests.test_material_changes_invalidate_but_implementation_does_not) ... ok\n\ntest_missing_inspection_blocks_low_risk_confirmation (test_workflow.WorkflowTests.test_missing_inspection_blocks_low_risk_confirmation) ... ok\n\ntest_negative_text_never_overrides_structured_or_project_strict_floors (test_workflow.WorkflowTests.test_negative_text_never_overrides_structured_or_project_strict_floors) ... ok\n\ntest_new_template_requires_assessment_before_start (test_workflow.WorkflowTests.test_new_template_requires_assessment_before_start) ... ok\n\ntest_oversize_guard_evidence_requires_investigation_instead_of_skipping (test_workflow.WorkflowTests.test_oversize_guard_evidence_requires_investigation_instead_of_skipping) ... ok\n\ntest_policy_change_invalidates_and_project_checks_cannot_be_omitted (test_workflow.WorkflowTests.test_policy_change_invalidates_and_project_checks_cannot_be_omitted) ... ok\n\ntest_profile_recommendations_and_bounded_assessment (test_workflow.WorkflowTests.test_profile_recommendations_and_bounded_assessment) ... ok\n\ntest_public_exposure_and_medium_risk_are_distinct_from_security_floor (test_workflow.WorkflowTests.test_public_exposure_and_medium_risk_are_distinct_from_security_floor) ... ok\n\ntest_reference_edit_invalidates_combined_consent (test_workflow.WorkflowTests.test_reference_edit_invalidates_combined_consent) ... ok\n\ntest_report_distinguishes_optional_approvals_and_legacy_plan (test_workflow.WorkflowTests.test_report_distinguishes_optional_approvals_and_legacy_plan) ... ok\n\ntest_reports_real_files_paths_and_missing_evidence (test_workflow.WorkflowTests.test_reports_real_files_paths_and_missing_evidence) ... ok\n\ntest_sensitive_task_metadata_cannot_claim_fast (test_workflow.WorkflowTests.test_sensitive_task_metadata_cannot_claim_fast) ... ok\n\ntest_sensitive_task_outcome_uses_same_narrative_classifier (test_workflow.WorkflowTests.test_sensitive_task_outcome_uses_same_narrative_classifier) ... ok\n\ntest_source_identifiers_override_negative_comments_and_match_boundaries (test_workflow.WorkflowTests.test_source_identifiers_override_negative_comments_and_match_boundaries) ... ok\n\ntest_strict_deeper_review_resolves_exact_ambiguous_sources (test_workflow.WorkflowTests.test_strict_deeper_review_resolves_exact_ambiguous_sources) ... ok\n\ntest_task_metadata_review_survives_its_own_workflow_write (test_workflow.WorkflowTests.test_task_metadata_review_survives_its_own_workflow_write) ... ok\n\ntest_unknowns_require_targeted_inspection_not_automatic_strict (test_workflow.WorkflowTests.test_unknowns_require_targeted_inspection_not_automatic_strict) ... ok\n\n\n\n----------------------------------------------------------------------\n\nRan 246 tests in 1189.039s\n\n\n\nOK (skipped=12)\n\nSlowest self-tests (seconds):\n\n  63.3413  test_hardening.HardeningTests.test_runner_repairs_review_feedback_without_fabricating_approval\n\n  32.6262  test_hardening.HardeningTests.test_runner_check_failure_never_completes\n\n  25.8879  test_hardening.HardeningTests.test_dependency_chain_survives_downstream_edits_and_rechecks_prerequisite\n\n  21.2576  test_hardening.HardeningTests.test_changed_dependency_definition_invalidates_completion\n\n  20.0775  test_onboarding.OnboardingTests.test_ready_application_lifecycle_uses_real_check\n\n"
+    },
+    {
+      "check": "harness-validate",
+      "command": [],
+      "exit_code": 0,
+      "result": "PASS",
+      "summary": "Builtin assertions passed."
+    },
+    {
+      "check": "native-indexes",
+      "command": [
+        "{python}",
+        "-B",
+        "-c",
+        "from pathlib import Path; from harnesslib.index_context import ensure; print(ensure(Path.cwd()))"
+      ],
+      "exit_code": 0,
+      "log": ".harness/evidence/logs/223a0439-66d9-4767-81c4-c0cbf9339c10.log",
+      "log_hash": "5c65b857ed8becafaf01bbcb99abe0180a4868901c989054d9cc42758a399fda",
+      "result": "PASS",
+      "summary": "{'result': 'PASS', 'codegraph': {'changed': True, 'installed': True, 'indexed': True, 'version': '1.6.2', 'freshness': 'fresh', 'next_action': None}, 'graphify': {'changed': True, 'nodes': 4052, 'edges': 8748, 'installed': True, 'version': 'graphify 0.9.27', 'indexed': True, 'freshness': 'fresh', 'coverage': 'code', 'next_action': None}}\n\n"
+    },
+    {
+      "check": "native-node",
+      "command": [
+        "node",
+        "--test",
+        "tests-node/windows.test.mjs",
+        "tests-node/engine-upgrade.test.mjs",
+        "tests-node/copilot.test.mjs"
+      ],
+      "exit_code": 0,
+      "log": ".harness/evidence/logs/f20e25dc-71e8-4a31-991f-80ec7ceef49d.log",
+      "log_hash": "18d583504643c0c2046513c68f370faa5837e2ede5497ab3bb21dea05a97b88d",
+      "result": "PASS",
+      "summary": "rrors and gates\nok 11 - Python owns initial state and setup event; installed CLI delegates help, errors and gates\n  ---\n  duration_ms: 29595.323\n  type: 'test'\n  ...\n# Subtest: installed engine drift, wrong protocol, missing Python and root injection fail closed\nok 12 - installed engine drift, wrong protocol, missing Python and root injection fail closed\n  ---\n  duration_ms: 4022.17\n  type: 'test'\n  ...\n# Subtest: three-way Git merge covers local-only, remote-only, disjoint, overlap and missing Git\nok 13 - three-way Git merge covers local-only, remote-only, disjoint, overlap and missing Git\n  ---\n  duration_ms: 117.5125\n  type: 'test'\n  ...\n# Subtest: migration validates both versions, adds defaults, is ordered and idempotent\nok 14 - migration validates both versions, adds defaults, is ordered and idempotent\n  ---\n  duration_ms: 0.5858\n  type: 'test'\n  ...\n# Subtest: upgrade preserves local Skills, shared rules, OpenSpec and custom files; dry-run and repeat unchanged\nok 15 - upgrade preserves local Skills, shared rules, OpenSpec and custom files; dry-run and repeat unchanged\n  ---\n  duration_ms: 7528.6604\n  type: 'test'\n  ...\n# Subtest: 0.3.0 installation manifest can upgrade to 0.3.1\nok 16 - 0.3.0 installation manifest can upgrade to 0.3.1\n  ---\n  duration_ms: 4989.6571\n  type: 'test'\n  ...\n# Subtest: legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict\nok 17 - legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict\n  ---\n  duration_ms: 3710.8923\n  type: 'test'\n  ...\n# Subtest: interrupted upgrade retains backup, recovery restores bytes and retry works\nok 18 - interrupted upgrade retains backup, recovery restores bytes and retry works\n  ---\n  duration_ms: 8360.3434\n  type: 'test'\n  ...\n# Subtest: postvalidation failure retains journal and protects concurrent edits during recovery\nok 19 - postvalidation failure retains journal and protects concurrent edits during recovery\n  ---\n  duration_ms: 6943.1348\n  type: 'test'\n  ...\n# Subtest: doctor engine cannot import project shadow modules; missing inventory entry is rejected\nok 20 - doctor engine cannot import project shadow modules; missing inventory entry is rejected\n  ---\n  duration_ms: 4241.7499\n  type: 'test'\n  ...\n# Subtest: lifecycle writes refuse installer lock and pending recovery, reads still work\nok 21 - lifecycle writes refuse installer lock and pending recovery, reads still work\n  ---\n  duration_ms: 5885.1053\n  type: 'test'\n  ...\n# Subtest: custom runtime upgrade cannot silently claim upstream engine version\nok 22 - custom runtime upgrade cannot silently claim upstream engine version\n  ---\n  duration_ms: 3560.9201\n  type: 'test'\n  ...\n# Subtest: interruption after configuration write restores pre-upgrade config and manifest\nok 23 - interruption after configuration write restores pre-upgrade config and manifest\n  ---\n  duration_ms: 6482.8449\n  type: 'test'\n  ...\n# Subtest: packaged launchers use portable line endings and include native entry points\nok 24 - packaged launchers use portable line endings and include native entry points\n  ---\n  duration_ms: 3.6354\n  type: 'test'\n  ...\n# Subtest: Windows copied environments preserve mixed-case Path discovery\nok 25 - Windows copied environments preserve mixed-case Path discovery\n  ---\n  duration_ms: 4.9516\n  type: 'test'\n  ...\n# Subtest: Windows npm shims preserve argument boundaries without cmd interpolation\nok 26 - Windows npm shims preserve argument boundaries without cmd interpolation\n  ---\n  duration_ms: 239.5419\n  type: 'test'\n  ...\n# Subtest: Windows managed Python is discovered from its runtime pointer\nok 27 - Windows managed Python is discovered from its runtime pointer\n  ---\n  duration_ms: 23.8221\n  type: 'test'\n  ...\n# Subtest: portable argument and file operations in spaces and Unicode directories\nok 28 - portable argument and file operations in spaces and Unicode directories\n  ---\n  duration_ms: 1708.5926\n  type: 'test'\n  ...\n1..28\n# tests 28\n# suites 0\n# pass 26\n# fail 0\n# cancelled 0\n# skipped 2\n# todo 0\n# duration_ms 85758.708\n"
+    },
+    {
+      "check": "native-typecheck",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "exit_code": 0,
+      "log": ".harness/evidence/logs/85965e4a-2b26-42a7-aa08-ac1121b1c00e.log",
+      "log_hash": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
+      "result": "PASS",
+      "summary": ""
+    }
+  ],
+  "revisions": {
+    "architecture": "0",
+    "tech_spec": "0"
+  },
+  "schema_version": 1,
+  "task_id": "WIN-001"
+}

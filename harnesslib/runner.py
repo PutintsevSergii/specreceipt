@@ -4,6 +4,7 @@ No provider is installed or selected. A process exit is not acceptance evidence.
 A persisted intent without a result is never automatically replayed.
 """
 import time
+from .report_operation import operation as report_operation
 from .storage import HarnessError, atomic, digest, read, safe_path, now, uid
 from . import assessment, openspec_tool, readiness, verification
 
@@ -33,7 +34,7 @@ def next_action(h):
                 if 'review' in task['approvals']:
                     # A valid review may be waiting for a real developer approval.
                     approval = task['approvals']['review']
-                    content = safe_path(h.root,approval['reference']).read_text()
+                    content = safe_path(h.root,approval['reference']).read_text(encoding='utf-8')
                     if approval['fingerprint'] == h.binding() and approval['reference_hash'] == digest(content):
                         verification.review(h,task,content); action='approval'
         from .reporting import task_report
@@ -57,12 +58,13 @@ def configuration(h):
     if not path.exists(): return None
     cfg = read(path); h.schema('runner',cfg)
     if not cfg['enabled']: return None
-    reference = safe_path(h.root,cfg['approval_reference']).read_text()
+    reference = safe_path(h.root,cfg['approval_reference']).read_text(encoding='utf-8')
     if not readiness.substantive(reference) or authorization_hash(cfg, reference) != cfg['approval_hash']:
         raise HarnessError('Runner authorization reference is absent or stale')
     return cfg
 
 
+@report_operation
 def run(h, max_steps, max_seconds, new_run=False):
     if max_steps < 1 or max_seconds < 1: raise HarnessError('Run budgets must be positive')
     h.reconcile()
@@ -151,7 +153,7 @@ def run(h, max_steps, max_seconds, new_run=False):
                     return {'result':'BLOCKED','action':'adapter-failed','task_id':task_id,'run':record}
                 if phase == 'implement': h.transition(task_id,'IMPLEMENTED','Adapter returned; scope checked; acceptance execution pending')
                 else:
-                    report = verification.review(h,task,safe_path(h.root,review_path).read_text(),require_pass=False)
+                    report = verification.review(h,task,safe_path(h.root,review_path).read_text(encoding='utf-8'),require_pass=False)
                     if report['verdict'] != 'PASS' or any(f['status'] == 'OPEN' for f in report['findings']):
                         h.transition(task_id,'REWORK','Reviewer requested changes; see '+review_path)
                         record['failures'] += 1

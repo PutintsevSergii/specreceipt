@@ -4,12 +4,16 @@ import * as path from "node:path";
 import { spawnSync } from "node:child_process";
 import assert from "node:assert/strict";
 import { pathToFileURL } from "node:url";
+import { nativeCommand, executable as findExecutable, pythonCommand } from "../dist/integrations.js";
 const root = process.cwd();
+const packageVersion = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8")).version;
 const temp = fs.realpathSync(
   fs.mkdtempSync(path.join(os.tmpdir(), "harness-packed-")),
 );
 function run(cmd, args, cwd = root, env = process.env, timeoutMs = 120000) {
-  const r = spawnSync(cmd, args, {
+  const command = /^(python3|python)$/.test(cmd) ? pythonCommand(env) : nativeCommand({ file: findExecutable(cmd, env) ?? cmd, prefix: [] }, env);
+  assert.ok(command, "Required command unavailable: " + cmd);
+  const r = spawnSync(command.file, [...command.prefix, ...args], {
     cwd,
     env,
     encoding: "utf8",
@@ -101,14 +105,14 @@ try {
     consumer,
   );
   const cli = path.join(consumer, "node_modules/specreceipt/dist/cli.js");
-  assert.match(run(process.execPath, [cli, "--version"], consumer), /0.3.1/);
+  assert.equal(run(process.execPath, [cli, "--version"], consumer).trim(), packageVersion);
   const { executionPreflight, checkedAgentLaunch } = await import(pathToFileURL(path.join(consumer, "node_modules/specreceipt/dist/doctor.js")));
   const { executable } = await import(pathToFileURL(path.join(consumer, "node_modules/specreceipt/dist/integrations.js")));
   function assertPackagedPreflight(project, agent) {
     const mode = agent.includes("codex") ? "codex" : agent === "copilot-ide" ? "copilot-ide" : "copilot";
     const fake = path.join(temp, "preflight-agent.cjs");
     fs.writeFileSync(fake, `if(process.argv.includes('--version')) console.log(${JSON.stringify(mode === "codex" ? "codex-cli 1.0" : "GitHub Copilot CLI 1.0")}); else if(process.argv.includes('--help')) console.log('--json --sandbox --cd --ignore-user-config --prompt --output-format --allow-tool --deny-tool --no-auto-update --disallow-temp-dir --disable-builtin-mcps --no-bash-env'); else process.exit(99);`);
-    const options = {cwd: project, agent: mode, command: {file:process.execPath,prefix:[fake]}, env: {PATH:"", HOME:temp,HARNESS_PYTHON:executable("python3")}, shell:{file:"/bin/sh",login:false},ignoreUserConfig:true};
+    const options = {cwd: project, agent: mode, command: {file:process.execPath,prefix:[fake]}, env: {PATH:"", HOME:temp,HARNESS_PYTHON:process.env.HARNESS_PYTHON ?? executable("python3")}, shell:process.platform === "win32" ? undefined : {file:"/bin/sh",login:false},ignoreUserConfig:true};
     const featureDir = path.join(project,"specs/preflight-fixture");
     fs.mkdirSync(featureDir,{recursive:true});
     const feature = JSON.parse(fs.readFileSync(path.join(project,"templates/feature/tasks.json")));
@@ -265,7 +269,8 @@ try {
     assert.notEqual(refused.status, 0);
     assert.equal(fs.readFileSync(agentsPath, "utf8"), conflicting);
     fs.writeFileSync(agentsPath, customized);
-    run("python3", ["-B", "harness", "self-test"], target, env, 300000);
+    console.log("Running the complete packaged Python self-test (30-minute budget).");
+    run("python3", ["-B", "-X", "utf8", "harness", "self-test"], target, env, 1800000);
     // Regression from real Codex onboarding: consumer revisions need not be zero.
     for (const name of ["TECH_SPEC.md", "ARCHITECTURE.md"]) {
       const file = path.join(target, "docs", name);
@@ -279,7 +284,7 @@ try {
       [cli, "self-test", "--target", target, "--json"],
       consumer,
       env,
-      300000,
+      1800000,
     );
 
     console.log(

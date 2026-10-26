@@ -4,7 +4,9 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { spawnSync } from "node:child_process";
 import assert from "node:assert/strict";
+import { nativeCommand, executable } from "../dist/integrations.js";
 const source = process.cwd();
+const currentVersion = JSON.parse(fs.readFileSync(path.join(source, "package.json"), "utf8")).version;
 const base = fs.realpathSync(
   fs.mkdtempSync(path.join(os.tmpdir(), "harness-two-versions-")),
 );
@@ -19,12 +21,13 @@ const env = {
   PATH: [
     path.dirname(process.env.HARNESS_REAL_OPENSPEC ?? "/missing/openspec"),
     path.join(source, ".harness/tools/codegraph/node_modules/.bin"),
-    path.join(source, ".harness/tools/graphify/bin"),
+    path.join(source, process.platform === "win32" ? ".harness/tools/graphify/Scripts" : ".harness/tools/graphify/bin"),
     process.env.PATH,
   ].join(path.delimiter),
 };
 function run(file, args, cwd = base, expected = 0) {
-  const r = spawnSync(file, args, {
+  const command = nativeCommand({file: executable(file, env) ?? file, prefix: []}, env);
+  const r = spawnSync(command.file, [...command.prefix, ...args], {
     cwd,
     env,
     encoding: "utf8",
@@ -50,7 +53,7 @@ function snapshot(root) {
 try {
   if (!process.env.HARNESS_LEGACY_PACKAGE || !process.env.HARNESS_UPGRADE_PACKAGE)
     throw Error("Set HARNESS_LEGACY_PACKAGE and HARNESS_UPGRADE_PACKAGE to reviewed archive paths.");
-  for (const version of ["0.1.0", "0.3.1"]) {
+  for (const version of ["0.1.0", currentVersion]) {
     const consumer = path.join(base, version);
     fs.mkdirSync(consumer);
     fs.writeFileSync(path.join(consumer, "package.json"), "{}");
@@ -65,7 +68,7 @@ try {
         "--cache",
         process.env.HARNESS_TEST_NPM_CACHE ?? path.join(base, "npm-cache"),
         path.resolve(
-          version === "0.3.1"
+          version === currentVersion
             ? process.env.HARNESS_UPGRADE_PACKAGE
             : process.env.HARNESS_LEGACY_PACKAGE,
         ),
@@ -80,7 +83,7 @@ try {
   }
   const oldPackage = path.join(base, "0.1.0/node_modules/my-ai-harness");
   const oldCli = path.join(oldPackage, "dist/cli.js");
-  const cli = path.join(base, "0.3.1/node_modules/specreceipt/dist/cli.js");
+  const cli = path.join(base, currentVersion, "node_modules/specreceipt/dist/cli.js");
   for (const scenario of [
     "clean",
     "customized",
@@ -149,7 +152,7 @@ try {
     const m = JSON.parse(
       fs.readFileSync(path.join(root, ".harness/installation-manifest.json")),
     );
-    assert.equal(m.packageVersion, "0.3.1");
+    assert.equal(m.packageVersion, currentVersion);
     assert.equal(m.protocolVersion, 1);
     const status = JSON.parse(
       run(process.execPath, [cli, "status", "--target", root, "--json"]),

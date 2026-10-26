@@ -1,6 +1,8 @@
+from platform_support import symlink
 """Adversarial exact-recognition fixtures. Consent here is simulated, never production consent."""
 import copy
 import json
+import os
 from unittest.mock import patch
 import unittest
 import test_harness
@@ -54,7 +56,11 @@ class ReconciliationTests(unittest.TestCase):
         (self.root/'existing.txt').write_text('new');(self.root/'deleted.txt').unlink();(self.root/'created.txt').write_text('new')
         self.assertEqual({e['change'] for e in self.manifest()['entries']},{'CREATED','MODIFIED','DELETED'})
         self.accept();verification.scope_changes(self.h,self.task())
-        (self.root/'existing.txt').chmod(0o755)
+        if os.name == 'nt':
+            # Windows does not expose a POSIX execute bit for a text file.
+            (self.root/'existing.txt').write_text('changed after recognition')
+        else:
+            (self.root/'existing.txt').chmod(0o755)
         with self.assertRaises(HarnessError):verification.scope_changes(self.h,self.task())
     def test_stale_manifest_reference_replay_and_hash(self):
         self.start();(self.root/'outside.txt').write_text('first');m=self.manifest();(self.root/'outside.txt').write_text('second')
@@ -70,7 +76,7 @@ class ReconciliationTests(unittest.TestCase):
             with self.subTest(path=path), self.assertRaises(HarnessError):self.accept(broken)
         broken=copy.deepcopy(m);broken['entries']*=2
         with self.assertRaises(HarnessError):self.accept(broken)
-        (self.root/'outside.txt').unlink();(self.root/'outside.txt').symlink_to(self.root/'docs/DEMO.md')
+        (self.root/'outside.txt').unlink();symlink(self.root/'outside.txt', self.root/'docs/DEMO.md')
         with self.assertRaises(HarnessError):self.accept(m)
     def test_definition_replan_preserves_original_and_requires_new_consent(self):
         self.start();(self.root/'outside.txt').write_text('outside');self.accept();old=copy.deepcopy(self.task()['execution']['baseline'])

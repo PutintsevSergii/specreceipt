@@ -1,0 +1,8 @@
+test_contract_and_legacy_command_registry (test_protocol.ProtocolTests.test_contract_and_legacy_command_registry) ... ok
+test_help_and_argparse_errors_have_envelopes (test_protocol.ProtocolTests.test_help_and_argparse_errors_have_envelopes) ... ok
+test_wrong_protocol_and_invalid_input_are_structured (test_protocol.ProtocolTests.test_wrong_protocol_and_invalid_input_are_structured) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 5.330s
+
+OK

@@ -1,0 +1,4 @@
+# Generated text assets must match their integrity manifests on every host.
+assets/** text eol=lf
+# Preserve immutable execution artifacts byte-for-byte when sharing evidence.
+.harness/evidence/** -text -diff

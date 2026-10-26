@@ -33,6 +33,10 @@ const roots = [
   "AGENTS.md",
   "harness",
   "install.sh",
+  "install.ps1",
+  "harness.cmd",
+  "scripts/python.ps1",
+  "scripts/uv.ps1",
   "harnesslib",
   "schemas",
   "templates",
@@ -61,9 +65,11 @@ function copy(rel) {
       if (!["__pycache__", ".DS_Store"].includes(item)) copy(join(rel, item));
     return;
   }
-  if (!/\.(py|json|md|sh)$/.test(rel) && rel !== "harness")
+  if (!/\.(py|json|md|sh|ps1|cmd)$/.test(rel) && rel !== "harness")
     throw Error("Unexpected runtime asset " + rel);
-  const bytes = readFileSync(rel);
+  // The asset allowlist contains text only. Keep archives portable even when
+  // Git checks source files out as CRLF on Windows (including POSIX shebangs).
+  const bytes = Buffer.from(readFileSync(rel, "utf8").replace(/\r\n/g, "\n"), "utf8");
   const out = join("assets/kit", rel);
   mkdirSync(join(out, ".."), { recursive: true });
   writeFileSync(out, bytes);
@@ -90,7 +96,7 @@ for (const [rel, value] of Object.entries({
       "harness-tests": {
         kind: "command",
         argv: ["{python}", "-B", "harness", "self-test"],
-        timeout_seconds: 120,
+        timeout_seconds: 1800,
         approved: true,
         approval_reference: "Selected Strict engineering profile",
         purpose: "Run isolated harness regressions",

@@ -87,9 +87,10 @@ export function prepareUpgrade(root: string, baseline?: string): Change[] {
       "Pending installation or lock; inspect and recover before upgrade.",
     );
   const previous = manifest(root);
-  if (!previous || !["0.1.0", "0.2.0", "0.3.0", VERSION].includes(previous.packageVersion))
+  const supported = ["0.1.0", "0.2.0", "0.3.0", "0.3.1", VERSION];
+  if (!previous || !supported.includes(previous.packageVersion))
     throw Error(
-      "Unsupported or absent installation version. Supported source: 0.1.0, 0.2.0, 0.3.0 or 0.3.1.",
+      "Unsupported or absent installation version. Supported source: " + supported.join(", ") + ".",
     );
   const migration = migrate(JSON.parse(read(root, CONFIG_PATH) ?? "null"));
   const assets: Asset[] = [

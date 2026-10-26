@@ -6,6 +6,7 @@ import subprocess
 import sys
 import unittest
 from .core import Harness
+from .report_operation import scope as reporting_scope
 from . import assessment, installation, codegraph_tool, graph, graphify_tool, investigation, openspec_tool, readiness, runner, tool_updates, workflow, reporting
 from .skills import catalog
 from .storage import HarnessError, lock, redact
@@ -139,13 +140,13 @@ def run(args,h):
             # Reflect existing requirements, never create a new optional-navigation policy.
             features = [h.task(args.task)[0]] if args.task else list(h.features().values())
             application = any(f['kind'] == 'application' for f in features)
-            instructions = [(h.root/p).read_text() for p in ('AGENTS.md','AGENTS.override.md','.github/copilot-instructions.md') if (h.root/p).is_file()]
+            instructions = [(h.root/p).read_text(encoding='utf-8') for p in ('AGENTS.md','AGENTS.override.md','.github/copilot-instructions.md') if (h.root/p).is_file()]
             navigation = application or any('./harness indexes ensure' in text for text in instructions)
             product = h.root/'.harness/product.json'
-            configured = json.loads(product.read_text()) if product.exists() else {}
+            configured = json.loads(product.read_text(encoding='utf-8')) if product.exists() else {}
             openspec = configured.get('workflow') == 'openspec' or any(f.get('spec_source') for f in features)
             checks_path = h.root/'.harness/checks.json'
-            checks = json.loads(checks_path.read_text())['checks'] if checks_path.exists() else {}
+            checks = json.loads(checks_path.read_text(encoding='utf-8'))['checks'] if checks_path.exists() else {}
             tasks = [h.task(args.task)[1]] if args.task else [t for f in features for t in f['tasks'] if t['status'] not in {'DONE','BLOCKED'}]
             names = sorted({n for t in tasks for dependency in h.check_closure(t) for n in dependency['required_checks']})
             executables = []
@@ -157,7 +158,7 @@ def run(args,h):
                     executables.append({'check':name,'executable':executable})
             return {'result':'PASS','navigation_cli_required':navigation,'openspec_required':openspec,'executables':executables,
                     'reason':'Application lifecycle requires CodeGraph and Graphify CLIs.' if application else 'Repository instructions require indexes ensure.' if navigation else 'No mandatory navigation requirement for selected execution.'}
-        return {'result':'PASS','python':sys.version.split()[0],'runtime':'Python standard library; POSIX flock/process groups',
+        return {'result':'PASS','python':sys.version.split()[0],'runtime':('Python standard library; native Windows locking/process trees' if sys.platform == 'win32' else 'Python standard library; POSIX flock/process groups'),
                 'git':h.git(),'validation':h.validate(),'skills':len(list((h.root/'.agents/skills').glob('*/SKILL.md'))),
                 'permissions':'Runtime-managed; no hooks, merge protection, credentials or permission overrides installed.'}
     if cmd == 'status':
@@ -210,7 +211,8 @@ def main():
         if not suite.countTestCases():
             print('Self-test requires at least one discovered test.', file=sys.stderr)
             return 1
-        return 0 if unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful() else 1
+        from .test_progress import run as run_self_tests
+        return run_self_tests(suite, args.root)
     if args.command == 'adopt':
         from .adopt import adopt
         try:
@@ -236,7 +238,7 @@ def main():
         if args.command == 'status' and (args.retain or args.retain_dir): readonly = False
         if readonly: result = run(args,h)
         else:
-            with lock(h.root): result = run(args,h)
+            with lock(h.root), reporting_scope(h): result = run(args,h)
         if args.command == 'status' and args.format in {'terminal','markdown'}:
             print(redact(result['text']),end='')
         else:

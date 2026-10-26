@@ -51,6 +51,8 @@ export function invoke(
   env: NodeJS.ProcessEnv = process.env,
   timeout = 60000,
 ) {
+  try { command = nativeCommand(command, env); }
+  catch (error) { return { pid: 0, output: [], stdout: "", stderr: String(error), status: null, signal: null, error: error as Error }; }
   return spawnSync(command.file, [...command.prefix, ...args], {
     cwd,
     env,
@@ -62,13 +64,51 @@ export function invoke(
     windowsHide: true,
   });
 }
+export function nativeCommand(command: Command, env: NodeJS.ProcessEnv = process.env): Command {
+  if (process.platform !== "win32" || !/\.(cmd|bat)$/i.test(command.file)) return command;
+  const name = path.basename(command.file).replace(/\.(cmd|bat)$/i, "");
+  const packages: Record<string, string> = { npm: "npm", npx: "npm", codegraph: "@colbymchenry/codegraph", openspec: "@fission-ai/openspec", codex: "@openai/codex", copilot: "@github/copilot", specreceipt: "specreceipt" };
+  if (!packages[name]) throw Error("Use a native executable or explicit interpreter instead of a batch shim: " + name);
+  const parent = path.dirname(command.file);
+  const base = path.basename(parent) === ".bin" ? path.dirname(parent) : path.join(parent, "node_modules");
+  const folder = path.join(base, packages[name]!);
+  const bins = JSON.parse(fs.readFileSync(path.join(folder, "package.json"), "utf8")).bin;
+  const entry = path.resolve(folder, typeof bins === "string" ? bins : bins[name]);
+  if (!entry.startsWith(path.resolve(folder) + path.sep) || !fs.statSync(entry).isFile() || !fs.realpathSync(entry).startsWith(fs.realpathSync(folder) + path.sep)) throw Error("Invalid package entry point");
+  const node = executable("node", env);
+  if (!node) throw Error("Node is required for " + name);
+  return { file: node, prefix: [entry, ...command.prefix] };
+}
+
+function environmentValue(env: NodeJS.ProcessEnv, name: string): string | undefined {
+  if (env[name] !== undefined || process.platform !== "win32") return env[name];
+  const key = Object.keys(env).find(key => key.toLowerCase() === name.toLowerCase());
+  return key === undefined ? undefined : env[key];
+}
+
+export function pythonCommand(env: NodeJS.ProcessEnv = process.env): Command | null {
+  const override = environmentValue(env, "HARNESS_PYTHON");
+  if (override) return { file: override, prefix: [] };
+  if (process.platform === "win32") {
+    const runtime = environmentValue(env, "HARNESS_RUNTIME_DIR") ?? path.join(environmentValue(env, "LOCALAPPDATA") ?? path.join(os.homedir(), "AppData", "Local"), "harness", "runtime");
+    try {
+      const file = fs.readFileSync(path.join(runtime, "python-path.txt"), "utf8").trim();
+      if (path.isAbsolute(file) && fs.statSync(file).isFile()) return { file, prefix: [] };
+    } catch { /* Continue to existing native installations. */ }
+  }
+  const file = executable("python3", env) ?? executable("python", env);
+  if (file) return { file, prefix: [] };
+  const launcher = process.platform === "win32" && executable("py", env);
+  return launcher ? { file: launcher, prefix: ["-3"] } : null;
+}
 export function executable(name: string, env: NodeJS.ProcessEnv = process.env): string | null {
-  for (const folder of (env.PATH ?? "").split(path.delimiter)) {
+  for (const folder of (environmentValue(env, "PATH") ?? "").split(path.delimiter)) {
     if (!path.isAbsolute(folder)) continue;
     for (const ext of process.platform === "win32"
       ? [".exe", ".cmd", ""]
       : [""]) {
       const candidate = path.join(folder, name + ext);
+      if (process.platform === "win32" && /^(python3?|py)$/.test(name) && /[\\/]Microsoft[\\/]WindowsApps[\\/]/i.test(candidate)) continue;
       try {
         if (fs.statSync(candidate).isFile()) {
           fs.accessSync(candidate, fs.constants.X_OK);
@@ -91,16 +131,8 @@ export function openspec(root: string): Command | null {
   }
   const binary = executable("openspec");
   if (!binary) return null;
-  if (binary.endsWith(".cmd")) {
-    const entry = path.join(
-      path.dirname(binary),
-      "node_modules/@fission-ai/openspec/bin/openspec.js",
-    );
-    return fs.existsSync(entry)
-      ? { file: process.execPath, prefix: [entry] }
-      : null;
-  }
-  return { file: binary, prefix: [] };
+  try { return nativeCommand({ file: binary, prefix: [] }); }
+  catch { return null; }
 }
 export function probeOpenSpec(root: string): {
   command: Command | null;

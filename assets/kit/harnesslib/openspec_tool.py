@@ -10,7 +10,8 @@ import shutil
 import subprocess
 import tempfile
 
-from .storage import HarnessError, atomic, digest, read, redact, safe_path
+from . import processes
+from .storage import is_link, HarnessError, atomic, digest, read, redact, safe_path
 
 VERSION = '1.14.3'
 PACKAGE = '@fission-ai/openspec@' + VERSION
@@ -25,21 +26,15 @@ def identifier(value):
 
 
 def environment(root):
-    env = {k: os.environ[k] for k in ('PATH', 'HOME', 'TMPDIR', 'LANG', 'SYSTEMROOT', 'HARNESS_RUNTIME_DIR') if k in os.environ}
+    env = processes.environment(('HARNESS_RUNTIME_DIR',))
     env.update(OPENSPEC_TELEMETRY='0', DO_NOT_TRACK='1', OPENSPEC_NO_UPDATE_CHECK='1',
                XDG_CONFIG_HOME=str(Path(root) / '.harness/openspec-config'))
     return env
 
 
 def binary(root):
-    # npm's bin entry is a symlink within the isolated install; do not use safe_path on it.
-    local = Path(root) / LOCAL
-    if local.is_file():
-        resolved = local.resolve()
-        if not resolved.is_relative_to((Path(root) / '.harness/tools/openspec').resolve()):
-            raise HarnessError('OpenSpec executable escapes its local installation.')
-        return str(local)
-    found = shutil.which('openspec')
+    from .tool_paths import binary as tool_binary
+    found = tool_binary(root, 'openspec')
     if not found:
         raise HarnessError('OpenSpec is not installed. Run ./harness openspec install.')
     return found
@@ -48,7 +43,7 @@ def binary(root):
 def invoke(root, args, cwd=None, timeout=60):
     executable = binary(root)
     try:
-        result = subprocess.run([executable, *args], cwd=cwd or root, env=environment(root),
+        result = processes.run([executable, *args], cwd=cwd or root, env=environment(root),
                                 capture_output=True, text=True, timeout=timeout, stdin=subprocess.DEVNULL)
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise HarnessError(f'OpenSpec execution unavailable: {exc}') from exc
@@ -79,7 +74,7 @@ def install(root):
     if not npm:
         raise HarnessError('npm and Node >=20.19 are required to install OpenSpec.')
     target.mkdir(parents=True, exist_ok=True)
-    result = subprocess.run([npm, 'install', '--prefix', str(target), '--ignore-scripts', '--no-audit',
+    result = processes.run([npm, 'install', '--prefix', str(target), '--ignore-scripts', '--no-audit',
                              '--no-fund', '--cache', str(safe_path(root,'.harness/npm-cache')), PACKAGE],
                             cwd=root, env=environment(root), capture_output=True, text=True, timeout=180)
     if result.returncode:
@@ -99,18 +94,18 @@ def ignores(root, paths):
     if context:
         targets[context[1]] = [ignore_pattern(prefix + p) for p in paths]
     for path in targets:
-        if any(p.is_symlink() for p in [path,*path.parents]):
+        if any(is_link(p) for p in [path,*path.parents]):
             raise HarnessError('Symlink ignore file refused.')
     for path, rules in targets.items():
-        previous = path.read_text() if path.exists() else ''
+        previous = path.read_text(encoding='utf-8') if path.exists() else ''
         missing = [r for r in rules if r not in previous.splitlines()]
         if missing:
             path.parent.mkdir(parents=True,exist_ok=True)
-            with path.open('a') as stream:
+            with path.open('a', encoding='utf-8') as stream:
                 stream.write(('\n' if previous and not previous.endswith('\n') else '') + '\n'.join(missing)+'\n')
     if context and paths:
         probes=[prefix+p+('harness-ignore-probe' if p.endswith('/') else '') for p in paths]
-        result=subprocess.run(['git','-C',str(context[0]),'check-ignore','--no-index','-z','-v',
+        result=processes.run(['git','-C',str(context[0]),'check-ignore','--no-index','-z','-v',
                                '--non-matching','--stdin'],input='\0'.join(probes)+'\0',capture_output=True,text=True)
         fields=result.stdout.split('\0')[:-1]
         if result.returncode not in (0,1) or len(fields)!=4*len(probes) or any(
@@ -134,7 +129,7 @@ def initialize(root, tools='none', install_missing=False):
             raise HarnessError('OpenSpec init failed: '+result['summary'])
         additions=[]; conflicts=[]
         for path in sorted(stage.rglob('*')):
-            if path.is_symlink(): raise HarnessError('OpenSpec generated an unexpected symlink.')
+            if is_link(path): raise HarnessError('OpenSpec generated an unexpected symlink.')
             if not path.is_file(): continue
             rel=path.relative_to(stage).as_posix()
             if rel != '.agents/skills/.openspec-target' and not rel.startswith(('openspec/','.agents/skills/openspec-', '.claude/skills/openspec-',
@@ -160,16 +155,16 @@ def source(root, change):
     identifier(change)
     base=safe_path(root,'openspec/changes/'+change)
     if not base.is_dir(): raise HarnessError('Active OpenSpec change missing: '+change)
-    paths=[p for p in base.rglob('*') if p.is_file() or p.is_symlink()]
+    paths=[p for p in base.rglob('*') if p.is_file() or is_link(p)]
     main=safe_path(root,'openspec/specs')
-    if main.exists(): paths += [p for p in main.rglob('*') if p.is_file() or p.is_symlink()]
+    if main.exists(): paths += [p for p in main.rglob('*') if p.is_file() or is_link(p)]
     config=safe_path(root,'openspec/config.yaml')
     if config.exists(): paths.append(config)
     result={}
     for p in sorted(paths):
         rel=p.relative_to(root).as_posix(); p=safe_path(root,rel)
         if p.stat().st_size>1024*1024: raise HarnessError('Oversized OpenSpec input: '+rel)
-        text=p.read_text()
+        text=p.read_text(encoding='utf-8')
         if rel == f'openspec/changes/{change}/tasks.md':
             # Progress markers belong to OpenSpec UI, not requirement approval or proof.
             text=re.sub(r'(?m)^([ \t]*[-*] +)\[[ xX]\](?= )',r'\1[ ]',text)
@@ -247,8 +242,8 @@ def import_change(h, change, mapping_file):
     ignores(h.root,['specs/'+feature_id+'/'])
     dest.mkdir(parents=True)
     for filename in ('spec.md','plan.md'):
-        (dest/filename).write_text(wrapper(feature))
-    (dest/'verification.md').write_text('Verification has not run.\n')
+        (dest/filename).write_text(wrapper(feature), encoding='utf-8')
+    (dest/'verification.md').write_text('Verification has not run.\n', encoding='utf-8')
     checks['checks'][name]=definition
     atomic(h.root/'.harness/checks.json',checks)
     atomic(dest/'tasks.json',feature)
@@ -275,7 +270,7 @@ def refresh(h, feature_id):
     feature['spec_source']['fingerprint']=digest(feature_source(h.root,feature))
     for task in feature['tasks']: task['approvals']={}
     for filename in ('spec.md','plan.md'):
-        safe_path(h.root,f'specs/{feature_id}/{filename}').write_text(wrapper(feature))
+        safe_path(h.root,f'specs/{feature_id}/{filename}').write_text(wrapper(feature), encoding='utf-8')
     atomic(h.root/f'specs/{feature_id}/tasks.json',feature)
     return {'result':'PASS','next_action':'Wrappers are DRAFT. Review changed requirements and mapping, obtain approval, and replan unfinished tasks before restarting.'}
 

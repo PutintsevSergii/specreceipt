@@ -7,14 +7,45 @@ import shutil
 import tempfile
 import sys
 import os
-from .storage import HarnessError, atomic, safe_path, uid, now
+from dataclasses import dataclass
+from types import MappingProxyType
+from .storage import is_link, HarnessError, atomic, safe_path, uid, now, digest
 from . import workflow, verification
 
 
-def task_report(h, task_id):
+@dataclass(frozen=True)
+class ReportSnapshot:
+    """One read-only observation; never installed on the lifecycle engine."""
+    files: object
+    binding: str
+    observed_at: str
+
+    @classmethod
+    def capture(cls, h):
+        files = h.fingerprints()
+        binding = digest({'files': files, 'environment': h.environment()})
+        return cls(MappingProxyType(files), binding, now())
+
+
+def report_evidence_current(h, task, snapshot):
+    """Presentation freshness; authoritative current_evidence stays uncached."""
+    if task.get('execution', {}).get('recognitions'):
+        from . import reconciliation
+        try:
+            if task['execution']['definition'] != h.definition(task): return False
+            if reconciliation.classify(h, task, fingerprints=snapshot.files)['unrecognized']: return False
+        except (HarnessError, OSError, ValueError): return False
+    if not task['evidence']: return False
+    refs = task['evidence'] + task.get('regression_evidence', [])
+    ev = max((h.evidence(ref) for ref in refs), key=lambda e: e['created_at'])
+    return h.successful_evidence(task, ev) and ev['fingerprint'] == snapshot.binding
+
+
+def task_report(h, task_id, snapshot=None):
+    snapshot = snapshot or ReportSnapshot.capture(h)
     feature, task = h.task(task_id)
     warnings = []
-    try: current = bool(task['evidence']) and h.current_evidence(task)
+    try: current = bool(task['evidence']) and report_evidence_current(h, task, snapshot)
     except (HarnessError,OSError,ValueError) as exc:
         current = False; warnings.append('Evidence unavailable: '+str(exc))
     status = task['status']
@@ -28,9 +59,9 @@ def task_report(h, task_id):
     recognized = set()
     if baseline is not None:
         from . import reconciliation
-        try: recognized = set(reconciliation.classify(h, task)['recognized'])
+        try: recognized = set(reconciliation.classify(h, task, fingerprints=snapshot.files)['recognized'])
         except (HarnessError,OSError,ValueError) as exc: warnings.append('Scope reconciliation: '+str(exc))
-        after = h.fingerprints()
+        after = snapshot.files
         for rel in sorted(set(baseline)|set(after)):
             if baseline.get(rel) != after.get(rel):
                 files.append({'path':rel,'absolute_path':str(h.root/rel),
@@ -53,7 +84,7 @@ def task_report(h, task_id):
     elif not current: warnings.append('Verification evidence is stale; rerun the required checks.')
     selected = task.get('workflow',{}).get('selected')
     approvals = {}
-    binding = h.binding()
+    binding = snapshot.binding
     for kind in sorted(set(task['approval_requirements'])|set(task['approvals'])|{'workflow-plan','plan','implementation','developer','review'}):
         a = task['approvals'].get(kind)
         expected = workflow.decision_binding(h,feature,task) if kind in {'workflow-plan','plan'} and task.get('workflow') else binding
@@ -76,7 +107,7 @@ def task_report(h, task_id):
 
         approvals['plan'] = {**approvals['workflow-plan'],'combined_with':'workflow-plan'}
     if approvals['review']['status'] == 'CURRENT':
-        try: verification.review(h,task,safe_path(h.root,task['approvals']['review']['reference']).read_text())
+        try: verification.review(h,task,safe_path(h.root,task['approvals']['review']['reference']).read_text(encoding='utf-8'))
         except (HarnessError,OSError,ValueError): approvals['review']['status'] = 'INVALID'
     # DONE eligibility is bound to the original execution evidence, not later regression inputs.
     if effective == 'DONE':
@@ -92,7 +123,7 @@ def task_report(h, task_id):
     git = h.git()
     return {'task_id':task_id,'title':task['outcome'],'agent':task.get('workflow',{}).get('facts',{}).get('agent','unknown'),
             'workflow':selected or ('UNCONFIRMED' if task.get('workflow') else 'STRICT (legacy)'),
-            'status':status,'effective_status':effective,'recorded_at':now(),
+            'status':status,'effective_status':effective,'recorded_at':snapshot.observed_at,
             'regression_required':effective == 'DONE' and not current,
             'implementation_summary':f'Current lifecycle: {effective}; verification: '+('PASS' if current else 'FAIL' if evidence and evidence.get('result') != 'PASS' else 'STALE' if evidence else 'MISSING')+'.',
             'implementation_history':next(({'state':x['to'],'recorded_at':x['at'],'text':x['reason']} for x in reversed(task['history']) if x['to']=='IMPLEMENTED'),None),
@@ -109,6 +140,10 @@ def task_report(h, task_id):
 def render(data, markdown=False):
     lines = ['# AI Engineering Harness' if markdown else 'AI Engineering Harness']
     lines += [('Historical snapshot' if data.get('report_kind') == 'historical' else 'Current report') + ': '+data.get('generated_at','timestamp unavailable')]
+    if data.get('progress'):
+        p = data['progress']
+        lines.append(f"Self-test progress (last observed {p.get('updated_at', 'unknown')}): {p.get('completed', '?')}/{p.get('total', '?')}; {p.get('elapsed_seconds', '?')}s; {p.get('status', 'UNAVAILABLE')}")
+        if p.get('active_test'): lines.append('Active test: '+p['active_test'])
     if not data['tasks']:
         lines += ['Project: '+data.get('project','unknown'),'Next action: Complete project readiness and define an approved task.','./harness readiness']
     for t in data['tasks']:
@@ -138,14 +173,16 @@ def render(data, markdown=False):
 
 
 def report(h, task_id=None, format='json', retain=False, retain_dir=None):
+    snapshot = ReportSnapshot.capture(h)
     ids = [task_id] if task_id else [t['id'] for f in h.features().values() for t in f['tasks']]
-    data = {'project':str(h.root),'report_kind':'historical' if retain else 'current','generated_at':now(),'state_updated_at':h.state()['updated_at'],'tasks':[task_report(h,i) for i in ids]}
+    from .test_progress import observed
+    data = {'project':str(h.root),'report_kind':'historical' if retain else 'current','generated_at':snapshot.observed_at,'state_updated_at':h.state()['updated_at'],'tasks':[task_report(h,i,snapshot) for i in ids], 'progress':observed(h.root)}
     if retain:
         # Opt-in bounded artifact snapshot, not a full project copy or automatic archive.
         for task in data['tasks']:
             if retain_dir is not None:
                 base = Path(retain_dir).absolute()
-                if any(p.is_symlink() for p in [base,*base.parents]): raise HarnessError('Symlink export directory refused')
+                if any(is_link(p) for p in [base,*base.parents]): raise HarnessError('Symlink export directory refused')
                 if base.resolve() == h.root or h.root in base.resolve().parents: raise HarnessError('External retention must be outside project; use --retain for local evidence')
                 dest = base/(task['task_id']+'-'+uid())
             else:
@@ -177,8 +214,10 @@ def next_step(h, task, effective, current, approvals, blocked=None):
     state = h.state()
     def result(action, message, command=None):
         return {'action':action,'message':message,'command':command}
-    if state['active_operation'] or state['uncertain_outcome'] or state['blockers']:
+    if state['uncertain_outcome'] or state['blockers']:
         return result('recover','Resolve the active operation or recorded blockers before continuing.',f'{cmd} resume')
+    if state['active_operation']:
+        return result('progress','An operation is recorded as active. Inspect last-observed progress; recover only after confirming interruption.',f'{cmd} status {tid} --format terminal')
     if effective == 'DONE':
         if not current: return result('regression','Task completed historically; rerun required regression checks.',f'{cmd} regression {tid}')
         return result('finished','Finished. Task status: DONE.')
@@ -192,8 +231,8 @@ def next_step(h, task, effective, current, approvals, blocked=None):
             action = 'review' if missing == 'review' else 'approval'
             sub = f'review {tid}' if action == 'review' else f'task approve {tid} --kind {missing}'
             return result(action,f'Inspect changed files and provide {missing} approval.',f'{cmd} {sub} --by NAME --reference FILE')
-        try: h.check_approvals(task)
-        except (HarnessError,OSError,ValueError) as exc: return result('approval',str(exc),f'{cmd} status {tid} --format terminal')
+        # Approval hashes and structured review were checked above against the
+        # report snapshot. Actual DONE still runs fresh core.check_approvals.
         return result('complete','All required approvals current; finish task.',f'{cmd} task transition {tid} DONE --reason "Verified and approved"')
     if effective == 'IMPLEMENTED':
         return result('verify','Advance using current passing evidence.' if current else 'Run required verification.',

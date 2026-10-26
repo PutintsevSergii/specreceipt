@@ -5,11 +5,11 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { spawnSync } from "node:child_process";
 import { prepare, install } from "../dist/install.js";
-import { execute, request, resolveEngine } from "../dist/engine.js";
+import { execute, request, resolveEngine, ENGINE_VERSION } from "../dist/engine.js";
 import { prepareUpgrade, upgrade, mergeText } from "../dist/upgrade.js";
 import { migrate } from "../dist/migrations.js";
 import { manifest, read, hash, recover, walk } from "../dist/filesystem.js";
-import { CONFIG_PATH, MANIFEST_PATH, DEFAULTS } from "../dist/core.js";
+import { CONFIG_PATH, MANIFEST_PATH, DEFAULTS, VERSION } from "../dist/core.js";
 const cli = path.resolve("dist/cli.js");
 function fixture(t) {
   const root = fs.realpathSync(
@@ -127,17 +127,17 @@ test("upgrade preserves local Skills, shared rules, OpenSpec and custom files; d
   upgrade(root, prepareUpgrade(root));
   assert.deepEqual(snapshot(root), after);
 });
-test("0.3.0 installation manifest can upgrade to 0.3.1", (t) => {
+for (const previousVersion of ["0.3.0", "0.3.1"]) test(`${previousVersion} installation manifest can upgrade to the current release`, (t) => {
   const root = fixture(t);
   const old = manifest(root);
-  old.packageVersion = "0.3.0";
-  old.engineVersion = "0.3.0";
+  old.packageVersion = previousVersion;
+  old.engineVersion = previousVersion;
   fs.writeFileSync(path.join(root, MANIFEST_PATH), JSON.stringify(old));
   const changes = prepareUpgrade(root);
   assert.ok(!changes.some((change) => change.action === "conflict"));
   upgrade(root, changes);
-  assert.equal(manifest(root).packageVersion, "0.3.1");
-  assert.equal(manifest(root).engineVersion, "0.3.1");
+  assert.equal(manifest(root).packageVersion, VERSION);
+  assert.equal(manifest(root).engineVersion, ENGINE_VERSION);
 });
 test("legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict", (t) => {
   const root = fixture(t);

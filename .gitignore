@@ -20,3 +20,11 @@ dist/
 .harness/installation.lock
 release/
 release-report/
+
+# Local execution state, downloaded tools, scratch scripts and artifacts.
+# Reviewed immutable evidence is added explicitly when needed.
+.harness/*
+!.harness/checks.json
+!.harness/environment.json
+!.harness/graph-config.json
+!.harness/onboarding.json

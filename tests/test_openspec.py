@@ -1,3 +1,4 @@
+from platform_support import symlink
 """OpenSpec contract and harness lifecycle. Set HARNESS_TEST_OPENSPEC for real CLI runs.
 
 Only navigation index calls use the existing onboarding fixture's mocks.
@@ -29,7 +30,28 @@ class OpenSpecTests(unittest.TestCase):
         bin_dir=Path(fixture.tmp.name)/'bin'; bin_dir.mkdir()
         real=os.environ.get('HARNESS_TEST_OPENSPEC')
         if real:
-            (bin_dir/'openspec').symlink_to(Path(real).resolve())
+            executable = Path(real).resolve()
+        elif os.name == 'nt':
+            self.assertIsNotNone(shutil.which('node'), 'Native OpenSpec fixture requires the supported Node runtime.')
+            package = self.root/'.harness/tools/openspec/node_modules/@fission-ai/openspec'
+            package.mkdir(parents=True)
+            (package/'package.json').write_text(json.dumps({'bin': {'openspec': 'fixture.cjs'}}), encoding='utf-8')
+            (package/'fixture.cjs').write_text('''const fs = require('node:fs');
+const path = require('node:path');
+const args = process.argv.slice(2);
+if (args.includes('--version')) console.log('1.14.3');
+else if (args[0] === 'init') {
+  fs.mkdirSync('openspec', {recursive:true});
+  fs.writeFileSync('openspec/config.yaml', 'schema: spec-driven\\n');
+} else if (args[0] === 'validate') {
+  const text = fs.readFileSync(path.join('openspec/changes', args[1], 'specs/calculator/spec.md'), 'utf8');
+  const valid = text.includes('#### Scenario:');
+  console.log(JSON.stringify({valid})); process.exitCode = valid ? 0 : 1;
+} else process.exitCode = 2;
+''', encoding='utf-8')
+            executable = self.root/'.harness/tools/openspec/node_modules/.bin/openspec.cmd'
+            executable.parent.mkdir(parents=True)
+            executable.write_text('@exit /b 99\n', encoding='utf-8')
         else:
             executable=bin_dir/'openspec'
             executable.write_text('#!'+sys.executable+'''\nimport sys,json
@@ -46,6 +68,8 @@ else: sys.exit(2)
             executable.chmod(0o755)
         env=patch.dict(os.environ,{'PATH':str(bin_dir)+os.pathsep+os.environ['PATH']})
         env.start();self.addCleanup(env.stop)
+        resolver = patch.object(adapter, 'binary', return_value=str(executable))
+        resolver.start(); self.addCleanup(resolver.stop)
         adapter.initialize(self.root)
         change=self.root/'openspec/changes/add-calculator'
         (change/'specs/calculator').mkdir(parents=True)
@@ -108,7 +132,7 @@ else: sys.exit(2)
         self.assertEqual(adapter.validate(self.root,'add-calculator')['result'],'FAIL')
         with self.assertRaises(HarnessError): self.imported()
         with self.assertRaises(HarnessError): adapter.context(self.root,'../../escape')
-        self.spec.unlink();self.spec.symlink_to(self.root/'docs/TECH_SPEC.md')
+        self.spec.unlink();symlink(self.spec, self.root/'docs/TECH_SPEC.md')
         with self.assertRaises(HarnessError): adapter.context(self.root,'add-calculator')
 
     def test_validation_check_cannot_be_removed_or_replaced(self):

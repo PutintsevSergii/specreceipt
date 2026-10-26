@@ -8,12 +8,12 @@ import os
 from pathlib import Path
 import re
 import shutil
-import signal
 import subprocess
 import sys
 import tempfile
 import urllib.request
 from . import codegraph_tool, graphify_tool, openspec_tool
+from . import processes
 from .storage import HarnessError, atomic, now, read, redact, safe_path
 from .tool_paths import binary
 
@@ -39,11 +39,11 @@ def execute(root, argv, timeout=180):
     env.update(UV_CACHE_DIR=str(Path(root)/'.harness/uv-cache'), UV_PYTHON_DOWNLOADS='never')
     try:
         with tempfile.TemporaryFile() as output:
-            process=subprocess.Popen(argv,cwd=root,env=env,stdout=output,stderr=subprocess.STDOUT,
+            process=subprocess.Popen(processes.argv(argv),cwd=root,env=env,stdout=output,stderr=subprocess.STDOUT,
                                      stdin=subprocess.DEVNULL,start_new_session=True)
             try: code=process.wait(timeout=timeout)
             except subprocess.TimeoutExpired:
-                os.killpg(process.pid,signal.SIGKILL);process.wait()
+                processes.stop(process);process.wait()
                 raise HarnessError('Tool command timed out; inspect partial effects before retrying.')
             output.seek(0); summary=redact(output.read(65536).decode(errors='replace'))
         if code: raise HarnessError(f'Tool command exited {code}: {summary[-3000:]}')
@@ -128,7 +128,7 @@ def install(root, name, config):
         if not uv: raise HarnessError('uv is required for the managed Graphify environment.')
         if not (target/'pyvenv.cfg').is_file():
             execute(root,[uv,'venv','--python',sys.executable,str(target)])
-        execute(root,[uv,'pip','install','--python',str(target/'bin/python'),'--upgrade',config['package']])
+        execute(root,[uv,'pip','install','--python',str(target/('Scripts/python.exe' if os.name == 'nt' else 'bin/python')),'--upgrade',config['package']])
     observed=probe(root,name,config)
     if observed!=config['version']:
         raise HarnessError(f'{name} post-install version mismatch: {observed}')

@@ -22,7 +22,7 @@ def catalog(root, name=None):
         match = next((item for item in entries if item['name'] == name), None)
         if match is None:
             raise HarnessError(f'Unknown skill: {name}; use ./harness skills to list available roles.')
-        content = safe_path(root, match['path']).read_text()
+        content = safe_path(root, match['path']).read_text(encoding='utf-8')
         if not content.strip():
             raise HarnessError(f'Empty skill instructions: {match["path"]}')
         from .assessment import current
@@ -30,7 +30,7 @@ def catalog(root, name=None):
         supplements = []
         for rel in report.get('role_skills', {}).get(name, []):
             if rel != match['path']:
-                supplements.append({'path':rel, 'instructions':safe_path(root, rel).read_text()})
+                supplements.append({'path':rel, 'instructions':safe_path(root, rel).read_text(encoding='utf-8')})
         return {'result': 'PASS', **match, 'instructions': content,
                 'project_skills':supplements, 'assessment_status':report['status'],
                 'notice': 'Reading instructions does not execute a role or grant permissions.'}

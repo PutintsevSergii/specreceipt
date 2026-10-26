@@ -4,7 +4,7 @@ import fnmatch
 import hashlib
 import os
 from pathlib import Path
-from .storage import HarnessError, atomic, digest, now, read, safe_path, validate_schema
+from .storage import is_link, HarnessError, atomic, digest, now, read, safe_path, validate_schema
 
 EXCLUDED_DIRS = {'.git', '.harness', 'graphify-out', '.codegraph', '.codegraph-wsl', '__pycache__', 'node_modules', '.venv', 'venv', 'dist', 'build', '.next', '.pytest_cache'}
 SECRET_NAMES = {'.env', '.npmrc', '.pypirc', 'credentials.json', 'secrets.json'}
@@ -18,12 +18,12 @@ def inventory(root, exclusions=(), max_bytes=None, text_only=False):
     found = {}
     for directory, dirs, files in os.walk(root, followlinks=False):
         base = Path(directory)
-        dirs[:] = sorted(d for d in dirs if d not in EXCLUDED_DIRS and not (base/d).is_symlink()
+        dirs[:] = sorted(d for d in dirs if d not in EXCLUDED_DIRS and not is_link(base/d)
                          and not any(fnmatch.fnmatch((base/d).relative_to(root).as_posix(), p) for p in exclusions))
         for name in sorted(files):
             path = base/name
             rel = path.relative_to(root).as_posix()
-            if path.is_symlink() or name in SECRET_NAMES or name.startswith('.env.') or path.suffix in {'.pem', '.key', '.p12', '.pfx'} or any(fnmatch.fnmatch(rel, p) for p in exclusions):
+            if is_link(path) or name in SECRET_NAMES or name.startswith('.env.') or path.suffix in {'.pem', '.key', '.p12', '.pfx'} or any(fnmatch.fnmatch(rel, p) for p in exclusions):
                 continue
             if max_bytes and path.stat().st_size > max_bytes:
                 continue
@@ -41,7 +41,7 @@ class LocalProvider:
         result = {'nodes':[node],'edges':[],'limitations':[]}
         if rel.endswith('.py'):
             try:
-                tree = ast.parse((root/rel).read_text(), filename=rel)
+                tree = ast.parse((root/rel).read_text(encoding='utf-8'), filename=rel)
             except (SyntaxError, UnicodeError) as exc:
                 result['limitations'].append(f'Parse unavailable: {type(exc).__name__}')
                 return result

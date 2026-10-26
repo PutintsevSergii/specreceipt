@@ -1,0 +1,151 @@
+{
+  "acceptance_results": [
+    {
+      "checks": [
+        "harness-tests",
+        "native-node"
+      ],
+      "criterion": "WIN-001",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-tests",
+        "native-node"
+      ],
+      "criterion": "WIN-002",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-tests"
+      ],
+      "criterion": "WIN-003",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "native-indexes",
+        "native-node"
+      ],
+      "criterion": "WIN-004",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-tests",
+        "native-node"
+      ],
+      "criterion": "WIN-005",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "harness-tests",
+        "native-typecheck",
+        "native-node",
+        "native-indexes"
+      ],
+      "criterion": "WIN-006",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "harness-tests"
+      ],
+      "criterion": "WIN-007",
+      "result": "FAIL"
+    }
+  ],
+  "check_config_hash": "5a9c3addc91d61767b1ee757207f65c89ffb803e6a3bc76a292756137283e51f",
+  "checked_tasks": [
+    "WIN-001"
+  ],
+  "created_at": "2026-10-26T16:40:28.860591+00:00",
+  "definition_hash": "7f6a9b71ab2c96308e7a5d27b23160d6e5676aedf8d944c8cc707495a5b93f78",
+  "environment": {
+    "declared": {
+      "application_runtime": "UNCONFIGURED",
+      "note": "Declare application versions during onboarding."
+    },
+    "machine": "AMD64",
+    "platform": "Windows",
+    "python": "3.12.14"
+  },
+  "fingerprint": "3ac0e22dc1e24829f16e58dfa93cb66adf915c4d3cf3fffd4bee3cff63ab7d09",
+  "id": "186197f8-1fb3-4080-a3d5-5e6d7964153d",
+  "result": "FAIL",
+  "results": [
+    {
+      "check": "harness-tests",
+      "command": [
+        "{python}",
+        "-B",
+        "harness",
+        "self-test"
+      ],
+      "exit_code": 1,
+      "log": ".harness/evidence/logs/a4786bdb-35d8-4d5f-bb40-d63bc7cf529a.log",
+      "log_hash": "84ee4e444b3a3b11bdd28eb08ea88a0c481a23e836b4ba5b5bd8496d1b44a0b2",
+      "result": "BLOCKED",
+      "summary": "Timeout; process group killed. test_conflict_prevents_partial_install (test_adopt_bootstrap.AdoptBootstrapTests.test_conflict_prevents_partial_install) ... ok\n\ntest_corporate_instructions_preserved_and_routed (test_adopt_bootstrap.AdoptBootstrapTests.test_corporate_instructions_preserved_and_routed) ... ok\n\ntest_each_ignore_layer_covers_bridges (test_adopt_bootstrap.AdoptBootstrapTests.test_each_ignore_layer_covers_bridges) ... ok\n\ntest_preview_no_writes_then_initialized_idempotently (test_adopt_bootstrap.AdoptBootstrapTests.test_preview_no_writes_then_initialized_idempotently) ... ok\n\ntest_real_adopt_cli_initializes_without_manual_prompt (test_adopt_bootstrap.AdoptBootstrapTests.test_real_adopt_cli_initializes_without_manual_prompt) ... ok\n\ntest_agent_failure_keeps_assessment_pending (test_assessment.AssessmentTests.test_agent_failure_keeps_assessment_pending) ... ok\n\ntest_agent_source_mutation_is_detected (test_assessment.AssessmentTests.test_agent_source_mutation_is_detected) ... ok\n\ntest_colliding_corporate_role_is_preserved (test_assessment.AssessmentTests.test_colliding_corporate_role_is_preserved) ... ok\n\ntest_explicit_agent_subprocess_and_cli_integration (test_assessment.AssessmentTests.test_explicit_agent_subprocess_and_cli_integration) ... ok\n\ntest_import_activates_supplement_and_change_invalidates (test_assessment.AssessmentTests.test_import_activates_supplement_and_change_invalidates) ... ok\n\ntest_installation_runs_explicit_assessor_before_index_failure (test_assessment.AssessmentTests.test_installation_runs_explicit_assessor_before_index_failure) ... ok\n\ntest_inventory_preserves_instructions_and_does_not_execute (test_assessment.AssessmentTests.test_inventory_preserves_instructions_and_does_not_execute) ... ok\n\ntest_repeat_adoption_keeps_current_assessment (test_assessment.AssessmentTests.test_repeat_adoption_keeps_current_assessment) ... ok\n\ntest_symlink_skills_are_not_discovered (test_assessment.AssessmentTests.test_symlink_skills_are_not_discovered) ... ERROR\n\ntest_unobserved_skill_and_stale_response_are_rejected (test_assessment.AssessmentTests.test_unobserved_skill_and_stale_response_are_rejected) ... ok\n\ntest_init_sync_and_query_use_bounded_cli (test_codegraph_tool.CodeGraphToolTests.test_init_sync_and_query_use_bounded_cli) ... ok\n\ntest_task_context_is_saved_before_implementation_with_redaction (test_codegraph_tool.CodeGraphToolTests.test_task_context_is_saved_before_implementation_with_redaction) ... ok\n\ntest_empty_project_then_source_added (test_graphify_tool.GraphifyToolTests.test_empty_project_then_source_added) ... skipped 'Graphify CLI is not installed'\n\ntest_index_refresh_and_bounded_query (test_graphify_tool.GraphifyToolTests.test_index_refresh_and_bounded_query) ... skipped 'Graphify CLI is not installed'\n\ntest_acceptance_missing_unknown_and_duplicate_checks_block_start (test_hardening.HardeningTests.test_acceptance_missing_unknown_and_duplicate_checks_block_start) ... ok\n\ntest_changed_dependency_definition_invalidates_completion (test_hardening.HardeningTests.test_changed_dependency_definition_invalidates_completion) ... "
+    },
+    {
+      "check": "harness-validate",
+      "command": [],
+      "exit_code": 0,
+      "result": "PASS",
+      "summary": "Builtin assertions passed."
+    },
+    {
+      "check": "native-indexes",
+      "command": [
+        "{python}",
+        "-B",
+        "-c",
+        "from pathlib import Path; from harnesslib.index_context import ensure; print(ensure(Path.cwd()))"
+      ],
+      "exit_code": 0,
+      "log": ".harness/evidence/logs/8ccd0c0e-8395-45e1-ad00-8e2e68df2883.log",
+      "log_hash": "6e6184bd7949b94dd988e01ce837fa4cd6ce5a66cd1a8f5074737136083cb618",
+      "result": "PASS",
+      "summary": "{'result': 'PASS', 'codegraph': {'changed': True, 'installed': True, 'indexed': True, 'version': '1.6.2', 'freshness': 'fresh', 'next_action': None}, 'graphify': {'changed': True, 'nodes': 3911, 'edges': 8322, 'installed': True, 'version': 'graphify 0.9.27', 'indexed': True, 'freshness': 'fresh', 'coverage': 'code', 'next_action': None}}\n\n"
+    },
+    {
+      "check": "native-node",
+      "command": [
+        "node",
+        "--test",
+        "tests-node/windows.test.mjs",
+        "tests-node/engine-upgrade.test.mjs",
+        "tests-node/copilot.test.mjs"
+      ],
+      "exit_code": 0,
+      "log": ".harness/evidence/logs/a0960655-e5ee-4d4a-a76d-cee7d2b558fa.log",
+      "log_hash": "9a39af6c5daff316ecb80381c355347df1a3ba74669d8ff82e91fa725e95ec27",
+      "result": "PASS",
+      "summary": "e a unique ID: ABSENT\"}\n# {\"result\": \"FAIL\", \"error\": \"docs/TECH_SPEC.md: missing Status: metadata\"}\n# {\"result\": \"FAIL\", \"error\": \"Another harness writer or installer is active; inspect stale locks before retrying.\"}\n# {\"result\": \"FAIL\", \"error\": \"Installation or upgrade recovery required before lifecycle writes.\"}\n# Subtest: Python owns initial state and setup event; installed CLI delegates help, errors and gates\nok 11 - Python owns initial state and setup event; installed CLI delegates help, errors and gates\n  ---\n  duration_ms: 32702.6068\n  type: 'test'\n  ...\n# Subtest: installed engine drift, wrong protocol, missing Python and root injection fail closed\nok 12 - installed engine drift, wrong protocol, missing Python and root injection fail closed\n  ---\n  duration_ms: 10703.3135\n  type: 'test'\n  ...\n# Subtest: three-way Git merge covers local-only, remote-only, disjoint, overlap and missing Git\nok 13 - three-way Git merge covers local-only, remote-only, disjoint, overlap and missing Git\n  ---\n  duration_ms: 253.1229\n  type: 'test'\n  ...\n# Subtest: migration validates both versions, adds defaults, is ordered and idempotent\nok 14 - migration validates both versions, adds defaults, is ordered and idempotent\n  ---\n  duration_ms: 1.9104\n  type: 'test'\n  ...\n# Subtest: upgrade preserves local Skills, shared rules, OpenSpec and custom files; dry-run and repeat unchanged\nok 15 - upgrade preserves local Skills, shared rules, OpenSpec and custom files; dry-run and repeat unchanged\n  ---\n  duration_ms: 25080.2076\n  type: 'test'\n  ...\n# Subtest: 0.3.0 installation manifest can upgrade to 0.3.1\nok 16 - 0.3.0 installation manifest can upgrade to 0.3.1\n  ---\n  duration_ms: 13442.3359\n  type: 'test'\n  ...\n# Subtest: legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict\nok 17 - legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict\n  ---\n  duration_ms: 7412.2391\n  type: 'test'\n  ...\n# Subtest: interrupted upgrade retains backup, recovery restores bytes and retry works\nok 18 - interrupted upgrade retains backup, recovery restores bytes and retry works\n  ---\n  duration_ms: 19379.3915\n  type: 'test'\n  ...\n# Subtest: postvalidation failure retains journal and protects concurrent edits during recovery\nok 19 - postvalidation failure retains journal and protects concurrent edits during recovery\n  ---\n  duration_ms: 19643.0759\n  type: 'test'\n  ...\n# Subtest: doctor engine cannot import project shadow modules; missing inventory entry is rejected\nok 20 - doctor engine cannot import project shadow modules; missing inventory entry is rejected\n  ---\n  duration_ms: 13000.8399\n  type: 'test'\n  ...\n# Subtest: lifecycle writes refuse installer lock and pending recovery, reads still work\nok 21 - lifecycle writes refuse installer lock and pending recovery, reads still work\n  ---\n  duration_ms: 14871.6821\n  type: 'test'\n  ...\n# Subtest: custom runtime upgrade cannot silently claim upstream engine version\nok 22 - custom runtime upgrade cannot silently claim upstream engine version\n  ---\n  duration_ms: 8274.1787\n  type: 'test'\n  ...\n# Subtest: interruption after configuration write restores pre-upgrade config and manifest\nok 23 - interruption after configuration write restores pre-upgrade config and manifest\n  ---\n  duration_ms: 18747.9256\n  type: 'test'\n  ...\n# Subtest: Windows npm shims preserve argument boundaries without cmd interpolation\nok 24 - Windows npm shims preserve argument boundaries without cmd interpolation\n  ---\n  duration_ms: 957.2734\n  type: 'test'\n  ...\n# Subtest: Windows managed Python is discovered from its runtime pointer\nok 25 - Windows managed Python is discovered from its runtime pointer\n  ---\n  duration_ms: 31.7147\n  type: 'test'\n  ...\n# Subtest: portable argument and file operations in spaces and Unicode directories\nok 26 - portable argument and file operations in spaces and Unicode directories\n  ---\n  duration_ms: 1615.2442\n  type: 'test'\n  ...\n1..26\n# tests 26\n# suites 0\n# pass 24\n# fail 0\n# cancelled 0\n# skipped 2\n# todo 0\n# duration_ms 184321.2917\n"
+    },
+    {
+      "check": "native-typecheck",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "exit_code": 0,
+      "log": ".harness/evidence/logs/26a3c35c-107d-4496-b6c9-f8a8a867aa6b.log",
+      "log_hash": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
+      "result": "PASS",
+      "summary": ""
+    }
+  ],
+  "revisions": {
+    "architecture": "0",
+    "tech_spec": "0"
+  },
+  "schema_version": 1,
+  "task_id": "WIN-001"
+}

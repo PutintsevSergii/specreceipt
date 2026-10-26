@@ -1,0 +1,614 @@
+{
+  "feature_id": "windows-native",
+  "kind": "harness",
+  "revisions": {
+    "architecture": "0",
+    "tech_spec": "0"
+  },
+  "schema_version": 1,
+  "tasks": [
+    {
+      "acceptance_checks": [
+        {
+          "checks": [
+            "harness-tests",
+            "native-node"
+          ],
+          "criterion": "WIN-001"
+        },
+        {
+          "checks": [
+            "harness-tests",
+            "native-node"
+          ],
+          "criterion": "WIN-002"
+        },
+        {
+          "checks": [
+            "harness-tests"
+          ],
+          "criterion": "WIN-003"
+        },
+        {
+          "checks": [
+            "native-indexes",
+            "native-node"
+          ],
+          "criterion": "WIN-004"
+        },
+        {
+          "checks": [
+            "harness-tests",
+            "native-node"
+          ],
+          "criterion": "WIN-005"
+        },
+        {
+          "checks": [
+            "harness-validate",
+            "harness-tests",
+            "native-typecheck",
+            "native-node",
+            "native-indexes"
+          ],
+          "criterion": "WIN-006"
+        },
+        {
+          "checks": [
+            "harness-validate",
+            "harness-tests"
+          ],
+          "criterion": "WIN-007"
+        },
+        {
+          "checks": [
+            "harness-tests"
+          ],
+          "criterion": "PERF-001"
+        },
+        {
+          "checks": [
+            "harness-tests"
+          ],
+          "criterion": "PERF-002"
+        },
+        {
+          "checks": [
+            "harness-tests"
+          ],
+          "criterion": "PERF-003"
+        },
+        {
+          "checks": [
+            "harness-tests"
+          ],
+          "criterion": "PERF-004"
+        }
+      ],
+      "acceptance_criteria": [
+        "WIN-001",
+        "WIN-002",
+        "WIN-003",
+        "WIN-004",
+        "WIN-005",
+        "WIN-006",
+        "WIN-007",
+        "PERF-001",
+        "PERF-002",
+        "PERF-003",
+        "PERF-004"
+      ],
+      "approval_requirements": [
+        "developer"
+      ],
+      "approvals": {
+        "developer": {
+          "at": "2026-10-26T21:54:10.803450+00:00",
+          "by": "developer",
+          "fingerprint": "b76a3f6013b7ac6767a739a7b79ba08f3386e30e4d44e692970b82dd51e43931",
+          "reference": "specs/windows-native/reviews/final-acceptance.md",
+          "reference_hash": "20a0292bf5bbc90fb8d801cbdc4f99ca9a6a951d8ae886100ede387cb61032ed"
+        },
+        "review": {
+          "at": "2026-10-26T21:46:10.296042+00:00",
+          "by": "Codex same-session diff review",
+          "fingerprint": "b76a3f6013b7ac6767a739a7b79ba08f3386e30e4d44e692970b82dd51e43931",
+          "reference": "specs/windows-native/reviews/WIN-001.md",
+          "reference_hash": "c267c90d6411512745f7ad1fe684bceefa4ac1ba0165a322b947e533eb042024"
+        }
+      },
+      "dependencies": [],
+      "evidence": [
+        ".harness/evidence/186197f8-1fb3-4080-a3d5-5e6d7964153d.json",
+        ".harness/evidence/ead38d63-d8d9-48b2-8c9d-5f5d1695d35d.json",
+        ".harness/evidence/4e0145e6-0687-45c6-bbe5-9c87fafe5362.json",
+        ".harness/evidence/b0855966-5ad2-476f-8548-9e1a5ff6de0b.json",
+        ".harness/evidence/dc51d5f7-143f-49a8-93f7-191cfd2af051.json",
+        ".harness/evidence/55bba3ba-ddf3-4390-9312-4ac203bf8591.json"
+      ],
+      "execution": {
+        "baseline": {
+          ".agents/skills/adversarial-reviewer/SKILL.md": "cda98448b8098c22a34a7e434da8bd45e3339c895730a120c79da88d2af26c77",
+          ".agents/skills/bootstrap-project/SKILL.md": "b88957c3f9c3ad3a461072379573cec10de51f20105929c05d51bfcfbd071287",
+          ".agents/skills/checkpoint-and-resume/SKILL.md": "5b346158a0f7d20edf64bcbe137bcd6de19af9972167d260afd0be1e91816534",
+          ".agents/skills/debugger/SKILL.md": "84c7309d84abb8ba1bbad5a7ea0a93995f5c2450a05dcb3e6ddf3dd5476c35ef",
+          ".agents/skills/discovery/SKILL.md": "15c223a3946f44101573d924698ec03a381074d0487e76511886b90b2caf6ea4",
+          ".agents/skills/engineering-walkthrough/SKILL.md": "b1b60130dcdd7b1d35928d084cdeaa45fada61ff972140f22099f92d5757f098",
+          ".agents/skills/graph-maintainer/SKILL.md": "471f307a853e2a878240b92193a50cdc0c1a9465d7a7e7ce8a1b64ab27b384e1",
+          ".agents/skills/harness-maintainer/SKILL.md": "266ce5ed609bb34ee57cbe6cd8e41a6b319ce3467ede60b3f883a94a29d885e1",
+          ".agents/skills/implementer/SKILL.md": "f612caad188ad9a87637162d5a398a8e8436855a9efa15cd22a6a7b1afded32b",
+          ".agents/skills/llm-boundary-verifier/SKILL.md": "ea63d2ce2ff12b04b0ec8f32cfe156059fa625a58dbd412d33b99f3b90e0d974",
+          ".agents/skills/planner/SKILL.md": "ff529811a9fe9ea757b3534e19b87ed9bd9963c4066427c255703e6ef124bff5",
+          ".agents/skills/project-onboarding/SKILL.md": "17f8237a6cd291e8181050b9bb75650e6b5126adff85b83edd8a54ce1cc696fb",
+          ".agents/skills/security-reviewer/SKILL.md": "ce8d3f49c710cfaacf887eaddc58399b612d9ee544f07225f46e25f0ac815b41",
+          ".agents/skills/spec-author/SKILL.md": "196f0a2b6b7b964f32520a31d882ccb9f18cd52f801429292fe354d859c6dd33",
+          ".agents/skills/status-reporter/SKILL.md": "ea786df75e56ce21097adf41a30381482492efa340a651521cc8a9e16898fe59",
+          ".agents/skills/test-designer/SKILL.md": "6a65821fbfaadafb2fa0d9a0b9f41a34ee4a36567b3b36638f46c4851f566ab6",
+          ".agents/skills/tool-updater/SKILL.md": "eb48f4a28723892eaaf9627639c423cfecaffc94bc19b0aa2bb29c450efb42a0",
+          ".agents/skills/verifier/SKILL.md": "6c09353c1ae607a355da8a4273e21140e49b83d243b9f25dd8a8fd2357458bad",
+          ".github/workflows/verify.yml": "bba97f68d3f7a0673c01ef3f1fff44db2bdfb52c57062ad8f2459d25214b3d6f",
+          ".gitignore": "691912169fb470749f2dfea0559652c37d26d3bb53ffd2858063a77bca861cfb",
+          ".harness/checks.json": "e664d28d461760dd63f0af9f6e960a067a86a888dc1e9bf602123aa3242d0f19",
+          ".harness/environment.json": "f69e167d6a9faf09bef9553acf22a58dde4beeec70e601e716cd158cd8ba7d82",
+          ".harness/graph-config.json": "5d7ee81cdf277ac79547e7a8770b5fda19b0c1d934eabd4f60f2681dc670ef24",
+          ".harness/onboarding.json": "59a258d2fe57674e0a76d80f4e8ae56312c882b9b60ca9926f6f373d8450a7f6",
+          "AGENTS.md": "71781e88b831dc2eec20e247600f2808114777d4b2e281a384cc6d3c6e578294",
+          "CHANGELOG.md": "a06e4a1d0217e211e0c3bcce51e250d118d31ae6aed4f3726946afbd2cbccfcc",
+          "CONTRIBUTING.md": "52a976c49a1570f05cccd3278dc889edd187ae1ab932d89f66c199f5402673e5",
+          "LICENSE": "b9a3611ddea29682263a2a89113080df814ad79e91e0d1d3fc0fd86988cfd8cf",
+          "README.md": "aa40bdd39351f1b5e7cb998cf6e2e48608ed8cc3190f9e8257b935fbcab320d4",
+          "SECURITY.md": "b3877fc84bf433a722cb9dffb509f461bd32c2600019ba1d3420707aa63a244e",
+          "THIRD_PARTY_NOTICES.md": "02ac106e22b9bdecd9df0934f4e78f574469f6a11bc82879c1229f9d2267f46e",
+          "assets/cli-integrity.json": "5811b48631b7b3ff4b0379e4589bbb6d7aa4171ae5db82c05459200ef3294fb5",
+          "assets/integrity.json": "0061025cfd4d405ace81cc1d45a9e8632aebbe95b3ec557cec171dc75a7401a8",
+          "assets/kit/.agents/skills/adversarial-reviewer/SKILL.md": "cda98448b8098c22a34a7e434da8bd45e3339c895730a120c79da88d2af26c77",
+          "assets/kit/.agents/skills/bootstrap-project/SKILL.md": "b88957c3f9c3ad3a461072379573cec10de51f20105929c05d51bfcfbd071287",
+          "assets/kit/.agents/skills/checkpoint-and-resume/SKILL.md": "5b346158a0f7d20edf64bcbe137bcd6de19af9972167d260afd0be1e91816534",
+          "assets/kit/.agents/skills/debugger/SKILL.md": "84c7309d84abb8ba1bbad5a7ea0a93995f5c2450a05dcb3e6ddf3dd5476c35ef",
+          "assets/kit/.agents/skills/discovery/SKILL.md": "15c223a3946f44101573d924698ec03a381074d0487e76511886b90b2caf6ea4",
+          "assets/kit/.agents/skills/engineering-walkthrough/SKILL.md": "b1b60130dcdd7b1d35928d084cdeaa45fada61ff972140f22099f92d5757f098",
+          "assets/kit/.agents/skills/graph-maintainer/SKILL.md": "471f307a853e2a878240b92193a50cdc0c1a9465d7a7e7ce8a1b64ab27b384e1",
+          "assets/kit/.agents/skills/harness-maintainer/SKILL.md": "266ce5ed609bb34ee57cbe6cd8e41a6b319ce3467ede60b3f883a94a29d885e1",
+          "assets/kit/.agents/skills/implementer/SKILL.md": "f612caad188ad9a87637162d5a398a8e8436855a9efa15cd22a6a7b1afded32b",
+          "assets/kit/.agents/skills/llm-boundary-verifier/SKILL.md": "ea63d2ce2ff12b04b0ec8f32cfe156059fa625a58dbd412d33b99f3b90e0d974",
+          "assets/kit/.agents/skills/planner/SKILL.md": "ff529811a9fe9ea757b3534e19b87ed9bd9963c4066427c255703e6ef124bff5",
+          "assets/kit/.agents/skills/project-onboarding/SKILL.md": "17f8237a6cd291e8181050b9bb75650e6b5126adff85b83edd8a54ce1cc696fb",
+          "assets/kit/.agents/skills/security-reviewer/SKILL.md": "ce8d3f49c710cfaacf887eaddc58399b612d9ee544f07225f46e25f0ac815b41",
+          "assets/kit/.agents/skills/spec-author/SKILL.md": "196f0a2b6b7b964f32520a31d882ccb9f18cd52f801429292fe354d859c6dd33",
+          "assets/kit/.agents/skills/status-reporter/SKILL.md": "ea786df75e56ce21097adf41a30381482492efa340a651521cc8a9e16898fe59",
+          "assets/kit/.agents/skills/test-designer/SKILL.md": "6a65821fbfaadafb2fa0d9a0b9f41a34ee4a36567b3b36638f46c4851f566ab6",
+          "assets/kit/.agents/skills/tool-updater/SKILL.md": "eb48f4a28723892eaaf9627639c423cfecaffc94bc19b0aa2bb29c450efb42a0",
+          "assets/kit/.agents/skills/verifier/SKILL.md": "6c09353c1ae607a355da8a4273e21140e49b83d243b9f25dd8a8fd2357458bad",
+          "assets/kit/AGENTS.md": "71781e88b831dc2eec20e247600f2808114777d4b2e281a384cc6d3c6e578294",
+          "assets/kit/docs/ARCHITECTURE.md": "bbfa8c30c770f20ad9c1465f9070b501b4ca7b3082bd67120fdd3e65654a4cc5",
+          "assets/kit/docs/COPILOT.md": "5afb46a8aba655eca3d47bcf3e6e0ff6d421ed1ff607fb995d223dc23643c838",
+          "assets/kit/docs/DECISION_QUEUE.md": "c92e9cd64e63db6bd952a2c5ae047b9e49508dbc7327dbff26b92f50bfa21254",
+          "assets/kit/docs/HARNESS.md": "4585efb37edb5b35b1f4ccfb2a08bcad3b79851c0822d374c4212248c4a3807b",
+          "assets/kit/docs/TECH_SPEC.md": "458e94e5b5deeef4fc643f8cec90b6fa91985eb2907d7cc1802680c0c103adeb",
+          "assets/kit/docs/V02.md": "352d85590d37a66abfd2164b109f02b0232c332dad2e13386c61c0aa49c37fb7",
+          "assets/kit/docs/V03.md": "15379e10d0c584d4fe18e3422b4e7fe7f6bf8ddba27fc8288f78aaf25886e389",
+          "assets/kit/docs/adr/001-harness-hardening.md": "bfb7b6beb9c7c4d958842b7d83f0958f726c1f94846ea7a73399024df8988597",
+          "assets/kit/docs/adr/002-graphify-navigation.md": "54e146340f8ca933cf8a5d04002c3dd5ed2e2fd8e74ec04faba0e9f5df3dcce9",
+          "assets/kit/docs/adr/003-codegraph-task-context.md": "1e8524fca22006192b33840dea2caa32bf393d649e9dd497152f0de076b809d2",
+          "assets/kit/docs/adr/004-openspec-integration.md": "1af25437c6cb00bccb1aa8b268152f07270cceb58bd56d94f3f479e81ebd57c7",
+          "assets/kit/docs/adr/README.md": "d0cd809dcd343d7f56cd942dc3dab4e7de1fc33a1243cbe82487153160d029aa",
+          "assets/kit/harness": "d24e525b34492fda079d8650d6a7c67f8a899439636a4134de666de1561d58b2",
+          "assets/kit/harness.cmd": "2bd49911edb2aeffa53d0682f3ca909db82115f666e5b4311c8f698d652f82d7",
+          "assets/kit/harnesslib/__init__.py": "1847e4ec3fc690ab3069c63e2ddeaf117788dafda9674b86c078c309d244d9fc",
+          "assets/kit/harnesslib/adopt.py": "ac2d68836bb73478402273598bb1305c770e421ecd1a8035ed92b97acf3be36a",
+          "assets/kit/harnesslib/assessment.py": "061a1919a3e62d07db93b33914c40161c1aa8a7a90099cf1aeba02b5f573b907",
+          "assets/kit/harnesslib/cli.py": "1216648377583b4259f68bf39a8f16f508054362684b7d1f87f24657a13cbcd4",
+          "assets/kit/harnesslib/codegraph_tool.py": "6372ae66024426a83664e81a1f4b5dd6883807f7c7375d06e7e74b84abe0a1bb",
+          "assets/kit/harnesslib/core.py": "d832f056594271599e4621cb88288367f2b81837ff68e4a951d3f35ae56ac81a",
+          "assets/kit/harnesslib/graph.py": "ebb47dbc4b4bb78b3643fd028a7145175d8e2e5026a254fd66d68c4358d0925f",
+          "assets/kit/harnesslib/graphify_tool.py": "4d0ec0a01619810e48b97656767666a37e4ff4f54c5f696e5baaeb29c495d4a3",
+          "assets/kit/harnesslib/index_context.py": "c36747097eff7fc91903970341d715e379a64c98944563e7d6ba53d7a4cff1b3",
+          "assets/kit/harnesslib/installation.py": "695bbbe5bde5d28a71e602732e334c0fb2c83abd2c83a29e6a6b84012a468045",
+          "assets/kit/harnesslib/investigation.py": "d3f741d5c5ccb262b2e07794511a6f53d74379c95301401fa85ed593123b10d5",
+          "assets/kit/harnesslib/openspec_tool.py": "8f8d5d278c2b3e57baa8ea894773197b6ec09f186a64ddd9d837d1bcea022d6e",
+          "assets/kit/harnesslib/processes.py": "b4bf5cc719eaee924e03003b2c959fd53b36106dd6ae84581cfe4a587130f42c",
+          "assets/kit/harnesslib/protocol.py": "b3e971496b3c23fc4f82c612ec4cfbd5691dd8fe47949f3e56dfc4a0d7816390",
+          "assets/kit/harnesslib/readiness.py": "d2f9d4b4dc13097d8843450a27787d7d69a7ab045ea3184fdcafb845cb667c48",
+          "assets/kit/harnesslib/reconciliation.py": "cb0f908c8895ed3e653930dddb8995907fea8fbc410a58291866ef6ee41bcfcc",
+          "assets/kit/harnesslib/reporting.py": "7bf91fcd642a64976e168379a018bc2d27c997647e2638723755aa9d68b59bd0",
+          "assets/kit/harnesslib/runner.py": "486d3b49151ec3cfea377d8af99b774214590795122dad14b1cbaeaf5bb0cb61",
+          "assets/kit/harnesslib/runtime.py": "0e05426854b98375b3023562d5dd1eb9f71501f63eb84d2b93d7bc88ce2d0efd",
+          "assets/kit/harnesslib/skills.py": "c5e8249f47a1eb79e5bbd4f7de248803d84380f22dff51b6166e3527bbd55b93",
+          "assets/kit/harnesslib/storage.py": "16e5d697c560882e02a8e7fa6d19589826d828afd6d71856a969a560b9bf2d37",
+          "assets/kit/harnesslib/tool_paths.py": "a4ab7775f1d8c9fc832395e96440896d103f85cc1716cb9aae5665d826d1049e",
+          "assets/kit/harnesslib/tool_updates.py": "12982e23b9eb1bbcf7cf123004f651cfb502a1733c536feaf03854462ceb64a4",
+          "assets/kit/harnesslib/verification.py": "6cce77e50167f1d9a2b08d302bb2a5d69bf8e4dbbb6a57f7274e9f8e8a7619e6",
+          "assets/kit/harnesslib/workflow.py": "e8c0ab5eeb1c24c5f4d51f0a22cb9339cbae5a65381d5b88077d8f6deed15110",
+          "assets/kit/install.ps1": "55bc1dc152e1212d501286bb591bd8321e4c300566890a68acc1f785378b6389",
+          "assets/kit/install.sh": "1649435e04a759ac59e4a9c925e886a1e6db232a475ccea20c02e4d210ba7bf7",
+          "assets/kit/schemas/checks.schema.json": "302a8775cc642178af320b55c7e874e745344557d65dcae0482fd9afac479dc9",
+          "assets/kit/schemas/engine-protocol.schema.json": "44f3e4d33faa62e7dd026f758bd626003764c3b45dc8d8653c38176a3eefa71a",
+          "assets/kit/schemas/event.schema.json": "4ad040eab9d95f824171e4cec6d92ff454a9e5a2fb8fcf30c20267a4527fce8d",
+          "assets/kit/schemas/evidence.schema.json": "9b5c3dbbf772a67a4503ebddab643b32a97994436496dc1b10b428ff4920d60a",
+          "assets/kit/schemas/graph-config.schema.json": "649ad7b5bf5c14e7ce25c9d8d0a41d1d0965611e1700630063917e73b0e64d51",
+          "assets/kit/schemas/graph.schema.json": "b2387f99a3df89197eae155a81e34574ac61f755459b4a9113eb70f7afdd88de",
+          "assets/kit/schemas/investigation-policy.schema.json": "684b7d3dd89d9aa833bf7d3c2d2443010ba09b5f9393aead3782031edb380076",
+          "assets/kit/schemas/investigation.schema.json": "e0de2a7e4bbb590a11e99e7a6c4ba143dfd7b32eaed136cf56ae53bdde3adeb8",
+          "assets/kit/schemas/onboarding.schema.json": "5807e549860db4bbe4a1328e41cae300d7285cdf52cbcd663a31648966d41bea",
+          "assets/kit/schemas/reconciliation.schema.json": "9dfaa0c9dfe7b85b6b413a9d8f518027dd90e15fb0bf3100d69842f63f37765d",
+          "assets/kit/schemas/review.schema.json": "9320e484dde92effa1d0cacd8d58b974519bad8825ade0effcca1a6c49fcd836",
+          "assets/kit/schemas/runner-state.schema.json": "708b82476dca1f85fafae91fbfd6c41eaaa481716d6c9894e37b73cf6f47accd",
+          "assets/kit/schemas/runner.schema.json": "7065c57c0affc61ed46469c6b06272944e6f9b1b6007548bdb6a8c987de1eae6",
+          "assets/kit/schemas/state.schema.json": "36f76fc22a12c143e14dfa0090ba21cb0a554badb85a924a8c9bd043e4e094ee",
+          "assets/kit/schemas/tasks.schema.json": "d37873814f4247b9661def8d6666c17bb123f7c13ee1987842f77209f033d1a3",
+          "assets/kit/scripts/python.ps1": "f1f441f6d9b213f006f7d0b13c7272a3ee7aee00e76d9efbd6a37a2e2523dc04",
+          "assets/kit/scripts/python.sh": "9651890ac37bef55275ccb72b2f151dcb460d7196535420dab423b96e85cd11a",
+          "assets/kit/scripts/update-tools.py": "d19d9a9622de6828f2157d07b8f414d32ea8f34ec2233caf5d13ad633fbd09d2",
+          "assets/kit/templates/adr.md": "570382142eb0f06b4f6c0ad72a1b091c75b99f1054eb731f9929d0687c376043",
+          "assets/kit/templates/agent-entrypoints/bootstrap.md": "be46d020161b9617505d77eabbcc02ba5a3a5ad8b962603d37b293cd6c290751",
+          "assets/kit/templates/agent-entrypoints/claude.md": "b4dbf4a242464cfcff894f743153bfa0e9ecd9726c56d026166ac28c29468fcd",
+          "assets/kit/templates/agent-entrypoints/codex.md": "dccd8cfd4904e9d1374c72a6aa596bca14bc967f2bc1e20f3862acecfae60bf0",
+          "assets/kit/templates/agent-entrypoints/copilot.md": "ee673d1637b74ade70f14fa5fbb2dfad9da04445c40869cbf78d133979a38b4e",
+          "assets/kit/templates/feature/plan.md": "c737f38538d9d6a951a4ed1f8ad69b41b39fcfb041f7384325ecb181d35e419c",
+          "assets/kit/templates/feature/spec.md": "3650b953af491ce3cf6ee2a105cd90add66b9934be47d1426bec4498e6f4a7fb",
+          "assets/kit/templates/feature/tasks.json": "397949f31981008b5d4d37ea6702ac520acf9001fced87e1b882536151648c88",
+          "assets/kit/templates/feature/verification.md": "e5c4862a98039b0a646843b0527ef78acf81c193fff376db5dc42eea9c723efd",
+          "assets/kit/templates/onboarding.json": "792d9231268267ff1dc9da0aa1e49a968bff159c3f62c684794097febdee81ec",
+          "assets/kit/templates/runner.json": "e840891e581ccc79b845e476cc5fd6f9fb476fa9b3432b328e314da9c505e389",
+          "assets/kit/tests/test_adopt_bootstrap.py": "7f384d2be88de5f4b09064e3f677125981871c74c5465bf7b1149ccaa2f8e9eb",
+          "assets/kit/tests/test_assessment.py": "156068c52da2a569aef2bac8e5b5b0a0a0826774976c7580be06ca5cc30215df",
+          "assets/kit/tests/test_codegraph_tool.py": "d9882c85fad88a87352ea981a3b026ea867c402f2a131707cca60a80d9c34292",
+          "assets/kit/tests/test_graphify_tool.py": "8ddf8f7177f44d364fd945406ce34efd75c07780bd13a71a7383fc089296fdc8",
+          "assets/kit/tests/test_hardening.py": "e250473a6a8511233af041c0a8337ddae1c8ad83803e848d4cc51e9e7ebfbeea",
+          "assets/kit/tests/test_harness.py": "e1d78fca5e31f59038547bb529536ddabca2fbc6cb3814be7bb3f4781210769e",
+          "assets/kit/tests/test_installation.py": "37ac72fe4ebc54e3b395f4d3e29462d92e8d59e4b88b74642b6cd1324271b273",
+          "assets/kit/tests/test_investigation.py": "41d2a0a5a00a462ccf09ea3ede38d114da05b3fc0b1a07975109abbe702c909a",
+          "assets/kit/tests/test_onboarding.py": "b0945408157f737a0b458b702047b145a504cf2c3171038b5b24ac0a066a319b",
+          "assets/kit/tests/test_openspec.py": "5abbcd596bafa553818df957b328406031eeb886284db1c50cb893ab822fd634",
+          "assets/kit/tests/test_protocol.py": "373f82eece476dc47b9b443b02b1c9e6b189b6eda154f0edfb6cbe9b0a76eeb3",
+          "assets/kit/tests/test_reconciliation.py": "ba53d1963e974506724a55874bf2279b3a7f6b79a61e4869f1e4a3915823755a",
+          "assets/kit/tests/test_reporting.py": "5861ad07ac98590434b87cde12650123bf4b74eed69e48b0257afa6e412980e6",
+          "assets/kit/tests/test_tool_updates.py": "0b8ca03444ceb5b104d2a408e71f81b2e2e84e42e608d9e3b3c97f3bffa56b00",
+          "assets/kit/tests/test_workflow.py": "e69d078118ff1611623a3b8ed09c7395441dfeba8bc1dfe15fd750a1cbd925e2",
+          "docs/ARCHITECTURE.md": "bbfa8c30c770f20ad9c1465f9070b501b4ca7b3082bd67120fdd3e65654a4cc5",
+          "docs/COPILOT.md": "5afb46a8aba655eca3d47bcf3e6e0ff6d421ed1ff607fb995d223dc23643c838",
+          "docs/DECISION_QUEUE.md": "c92e9cd64e63db6bd952a2c5ae047b9e49508dbc7327dbff26b92f50bfa21254",
+          "docs/HARNESS.md": "4585efb37edb5b35b1f4ccfb2a08bcad3b79851c0822d374c4212248c4a3807b",
+          "docs/TECH_SPEC.md": "458e94e5b5deeef4fc643f8cec90b6fa91985eb2907d7cc1802680c0c103adeb",
+          "docs/V02.md": "352d85590d37a66abfd2164b109f02b0232c332dad2e13386c61c0aa49c37fb7",
+          "docs/V03.md": "15379e10d0c584d4fe18e3422b4e7fe7f6bf8ddba27fc8288f78aaf25886e389",
+          "docs/WINDOWS_NATIVE_PLAN.md": "607493f0faf4d3cd8364d7203e540960d5c91c631adf9a07d9b35ef9b8aca8b2",
+          "docs/adr/001-harness-hardening.md": "bfb7b6beb9c7c4d958842b7d83f0958f726c1f94846ea7a73399024df8988597",
+          "docs/adr/002-graphify-navigation.md": "54e146340f8ca933cf8a5d04002c3dd5ed2e2fd8e74ec04faba0e9f5df3dcce9",
+          "docs/adr/003-codegraph-task-context.md": "1e8524fca22006192b33840dea2caa32bf393d649e9dd497152f0de076b809d2",
+          "docs/adr/004-openspec-integration.md": "1af25437c6cb00bccb1aa8b268152f07270cceb58bd56d94f3f479e81ebd57c7",
+          "docs/adr/README.md": "d0cd809dcd343d7f56cd942dc3dab4e7de1fc33a1243cbe82487153160d029aa",
+          "harness": "d24e525b34492fda079d8650d6a7c67f8a899439636a4134de666de1561d58b2",
+          "harness.cmd": "2bd49911edb2aeffa53d0682f3ca909db82115f666e5b4311c8f698d652f82d7",
+          "harnesslib/__init__.py": "1847e4ec3fc690ab3069c63e2ddeaf117788dafda9674b86c078c309d244d9fc",
+          "harnesslib/adopt.py": "ac2d68836bb73478402273598bb1305c770e421ecd1a8035ed92b97acf3be36a",
+          "harnesslib/assessment.py": "061a1919a3e62d07db93b33914c40161c1aa8a7a90099cf1aeba02b5f573b907",
+          "harnesslib/cli.py": "1216648377583b4259f68bf39a8f16f508054362684b7d1f87f24657a13cbcd4",
+          "harnesslib/codegraph_tool.py": "6372ae66024426a83664e81a1f4b5dd6883807f7c7375d06e7e74b84abe0a1bb",
+          "harnesslib/core.py": "c581d939d33428a873e6e1563e3190f5beb3df2017c99e75d3ded8a7b4cd6281",
+          "harnesslib/graph.py": "ebb47dbc4b4bb78b3643fd028a7145175d8e2e5026a254fd66d68c4358d0925f",
+          "harnesslib/graphify_tool.py": "4d0ec0a01619810e48b97656767666a37e4ff4f54c5f696e5baaeb29c495d4a3",
+          "harnesslib/index_context.py": "c36747097eff7fc91903970341d715e379a64c98944563e7d6ba53d7a4cff1b3",
+          "harnesslib/installation.py": "695bbbe5bde5d28a71e602732e334c0fb2c83abd2c83a29e6a6b84012a468045",
+          "harnesslib/investigation.py": "d3f741d5c5ccb262b2e07794511a6f53d74379c95301401fa85ed593123b10d5",
+          "harnesslib/openspec_tool.py": "8f8d5d278c2b3e57baa8ea894773197b6ec09f186a64ddd9d837d1bcea022d6e",
+          "harnesslib/processes.py": "b4bf5cc719eaee924e03003b2c959fd53b36106dd6ae84581cfe4a587130f42c",
+          "harnesslib/protocol.py": "b3e971496b3c23fc4f82c612ec4cfbd5691dd8fe47949f3e56dfc4a0d7816390",
+          "harnesslib/readiness.py": "d2f9d4b4dc13097d8843450a27787d7d69a7ab045ea3184fdcafb845cb667c48",
+          "harnesslib/reconciliation.py": "cb0f908c8895ed3e653930dddb8995907fea8fbc410a58291866ef6ee41bcfcc",
+          "harnesslib/reporting.py": "7bf91fcd642a64976e168379a018bc2d27c997647e2638723755aa9d68b59bd0",
+          "harnesslib/runner.py": "486d3b49151ec3cfea377d8af99b774214590795122dad14b1cbaeaf5bb0cb61",
+          "harnesslib/runtime.py": "0e05426854b98375b3023562d5dd1eb9f71501f63eb84d2b93d7bc88ce2d0efd",
+          "harnesslib/skills.py": "c5e8249f47a1eb79e5bbd4f7de248803d84380f22dff51b6166e3527bbd55b93",
+          "harnesslib/storage.py": "16e5d697c560882e02a8e7fa6d19589826d828afd6d71856a969a560b9bf2d37",
+          "harnesslib/tool_paths.py": "a4ab7775f1d8c9fc832395e96440896d103f85cc1716cb9aae5665d826d1049e",
+          "harnesslib/tool_updates.py": "12982e23b9eb1bbcf7cf123004f651cfb502a1733c536feaf03854462ceb64a4",
+          "harnesslib/verification.py": "6cce77e50167f1d9a2b08d302bb2a5d69bf8e4dbbb6a57f7274e9f8e8a7619e6",
+          "harnesslib/workflow.py": "e8c0ab5eeb1c24c5f4d51f0a22cb9339cbae5a65381d5b88077d8f6deed15110",
+          "install.ps1": "55bc1dc152e1212d501286bb591bd8321e4c300566890a68acc1f785378b6389",
+          "install.sh": "1649435e04a759ac59e4a9c925e886a1e6db232a475ccea20c02e4d210ba7bf7",
+          "package-lock.json": "fc3da7f6f382b4a8dbbe0f13d601074db95d1b3e75fa2a2ac018b55c314dbdd4",
+          "package.json": "83ad6bf0ce8652180c1bfbc6b7a29f8c7e53e94190cd168f6bda8f816c8ed290",
+          "schemas/checks.schema.json": "302a8775cc642178af320b55c7e874e745344557d65dcae0482fd9afac479dc9",
+          "schemas/engine-protocol.schema.json": "44f3e4d33faa62e7dd026f758bd626003764c3b45dc8d8653c38176a3eefa71a",
+          "schemas/event.schema.json": "4ad040eab9d95f824171e4cec6d92ff454a9e5a2fb8fcf30c20267a4527fce8d",
+          "schemas/evidence.schema.json": "9b5c3dbbf772a67a4503ebddab643b32a97994436496dc1b10b428ff4920d60a",
+          "schemas/graph-config.schema.json": "649ad7b5bf5c14e7ce25c9d8d0a41d1d0965611e1700630063917e73b0e64d51",
+          "schemas/graph.schema.json": "b2387f99a3df89197eae155a81e34574ac61f755459b4a9113eb70f7afdd88de",
+          "schemas/investigation-policy.schema.json": "684b7d3dd89d9aa833bf7d3c2d2443010ba09b5f9393aead3782031edb380076",
+          "schemas/investigation.schema.json": "e0de2a7e4bbb590a11e99e7a6c4ba143dfd7b32eaed136cf56ae53bdde3adeb8",
+          "schemas/onboarding.schema.json": "5807e549860db4bbe4a1328e41cae300d7285cdf52cbcd663a31648966d41bea",
+          "schemas/reconciliation.schema.json": "9dfaa0c9dfe7b85b6b413a9d8f518027dd90e15fb0bf3100d69842f63f37765d",
+          "schemas/review.schema.json": "9320e484dde92effa1d0cacd8d58b974519bad8825ade0effcca1a6c49fcd836",
+          "schemas/runner-state.schema.json": "708b82476dca1f85fafae91fbfd6c41eaaa481716d6c9894e37b73cf6f47accd",
+          "schemas/runner.schema.json": "7065c57c0affc61ed46469c6b06272944e6f9b1b6007548bdb6a8c987de1eae6",
+          "schemas/state.schema.json": "36f76fc22a12c143e14dfa0090ba21cb0a554badb85a924a8c9bd043e4e094ee",
+          "schemas/tasks.schema.json": "d37873814f4247b9661def8d6666c17bb123f7c13ee1987842f77209f033d1a3",
+          "scripts/benchmark-workflow.py": "761b953057afa7843f27f6f68893a87be598e14982e033dcab7bd359713a2bfe",
+          "scripts/build-assets.mjs": "4cbecaa92f79d0aa1a961c6a173d6ce8e5c9435e1d47dcdf32b73fa1962d8a57",
+          "scripts/copilot-e2e-fixture.mjs": "d29ee56a8baa21576213dc9dfe65944f38fbbcafed35adad5f318144dce30357",
+          "scripts/python.ps1": "f1f441f6d9b213f006f7d0b13c7272a3ee7aee00e76d9efbd6a37a2e2523dc04",
+          "scripts/python.sh": "9651890ac37bef55275ccb72b2f151dcb460d7196535420dab423b96e85cd11a",
+          "scripts/test-codex-e2e.mjs": "20759aef5df0f57c14a10ffd2fc9531c84194a1568d9556bf2b395ed1fbb2e9e",
+          "scripts/test-copilot-e2e.mjs": "6c84f42baeaa73c996e43b4954e973d06d618b762ba47746c327cc49c4cc503c",
+          "scripts/test-package.mjs": "7e547920a7f0b2c051b59f0d40e8420f9cd80c79d1a08cfa861dad5ea2414b68",
+          "scripts/test-upgrade.mjs": "54147acddfedb4db2b1815a58b7964169804e6fc3bcedbf90430b13391782369",
+          "scripts/test-wizard.py": "981375a90bde135abccfe243ea2b1ddcb93d98b4eaf0507043e09ecf16d8bfc6",
+          "scripts/update-tools.py": "d19d9a9622de6828f2157d07b8f414d32ea8f34ec2233caf5d13ad633fbd09d2",
+          "specs/windows-native/plan.md": "dca809de25101a94e6a768a14f8d360f5d834b39820b9aa2a55d4c4790b2b5b2",
+          "specs/windows-native/spec.md": "dca809de25101a94e6a768a14f8d360f5d834b39820b9aa2a55d4c4790b2b5b2",
+          "specs/windows-native/tasks.json": "3bbe396cb720c573d94ebed684579397562c04a263fe35c8fbe75b6625e73074",
+          "src/cli.ts": "e6386b8fb33414d3acf6a2c365714e3c83e7b9dbee7733270218624fd7b6e09e",
+          "src/copilot.ts": "afa476d4f4bb81601feb2c3f5b941c4140c66385ad4629f01a7360f259f5df8c",
+          "src/core.ts": "b6756f165167208612b6e425f66ff2f3eb5437ac25d64b181b12f59d84c37ec8",
+          "src/doctor.ts": "02db2ffe4ed3ac747a525c0cc63e0c230cc8d215abdf893b35f2ec96ba9c35d5",
+          "src/engine.ts": "a667d2c716d47dd14e277405234aaae7b81d75c961061b747a9a012ee98bbcbb",
+          "src/filesystem.ts": "fb1eee8ffb5d33c2770bbbb6a73f077178f2bceefb45291441d91321aec80150",
+          "src/install.ts": "df875a9fbce98b30febde3f64d7538bced051de02474cceac440f260bb9271b6",
+          "src/integrations.ts": "03ed6ec930579729cc6d7391b6d515104f617a89c17d59f32e7e699cd586ca42",
+          "src/migrations.ts": "4f2cafc20734beed7ddde16834f33659135ee9320d4d8aec7f8de3d24a5dcdc0",
+          "src/upgrade.ts": "c95ff11d88ac9f17668c79bcb17be28452e23a2e7867e173a3f76918198fdb30",
+          "templates/adr.md": "570382142eb0f06b4f6c0ad72a1b091c75b99f1054eb731f9929d0687c376043",
+          "templates/agent-entrypoints/bootstrap.md": "be46d020161b9617505d77eabbcc02ba5a3a5ad8b962603d37b293cd6c290751",
+          "templates/agent-entrypoints/claude.md": "b4dbf4a242464cfcff894f743153bfa0e9ecd9726c56d026166ac28c29468fcd",
+          "templates/agent-entrypoints/codex.md": "dccd8cfd4904e9d1374c72a6aa596bca14bc967f2bc1e20f3862acecfae60bf0",
+          "templates/agent-entrypoints/copilot.md": "ee673d1637b74ade70f14fa5fbb2dfad9da04445c40869cbf78d133979a38b4e",
+          "templates/feature/plan.md": "c737f38538d9d6a951a4ed1f8ad69b41b39fcfb041f7384325ecb181d35e419c",
+          "templates/feature/spec.md": "3650b953af491ce3cf6ee2a105cd90add66b9934be47d1426bec4498e6f4a7fb",
+          "templates/feature/tasks.json": "397949f31981008b5d4d37ea6702ac520acf9001fced87e1b882536151648c88",
+          "templates/feature/verification.md": "e5c4862a98039b0a646843b0527ef78acf81c193fff376db5dc42eea9c723efd",
+          "templates/onboarding.json": "792d9231268267ff1dc9da0aa1e49a968bff159c3f62c684794097febdee81ec",
+          "templates/runner.json": "e840891e581ccc79b845e476cc5fd6f9fb476fa9b3432b328e314da9c505e389",
+          "tests-node/copilot-fixture.test.mjs": "817f174967208aac3e4f8a8352c311fb62a13ac426a13eb741adcab3486c7aeb",
+          "tests-node/copilot.test.mjs": "e9f3002ccd7b353e961a7477e8713cb8e4bb8fc4b84fd29a7100906653f8b692",
+          "tests-node/engine-upgrade.test.mjs": "bde8f137b35887fd921b3ae917e651214f025fe5f4fd17f0c0017d0f75736b53",
+          "tests-node/preflight.test.mjs": "cf0521a8455460f84c2a87fce21a3dae37637726aa5ab9407f01429f4a93d40b",
+          "tests-node/product.test.mjs": "1318f9b6e9e6d38fcd0def49409824cd7dd7f8824940fe6ada37647bcab3d777",
+          "tests-node/windows.test.mjs": "e0fd0e8fa3c1d1856f165cff17e961bae3d368f3f06315c18ec9a474f7bf0491",
+          "tests-node/workflow.test.mjs": "ddec719a30163f3e98abd183837158862c632d1fb94b8817e81a654a493569cd",
+          "tests/test_adopt_bootstrap.py": "7f384d2be88de5f4b09064e3f677125981871c74c5465bf7b1149ccaa2f8e9eb",
+          "tests/test_assessment.py": "156068c52da2a569aef2bac8e5b5b0a0a0826774976c7580be06ca5cc30215df",
+          "tests/test_codegraph_tool.py": "d9882c85fad88a87352ea981a3b026ea867c402f2a131707cca60a80d9c34292",
+          "tests/test_graphify_tool.py": "8ddf8f7177f44d364fd945406ce34efd75c07780bd13a71a7383fc089296fdc8",
+          "tests/test_hardening.py": "e250473a6a8511233af041c0a8337ddae1c8ad83803e848d4cc51e9e7ebfbeea",
+          "tests/test_harness.py": "e1d78fca5e31f59038547bb529536ddabca2fbc6cb3814be7bb3f4781210769e",
+          "tests/test_installation.py": "37ac72fe4ebc54e3b395f4d3e29462d92e8d59e4b88b74642b6cd1324271b273",
+          "tests/test_investigation.py": "41d2a0a5a00a462ccf09ea3ede38d114da05b3fc0b1a07975109abbe702c909a",
+          "tests/test_onboarding.py": "b0945408157f737a0b458b702047b145a504cf2c3171038b5b24ac0a066a319b",
+          "tests/test_openspec.py": "5abbcd596bafa553818df957b328406031eeb886284db1c50cb893ab822fd634",
+          "tests/test_protocol.py": "373f82eece476dc47b9b443b02b1c9e6b189b6eda154f0edfb6cbe9b0a76eeb3",
+          "tests/test_reconciliation.py": "ba53d1963e974506724a55874bf2279b3a7f6b79a61e4869f1e4a3915823755a",
+          "tests/test_reporting.py": "5861ad07ac98590434b87cde12650123bf4b74eed69e48b0257afa6e412980e6",
+          "tests/test_tool_updates.py": "0b8ca03444ceb5b104d2a408e71f81b2e2e84e42e608d9e3b3c97f3bffa56b00",
+          "tests/test_workflow.py": "e69d078118ff1611623a3b8ed09c7395441dfeba8bc1dfe15fd750a1cbd925e2",
+          "tsconfig.json": "26736858b35508f8808647cd7dc54d370b9b6fa544374cbad5b6b04f379f2610"
+        },
+        "definition": "cc05e346b5a2872c909a5e46e700faa7766aa3a7887c6af2533623b097956915",
+        "policy_baseline": {
+          ".harness/checks.json": "67d44c23ea11296f97ac97b325608519a364be295f4b922614c8890ea055b743",
+          ".harness/environment.json": "f69e167d6a9faf09bef9553acf22a58dde4beeec70e601e716cd158cd8ba7d82",
+          ".harness/graph-config.json": "5d7ee81cdf277ac79547e7a8770b5fda19b0c1d934eabd4f60f2681dc670ef24",
+          ".harness/onboarding.json": "59a258d2fe57674e0a76d80f4e8ae56312c882b9b60ca9926f6f373d8450a7f6",
+          "docs/ARCHITECTURE.md": "bbfa8c30c770f20ad9c1465f9070b501b4ca7b3082bd67120fdd3e65654a4cc5",
+          "docs/DECISION_QUEUE.md": "c92e9cd64e63db6bd952a2c5ae047b9e49508dbc7327dbff26b92f50bfa21254",
+          "docs/HARNESS_PERFORMANCE_PLAN.md": "13468bba2068f568a9ae10157a290165560d789bca5165962827529434c037a0",
+          "docs/TECH_SPEC.md": "458e94e5b5deeef4fc643f8cec90b6fa91985eb2907d7cc1802680c0c103adeb",
+          "docs/WINDOWS_NATIVE_FOLLOWUP.md": "35f4157b86982a5400b591e0dd212cd1f8dbdbd253f899b078a45a51f92bb2eb",
+          "docs/WINDOWS_NATIVE_PLAN.md": "3b75ea5bee4284b3eff07814173db6d09db6feba6bc69df3fbd456d18573e642",
+          "specs/windows-native/plan.md": "96f3e8ac93c70a5e7bce135ccd67565cacfe3a12403e18f591c115a10e13508a",
+          "specs/windows-native/spec.md": "96f3e8ac93c70a5e7bce135ccd67565cacfe3a12403e18f591c115a10e13508a",
+          "specs/windows-native/tasks.json": "7ec6eadd196625a49d33c3330cbc4cf86a87b6d5b6c4c4fe16fa76a7be21c606"
+        }
+      },
+      "failure_scenarios": [
+        "Concurrent writes",
+        "Interrupted setup or transaction",
+        "Missing or incompatible tools",
+        "Paths with spaces and Unicode",
+        "Timed-out descendants"
+      ],
+      "history": [
+        {
+          "at": "2026-10-26T17:46:54.322562+02:00",
+          "from": "TODO",
+          "reason": "Started approved task",
+          "to": "IN_PROGRESS"
+        },
+        {
+          "at": "2026-10-26T18:16:41.455277+02:00",
+          "from": "IN_PROGRESS",
+          "reason": "Separate review found native path, environment and OpenSpec command-resolution issues; fixes are within approved revision 1. Align execution check mappings with that approved plan.",
+          "to": "REWORK"
+        },
+        {
+          "at": "2026-10-26T18:19:36.97002+02:00",
+          "from": "REWORK",
+          "reason": "Started approved task",
+          "to": "IN_PROGRESS"
+        },
+        {
+          "at": "2026-10-26T18:19:50.615442+02:00",
+          "from": "IN_PROGRESS",
+          "reason": "Approved native Windows implementation and review fixes are present. Focused tests pass; required verification still must run.",
+          "to": "IMPLEMENTED"
+        },
+        {
+          "at": "2026-10-26T18:21:09.930631+02:00",
+          "from": "IMPLEMENTED",
+          "reason": "Native junction probe reproduced external fixture traversal in the existing navigation inventory. Preserve the existing no-link boundary for Windows reparse points before verification.",
+          "to": "REWORK"
+        },
+        {
+          "at": "2026-10-26T18:24:12.49537+02:00",
+          "from": "REWORK",
+          "reason": "Started approved task",
+          "to": "IN_PROGRESS"
+        },
+        {
+          "at": "2026-10-26T18:31:29.988172+02:00",
+          "from": "IN_PROGRESS",
+          "reason": "Native platform implementation, packaging and junction review fix complete; required verification pending.",
+          "to": "IMPLEMENTED"
+        },
+        {
+          "at": "2026-10-26T18:41:20.96317+02:00",
+          "from": "IMPLEMENTED",
+          "reason": "Recorded verification found full-suite environment blockers. Correct the separately reproduced Windows mixed-case Path discovery issue before final re-verification.",
+          "to": "REWORK"
+        },
+        {
+          "at": "2026-10-26T18:42:39.735175+02:00",
+          "from": "REWORK",
+          "reason": "Started approved task",
+          "to": "IN_PROGRESS"
+        },
+        {
+          "at": "2026-10-26T18:43:02.069434+02:00",
+          "from": "IN_PROGRESS",
+          "reason": "Final native Windows environment casing correction and regression test added; prior verification passed type, Node and index checks but full self-tests exceeded the unchanged timeout.",
+          "to": "IMPLEMENTED"
+        },
+        {
+          "at": "2026-10-26T19:04:38.493094+02:00",
+          "from": "IMPLEMENTED",
+          "reason": "The final native Node run exposed a test-only case-sensitive comparison of node.EXE versus node.exe; compare canonical file paths on Windows.",
+          "to": "REWORK"
+        },
+        {
+          "at": "2026-10-26T19:05:48.550041+02:00",
+          "from": "REWORK",
+          "reason": "Started approved task",
+          "to": "IN_PROGRESS"
+        },
+        {
+          "at": "2026-10-26T19:06:09.420409+02:00",
+          "from": "IN_PROGRESS",
+          "reason": "Final Windows test compares canonical executable paths; all five affected native launcher tests pass.",
+          "to": "IMPLEMENTED"
+        },
+        {
+          "at": "2026-10-26T21:16:19.786407+02:00",
+          "from": "IMPLEMENTED",
+          "reason": "Required full suite exceeds its unchanged timeout and file-symlink fixtures require unavailable Windows privilege; current full verification remains pending.",
+          "to": "BLOCKED"
+        },
+        {
+          "at": "2026-10-26T19:24:55.228241+00:00",
+          "from": "BLOCKED",
+          "reason": "Started approved task",
+          "to": "IN_PROGRESS"
+        },
+        {
+          "at": "2026-10-26T19:42:25.125266+00:00",
+          "from": "IN_PROGRESS",
+          "reason": "Approved follow-up implemented: explicit symlink capability policy with strict CI, verified uv fallback and isolated no-Python bootstrap, complete-suite time budget aligned across source and package checks.",
+          "to": "IMPLEMENTED"
+        },
+        {
+          "at": "2026-10-26T20:14:11.046936+00:00",
+          "from": "IMPLEMENTED",
+          "reason": "Interrupted duplicate long full-suite runs after latency feedback; isolated reproduction confirms POSIX mode fixture mismatch and stripped essential Windows child environment. Fix bounded cases before another full run.",
+          "to": "REWORK"
+        },
+        {
+          "at": "2026-10-26T20:33:34.098306+00:00",
+          "from": "REWORK",
+          "reason": "Bounded Windows corrections pass and full native installation passes. Current full verification remains incomplete; developer requested performance mitigation and the concrete architecture plan in docs/HARNESS_PERFORMANCE_PLAN.md awaits explicit approval.",
+          "to": "BLOCKED"
+        },
+        {
+          "at": "2026-10-26T20:38:14.780014+00:00",
+          "from": "BLOCKED",
+          "reason": "Started approved task",
+          "to": "IN_PROGRESS"
+        },
+        {
+          "at": "2026-10-26T21:05:24.470869+00:00",
+          "from": "IN_PROGRESS",
+          "reason": "Approved native fixes and performance slice implemented; three-sample targets and bounded safety/CLI regressions pass. Frozen assets/indexes are current; full verification pending.",
+          "to": "IMPLEMENTED"
+        },
+        {
+          "at": "2026-10-26T21:10:24.998523+00:00",
+          "from": "IMPLEMENTED",
+          "reason": "Active-test progress publication required a correction before complete stable verification.",
+          "to": "REWORK"
+        },
+        {
+          "at": "2026-10-26T21:10:31.320467+00:00",
+          "from": "REWORK",
+          "reason": "Started approved task",
+          "to": "IN_PROGRESS"
+        },
+        {
+          "at": "2026-10-26T21:13:50.909577+00:00",
+          "from": "IN_PROGRESS",
+          "reason": "Final active-test progress correction passes its regression; optimized snapshots, batching and stable assets/indexes are ready for complete verification.",
+          "to": "IMPLEMENTED"
+        },
+        {
+          "at": "2026-10-26T21:45:59.022806+00:00",
+          "from": "IMPLEMENTED",
+          "reason": "Current stable required run PASS for all five checks and eleven criteria; native archive consumer smoke and separate final diff review completed.",
+          "to": "VERIFIED"
+        },
+        {
+          "at": "2026-10-26T21:54:23.477519+00:00",
+          "from": "VERIFIED",
+          "reason": "Developer explicitly accepted completion after current PASS verification and recorded review; subsequent minor version bump and push authorized.",
+          "to": "DONE"
+        }
+      ],
+      "id": "WIN-001",
+      "next_action": "Choose the next approved task.",
+      "outcome": "Run the harness natively on Windows x64 without WSL or Bash while preserving existing gates.",
+      "required_checks": [
+        "harness-validate",
+        "harness-tests",
+        "native-typecheck",
+        "native-node",
+        "native-indexes"
+      ],
+      "requirements": [
+        "WIN-001",
+        "WIN-002",
+        "WIN-003",
+        "WIN-004",
+        "WIN-005",
+        "WIN-006",
+        "WIN-007",
+        "PERF-001",
+        "PERF-002",
+        "PERF-003",
+        "PERF-004"
+      ],
+      "risk": "high",
+      "scope": [
+        "docs/",
+        "harnesslib/",
+        "tests/",
+        "tests-node/",
+        "assets/",
+        "src/engine.ts",
+        "src/doctor.ts",
+        "src/integrations.ts",
+        "scripts/build-assets.mjs",
+        "scripts/python.sh",
+        "scripts/update-tools.py",
+        "scripts/test-package.mjs",
+        "harness",
+        "install.sh",
+        "harness.cmd",
+        "install.ps1",
+        "scripts/python.ps1",
+        "README.md",
+        ".github/workflows/verify.yml",
+        "scripts/test-wizard.py",
+        "scripts/test-upgrade.mjs",
+        "src/copilot.ts",
+        "scripts/uv.ps1"
+      ],
+      "status": "DONE"
+    }
+  ]
+}

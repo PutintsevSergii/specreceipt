@@ -18,10 +18,49 @@
         "harness",
         "self-test"
       ],
+      "timeout_seconds": 1800,
+      "approved": true,
+      "approval_reference": "docs/WINDOWS_NATIVE_FOLLOWUP.md; developer instruction in chat",
+      "purpose": "Run isolated harness regressions"
+    },
+    "native-typecheck": {
+      "kind": "command",
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
       "timeout_seconds": 120,
       "approved": true,
-      "approval_reference": "Selected Strict engineering profile",
-      "purpose": "Run isolated harness regressions"
+      "approval_reference": "docs/WINDOWS_NATIVE_PLAN.md (developer approval in chat, 2026-10-26)",
+      "purpose": "Type-check the native engine and command adapters"
+    },
+    "native-node": {
+      "kind": "command",
+      "argv": [
+        "node",
+        "--test",
+        "tests-node/windows.test.mjs",
+        "tests-node/engine-upgrade.test.mjs",
+        "tests-node/copilot.test.mjs"
+      ],
+      "timeout_seconds": 600,
+      "approved": true,
+      "approval_reference": "docs/WINDOWS_NATIVE_PLAN.md (developer approval in chat, 2026-10-26)",
+      "purpose": "Exercise native command boundaries, engine recovery and transport"
+    },
+    "native-indexes": {
+      "kind": "command",
+      "argv": [
+        "{python}",
+        "-B",
+        "-c",
+        "from pathlib import Path; from harnesslib.index_context import ensure; print(ensure(Path.cwd()))"
+      ],
+      "timeout_seconds": 600,
+      "approved": true,
+      "approval_reference": "docs/WINDOWS_NATIVE_PLAN.md (developer approval in chat, 2026-10-26)",
+      "purpose": "Require real CodeGraph and Graphify indexes on the native host"
     }
   }
 }

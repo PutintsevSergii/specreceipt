@@ -1,0 +1,182 @@
+TAP version 13
+# Subtest: all supported agents preserve configuration contract
+ok 1 - all supported agents preserve configuration contract
+  ---
+  duration_ms: 3.2675
+  type: 'test'
+  ...
+# Subtest: adapter accepts structured result and propagates nonzero or provider failure
+ok 2 - adapter accepts structured result and propagates nonzero or provider failure
+  ---
+  duration_ms: 11389.5408
+  type: 'test'
+  ...
+# Subtest: missing authentication and account restrictions use structured errors
+ok 3 - missing authentication and account restrictions use structured errors
+  ---
+  duration_ms: 11521.9641
+  type: 'test'
+  ...
+# Subtest: timeout, cancellation, missing process and unsupported capability fail closed
+ok 4 - timeout, cancellation, missing process and unsupported capability fail closed
+  ---
+  duration_ms: 3866.8258
+  type: 'test'
+  ...
+# Subtest: no unrestricted permissions or inherited allow-all environment
+ok 5 - no unrestricted permissions or inherited allow-all environment
+  ---
+  duration_ms: 890.1403
+  type: 'test'
+  ...
+# Subtest: Python dispatch refuses untrusted context and missing readiness
+ok 6 - Python dispatch refuses untrusted context and missing readiness
+  ---
+  duration_ms: 13.2071
+  type: 'test'
+  ...
+# Subtest: missing optional CLI is detected without execution
+ok 7 - missing optional CLI is detected without execution
+  ---
+  duration_ms: 2.948
+  type: 'test'
+  ...
+# Subtest: official OpenSpec: Copilot and coexistence preserve instructions, repeat and upgrade
+ok 8 - official OpenSpec: Copilot and coexistence preserve instructions, repeat and upgrade # SKIP
+  ---
+  duration_ms: 0.4275
+  type: 'test'
+  ...
+# Subtest: HTTP authentication and policy errors stay blocked
+ok 9 - HTTP authentication and policy errors stay blocked
+  ---
+  duration_ms: 2679.6194
+  type: 'test'
+  ...
+# Subtest: cancellation terminates a descendant that ignores SIGTERM
+ok 10 - cancellation terminates a descendant that ignores SIGTERM # SKIP
+  ---
+  duration_ms: 0.5644
+  type: 'test'
+  ...
+# {"result": "FAIL", "error": "Task must exist and have a unique ID: ABSENT"}
+# {"result": "FAIL", "error": "docs/TECH_SPEC.md: missing Status: metadata"}
+# {"result": "FAIL", "error": "Another harness writer or installer is active; inspect stale locks before retrying."}
+# {"result": "FAIL", "error": "Installation or upgrade recovery required before lifecycle writes."}
+# Subtest: Python owns initial state and setup event; installed CLI delegates help, errors and gates
+ok 11 - Python owns initial state and setup event; installed CLI delegates help, errors and gates
+  ---
+  duration_ms: 29595.323
+  type: 'test'
+  ...
+# Subtest: installed engine drift, wrong protocol, missing Python and root injection fail closed
+ok 12 - installed engine drift, wrong protocol, missing Python and root injection fail closed
+  ---
+  duration_ms: 4022.17
+  type: 'test'
+  ...
+# Subtest: three-way Git merge covers local-only, remote-only, disjoint, overlap and missing Git
+ok 13 - three-way Git merge covers local-only, remote-only, disjoint, overlap and missing Git
+  ---
+  duration_ms: 117.5125
+  type: 'test'
+  ...
+# Subtest: migration validates both versions, adds defaults, is ordered and idempotent
+ok 14 - migration validates both versions, adds defaults, is ordered and idempotent
+  ---
+  duration_ms: 0.5858
+  type: 'test'
+  ...
+# Subtest: upgrade preserves local Skills, shared rules, OpenSpec and custom files; dry-run and repeat unchanged
+ok 15 - upgrade preserves local Skills, shared rules, OpenSpec and custom files; dry-run and repeat unchanged
+  ---
+  duration_ms: 7528.6604
+  type: 'test'
+  ...
+# Subtest: 0.3.0 installation manifest can upgrade to 0.3.1
+ok 16 - 0.3.0 installation manifest can upgrade to 0.3.1
+  ---
+  duration_ms: 4989.6571
+  type: 'test'
+  ...
+# Subtest: legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict
+ok 17 - legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict
+  ---
+  duration_ms: 3710.8923
+  type: 'test'
+  ...
+# Subtest: interrupted upgrade retains backup, recovery restores bytes and retry works
+ok 18 - interrupted upgrade retains backup, recovery restores bytes and retry works
+  ---
+  duration_ms: 8360.3434
+  type: 'test'
+  ...
+# Subtest: postvalidation failure retains journal and protects concurrent edits during recovery
+ok 19 - postvalidation failure retains journal and protects concurrent edits during recovery
+  ---
+  duration_ms: 6943.1348
+  type: 'test'
+  ...
+# Subtest: doctor engine cannot import project shadow modules; missing inventory entry is rejected
+ok 20 - doctor engine cannot import project shadow modules; missing inventory entry is rejected
+  ---
+  duration_ms: 4241.7499
+  type: 'test'
+  ...
+# Subtest: lifecycle writes refuse installer lock and pending recovery, reads still work
+ok 21 - lifecycle writes refuse installer lock and pending recovery, reads still work
+  ---
+  duration_ms: 5885.1053
+  type: 'test'
+  ...
+# Subtest: custom runtime upgrade cannot silently claim upstream engine version
+ok 22 - custom runtime upgrade cannot silently claim upstream engine version
+  ---
+  duration_ms: 3560.9201
+  type: 'test'
+  ...
+# Subtest: interruption after configuration write restores pre-upgrade config and manifest
+ok 23 - interruption after configuration write restores pre-upgrade config and manifest
+  ---
+  duration_ms: 6482.8449
+  type: 'test'
+  ...
+# Subtest: packaged launchers use portable line endings and include native entry points
+ok 24 - packaged launchers use portable line endings and include native entry points
+  ---
+  duration_ms: 3.6354
+  type: 'test'
+  ...
+# Subtest: Windows copied environments preserve mixed-case Path discovery
+ok 25 - Windows copied environments preserve mixed-case Path discovery
+  ---
+  duration_ms: 4.9516
+  type: 'test'
+  ...
+# Subtest: Windows npm shims preserve argument boundaries without cmd interpolation
+ok 26 - Windows npm shims preserve argument boundaries without cmd interpolation
+  ---
+  duration_ms: 239.5419
+  type: 'test'
+  ...
+# Subtest: Windows managed Python is discovered from its runtime pointer
+ok 27 - Windows managed Python is discovered from its runtime pointer
+  ---
+  duration_ms: 23.8221
+  type: 'test'
+  ...
+# Subtest: portable argument and file operations in spaces and Unicode directories
+ok 28 - portable argument and file operations in spaces and Unicode directories
+  ---
+  duration_ms: 1708.5926
+  type: 'test'
+  ...
+1..28
+# tests 28
+# suites 0
+# pass 26
+# fail 0
+# cancelled 0
+# skipped 2
+# todo 0
+# duration_ms 85758.708

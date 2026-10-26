@@ -1,0 +1,158 @@
+{
+  "acceptance_results": [
+    {
+      "checks": [
+        "harness-tests",
+        "native-node"
+      ],
+      "criterion": "WIN-001",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-tests",
+        "native-node"
+      ],
+      "criterion": "WIN-002",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-tests"
+      ],
+      "criterion": "WIN-003",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "native-indexes",
+        "native-node"
+      ],
+      "criterion": "WIN-004",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-tests",
+        "native-node"
+      ],
+      "criterion": "WIN-005",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "harness-tests",
+        "native-typecheck",
+        "native-node",
+        "native-indexes"
+      ],
+      "criterion": "WIN-006",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "harness-tests"
+      ],
+      "criterion": "WIN-007",
+      "result": "FAIL"
+    }
+  ],
+  "check_config_hash": "67d44c23ea11296f97ac97b325608519a364be295f4b922614c8890ea055b743",
+  "checked_tasks": [
+    "WIN-001"
+  ],
+  "created_at": "2026-10-26T20:13:12.103609+00:00",
+  "definition_hash": "9d40401c08e886d06be2c911bc34076ed4d5dbc6143ce1ef416cb751c073b750",
+  "environment": {
+    "declared": {
+      "application_runtime": "UNCONFIGURED",
+      "note": "Declare application versions during onboarding."
+    },
+    "machine": "AMD64",
+    "platform": "Windows",
+    "python": "3.12.14"
+  },
+  "fingerprint": "66b12c0a6169dde3db4f719225a770c0763f68f13e17f99108b51f1e545325bc",
+  "id": "dc51d5f7-143f-49a8-93f7-191cfd2af051",
+  "result": "FAIL",
+  "results": [
+    {
+      "check": "harness-tests",
+      "command": [
+        "{python}",
+        "-B",
+        "harness",
+        "self-test"
+      ],
+      "exit_code": 1,
+      "log": ".harness/evidence/logs/29f389d3-7180-4250-bb33-ca0846ec92bb.log",
+      "log_hash": "31e8a35294de771c308e57b354e49668ae7f14e43ac42544c9fee58501a2e70a",
+      "result": "FAIL",
+      "summary": "\ntest_risk_scheduling_release_and_other_feature_not_writable (test_reconciliation.ReconciliationTests.test_risk_scheduling_release_and_other_feature_not_writable) ... ok\n\ntest_stale_manifest_reference_replay_and_hash (test_reconciliation.ReconciliationTests.test_stale_manifest_reference_replay_and_hash) ... ok\n\ntest_two_task_concurrency_preserves_history_and_lifecycle_projection (test_reconciliation.ReconciliationTests.test_two_task_concurrency_preserves_history_and_lifecycle_projection) ... ok\n\ntest_bounded_assessment_invalidates_cache_without_full_inventory (test_reporting.ReportingTests.test_bounded_assessment_invalidates_cache_without_full_inventory) ... ok\n\ntest_done_regression_uses_latest_evidence_without_undoing_completion (test_reporting.ReportingTests.test_done_regression_uses_latest_evidence_without_undoing_completion) ... ok\n\ntest_exact_authorized_maintenance_paths_only (test_reporting.ReportingTests.test_exact_authorized_maintenance_paths_only) ... ok\n\ntest_final_approval_remains_missing_and_review_can_be_invalid (test_reporting.ReportingTests.test_final_approval_remains_missing_and_review_can_be_invalid) ... ok\n\ntest_interrupted_operation_refreshes_recovery_action (test_reporting.ReportingTests.test_interrupted_operation_refreshes_recovery_action) ... ok\n\ntest_refresh_failure_does_not_reverse_committed_transition (test_reporting.ReportingTests.test_refresh_failure_does_not_reverse_committed_transition) ... ok\n\ntest_stale_verified_report_agrees_with_core (test_reporting.ReportingTests.test_stale_verified_report_agrees_with_core) ... ok\n\ntest_verified_done_refresh_preserves_historical_snapshot (test_reporting.ReportingTests.test_verified_done_refresh_preserves_historical_snapshot) ... ok\n\ntest_missing_index_tools_never_install_globally (test_tool_updates.MissingNavigationDependencyTests.test_missing_index_tools_never_install_globally) ... ok\n\ntest_changed_index_is_refreshed (test_tool_updates.ToolUpdatesTests.test_changed_index_is_refreshed) ... ok\n\ntest_failed_post_check_is_not_success (test_tool_updates.ToolUpdatesTests.test_failed_post_check_is_not_success) ... ok\n\ntest_install_local_pinned_and_version_verified (test_tool_updates.ToolUpdatesTests.test_install_local_pinned_and_version_verified) ... ok\n\ntest_interrupted_update_cannot_replay (test_tool_updates.ToolUpdatesTests.test_interrupted_update_cannot_replay) ... ok\n\ntest_latest_does_not_replace_supported_target (test_tool_updates.ToolUpdatesTests.test_latest_does_not_replace_supported_target) ... ok\n\ntest_local_executable_and_escape_rejected (test_tool_updates.ToolUpdatesTests.test_local_executable_and_escape_rejected) ... skipped 'Windows lacks symlink privilege (1314); real symlink coverage is required in strict CI.'\n\ntest_newer_version_blocks_downgrade (test_tool_updates.ToolUpdatesTests.test_newer_version_blocks_downgrade) ... ok\n\ntest_partial_failure_keeps_other_updates_and_checks (test_tool_updates.ToolUpdatesTests.test_partial_failure_keeps_other_updates_and_checks) ... ok\n\ntest_plan_missing_optional_and_no_writes (test_tool_updates.ToolUpdatesTests.test_plan_missing_optional_and_no_writes) ... ok\n\ntest_post_install_mismatch_fails (test_tool_updates.ToolUpdatesTests.test_post_install_mismatch_fails) ... ok\n\ntest_only_privilege_failure_can_skip_and_strict_mode_fails (test_windows_setup.LinkCapabilityTests.test_only_privilege_failure_can_skip_and_strict_mode_fails) ... ok\n\ntest_no_python_launcher_bootstraps_without_user_bin_or_registry_registration (test_windows_setup.WindowsSetupTests.test_no_python_launcher_bootstraps_without_user_bin_or_registry_registration) ... FAIL\n\ntest_uv_fallback_verifies_archive_before_publishing (test_windows_setup.WindowsSetupTests.test_uv_fallback_verifies_archive_before_publishing) ... \n\n  test_uv_fallback_verifies_archive_before_publishing (test_windows_setup.WindowsSetupTests.test_uv_fallback_verifies_archive_before_publishing) (mode='fallback') ... FAIL\n\ntest_fast_application_keeps_onboarding_and_required_checks (test_workflow.ApplicationWorkflowTests.test_fast_application_keeps_onboarding_and_required_checks) ... "
+    },
+    {
+      "check": "harness-validate",
+      "command": [],
+      "exit_code": 0,
+      "result": "PASS",
+      "summary": "Builtin assertions passed."
+    },
+    {
+      "check": "native-indexes",
+      "command": [
+        "{python}",
+        "-B",
+        "-c",
+        "from pathlib import Path; from harnesslib.index_context import ensure; print(ensure(Path.cwd()))"
+      ],
+      "exit_code": 0,
+      "log": ".harness/evidence/logs/c79d442c-8c4a-4a06-b4bf-a1a7bcb1f772.log",
+      "log_hash": "eff4ca8092a1fe7200011aeb5cbfd845706ec205fff5e4fb2a04732a02915ef2",
+      "result": "PASS",
+      "summary": "{'result': 'PASS', 'codegraph': {'changed': True, 'installed': True, 'indexed': True, 'version': '1.6.2', 'freshness': 'fresh', 'next_action': None}, 'graphify': {'changed': True, 'nodes': 3944, 'edges': 8438, 'installed': True, 'version': 'graphify 0.9.27', 'indexed': True, 'freshness': 'fresh', 'coverage': 'code', 'next_action': None}}\n\n"
+    },
+    {
+      "check": "native-node",
+      "command": [
+        "node",
+        "--test",
+        "tests-node/windows.test.mjs",
+        "tests-node/engine-upgrade.test.mjs",
+        "tests-node/copilot.test.mjs"
+      ],
+      "exit_code": 0,
+      "log": ".harness/evidence/logs/7e23c864-d0aa-4de1-899b-18655f03a3cf.log",
+      "log_hash": "cf1164b2c066076d409ba76425f568f27859cc170627a3547cbd340840262f45",
+      "result": "PASS",
+      "summary": "s and gates\nok 11 - Python owns initial state and setup event; installed CLI delegates help, errors and gates\n  ---\n  duration_ms: 16471.5931\n  type: 'test'\n  ...\n# Subtest: installed engine drift, wrong protocol, missing Python and root injection fail closed\nok 12 - installed engine drift, wrong protocol, missing Python and root injection fail closed\n  ---\n  duration_ms: 4868.0141\n  type: 'test'\n  ...\n# Subtest: three-way Git merge covers local-only, remote-only, disjoint, overlap and missing Git\nok 13 - three-way Git merge covers local-only, remote-only, disjoint, overlap and missing Git\n  ---\n  duration_ms: 149.9505\n  type: 'test'\n  ...\n# Subtest: migration validates both versions, adds defaults, is ordered and idempotent\nok 14 - migration validates both versions, adds defaults, is ordered and idempotent\n  ---\n  duration_ms: 0.7626\n  type: 'test'\n  ...\n# Subtest: upgrade preserves local Skills, shared rules, OpenSpec and custom files; dry-run and repeat unchanged\nok 15 - upgrade preserves local Skills, shared rules, OpenSpec and custom files; dry-run and repeat unchanged\n  ---\n  duration_ms: 9796.9121\n  type: 'test'\n  ...\n# Subtest: 0.3.0 installation manifest can upgrade to 0.3.1\nok 16 - 0.3.0 installation manifest can upgrade to 0.3.1\n  ---\n  duration_ms: 5168.8382\n  type: 'test'\n  ...\n# Subtest: legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict\nok 17 - legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict\n  ---\n  duration_ms: 3875.2558\n  type: 'test'\n  ...\n# Subtest: interrupted upgrade retains backup, recovery restores bytes and retry works\nok 18 - interrupted upgrade retains backup, recovery restores bytes and retry works\n  ---\n  duration_ms: 7854.0842\n  type: 'test'\n  ...\n# Subtest: postvalidation failure retains journal and protects concurrent edits during recovery\nok 19 - postvalidation failure retains journal and protects concurrent edits during recovery\n  ---\n  duration_ms: 6510.0218\n  type: 'test'\n  ...\n# Subtest: doctor engine cannot import project shadow modules; missing inventory entry is rejected\nok 20 - doctor engine cannot import project shadow modules; missing inventory entry is rejected\n  ---\n  duration_ms: 4153.4541\n  type: 'test'\n  ...\n# Subtest: lifecycle writes refuse installer lock and pending recovery, reads still work\nok 21 - lifecycle writes refuse installer lock and pending recovery, reads still work\n  ---\n  duration_ms: 6074.3011\n  type: 'test'\n  ...\n# Subtest: custom runtime upgrade cannot silently claim upstream engine version\nok 22 - custom runtime upgrade cannot silently claim upstream engine version\n  ---\n  duration_ms: 3202.8825\n  type: 'test'\n  ...\n# Subtest: interruption after configuration write restores pre-upgrade config and manifest\nok 23 - interruption after configuration write restores pre-upgrade config and manifest\n  ---\n  duration_ms: 6619.7094\n  type: 'test'\n  ...\n# Subtest: packaged launchers use portable line endings and include native entry points\nok 24 - packaged launchers use portable line endings and include native entry points\n  ---\n  duration_ms: 4.2008\n  type: 'test'\n  ...\n# Subtest: Windows copied environments preserve mixed-case Path discovery\nok 25 - Windows copied environments preserve mixed-case Path discovery\n  ---\n  duration_ms: 3.8431\n  type: 'test'\n  ...\n# Subtest: Windows npm shims preserve argument boundaries without cmd interpolation\nok 26 - Windows npm shims preserve argument boundaries without cmd interpolation\n  ---\n  duration_ms: 277.9078\n  type: 'test'\n  ...\n# Subtest: Windows managed Python is discovered from its runtime pointer\nok 27 - Windows managed Python is discovered from its runtime pointer\n  ---\n  duration_ms: 25.6537\n  type: 'test'\n  ...\n# Subtest: portable argument and file operations in spaces and Unicode directories\nok 28 - portable argument and file operations in spaces and Unicode directories\n  ---\n  duration_ms: 1316.1235\n  type: 'test'\n  ...\n1..28\n# tests 28\n# suites 0\n# pass 26\n# fail 0\n# cancelled 0\n# skipped 2\n# todo 0\n# duration_ms 75218.0767\n"
+    },
+    {
+      "check": "native-typecheck",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "exit_code": 0,
+      "log": ".harness/evidence/logs/ee13a614-37ed-4665-aa40-1ad4960b38ba.log",
+      "log_hash": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
+      "result": "PASS",
+      "summary": ""
+    },
+    {
+      "check": "stable-inputs",
+      "command": [],
+      "exit_code": null,
+      "result": "FAIL",
+      "summary": "Inputs changed during checks; rerun after inspecting the changes."
+    }
+  ],
+  "revisions": {
+    "architecture": "0",
+    "tech_spec": "0"
+  },
+  "schema_version": 1,
+  "task_id": "WIN-001"
+}

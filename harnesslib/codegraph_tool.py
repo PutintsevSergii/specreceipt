@@ -5,6 +5,7 @@ import subprocess
 
 from .graph import inventory
 from .tool_paths import binary as tool_binary
+from . import processes
 from .storage import HarnessError, atomic, digest, read
 
 PACKAGE = '@colbymchenry/codegraph@1.6.2'
@@ -21,7 +22,7 @@ def _command(root, *args, timeout=120):
     if not binary:
         raise HarnessError('CodeGraph CLI is unavailable; run ./harness codegraph ensure.')
     try:
-        result = subprocess.run([binary, *map(str, args)], cwd=root, capture_output=True,
+        result = processes.run([binary, *map(str, args)], cwd=root, capture_output=True,
                                 text=True, timeout=timeout, check=False)
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise HarnessError(f'CodeGraph command failed: {exc}') from exc
@@ -64,6 +65,9 @@ def install_binary(root=None):
 
 def ensure(root):
     root = Path(root).resolve()
+    # Do not hand an external indexer a tree containing source links/junctions.
+    from .verification import inventory as verification_inventory
+    verification_inventory(root)
     install_binary(root)
     current = status(root)
     if current['freshness'] == 'fresh':

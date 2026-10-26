@@ -1,8 +1,8 @@
 /** Optional process transport. Python owns readiness, transitions and approvals. */
 import { executionPreflight, agentEnvironment } from "./doctor.js";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import * as path from "node:path";
-import { executable, invoke, type Command } from "./integrations.js";
+import { executable, invoke, nativeCommand, type Command } from "./integrations.js";
 import { execute } from "./engine.js";
 import { read } from "./filesystem.js";
 
@@ -18,9 +18,8 @@ const required = [
 ];
 export function probeCopilot(root: string, command?: Command, env: NodeJS.ProcessEnv = process.env) {
   const binary = executable("copilot", env);
-  const cmd =
-    command ??
-    (binary && !binary.endsWith(".cmd") ? { file: binary, prefix: [] } : null);
+  let cmd = command ?? (binary ? { file: binary, prefix: [] } : null);
+  try { if (cmd) cmd = nativeCommand(cmd, env); } catch { cmd = null; }
   if (!cmd)
     return {
       state: "missing" as const,
@@ -112,6 +111,7 @@ export async function runCopilot(
         cwd: options.cwd,
         env,
         shell: false,
+        windowsHide: true,
         detached: process.platform !== "win32",
         stdio: ["ignore", "pipe", "pipe"],
       },
@@ -125,7 +125,7 @@ export async function runCopilot(
       try {
         if (process.platform !== "win32" && child.pid)
           process.kill(-child.pid, signal);
-        else child.kill(signal);
+        else if (child.pid) spawnSync(path.join(process.env.SYSTEMROOT ?? "C:\\Windows", "System32", "taskkill.exe"), ["/PID", String(child.pid), "/T", "/F"], { windowsHide: true, timeout: 30000, stdio: "ignore" });
       } catch {}
     };
     const stop = (reason: string) => {

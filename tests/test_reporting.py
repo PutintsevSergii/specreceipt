@@ -115,5 +115,6 @@ class ReportingTests(unittest.TestCase):
         state=self.h.state()
         state['active_operation']={'id':'fixture','kind':'verification','task':'DEMO-001','started_at':'2026-01-01T00:00:00+00:00','pid':99999999}
         atomic(self.root/'.harness/state.json',state)
+        self.assertEqual(reporting.task_report(self.h,'DEMO-001')['next_action']['action'],'progress')
         self.h.reconcile()
         self.assertEqual(self.current()['next_action']['action'],'recover')

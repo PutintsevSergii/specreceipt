@@ -22,6 +22,7 @@ class InstallationTests(unittest.TestCase):
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup)
         self.base=Path(self.tmp.name).resolve();self.root=self.base/'project'
 
+    @unittest.skipIf(os.name == 'nt', 'POSIX shell bootstrap; Windows launcher covered by test_native_windows')
     def test_shell_bootstraps_when_python_and_uv_are_missing(self):
         bins=self.base/'bins';bins.mkdir();managed=self.base/'runtime'
         for name in ('sh','uname','mkdir','mktemp','rm','ln','cat'):
@@ -47,6 +48,7 @@ INSTALLER
         self.assertTrue((managed/'bin/python3').is_file())
         self.assertTrue((managed/'bin/uv').is_file())
 
+    @unittest.skipIf(os.name == 'nt', 'POSIX shell bootstrap; Windows missing-runtime test covers this contract')
     def test_no_download_for_readonly_without_python(self):
         run=subprocess.run(['/bin/sh',str(KIT/'scripts/python.sh'),'-c','print(1)'],
                            env=dict(os.environ,PATH=str(self.base),HARNESS_RUNTIME_DIR=str(self.base/'runtime')),

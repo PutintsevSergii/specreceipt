@@ -1,0 +1,35 @@
+{
+  "version": "0.4.0",
+  "package_engine_versions": "0.4.0",
+  "protocol_version": 1,
+  "typescript": "PASS",
+  "protocol_tests": {
+    "total": 3,
+    "result": "PASS"
+  },
+  "native_node_tests": {
+    "total": 29,
+    "pass": 27,
+    "skip": 2,
+    "fail": 0
+  },
+  "actual_archived_upgrade": "0.3.1 -> 0.4.0",
+  "archive_name": "specreceipt-0.4.0.tgz",
+  "validate": "PASS",
+  "full_suite_before_version_bump": ".harness/evidence/55bba3ba-ddf3-4390-9312-4ac203bf8591.json",
+  "full_suite_after_version_bump": "NOT_RERUN; only release-version and compatibility changes followed the full run",
+  "logs": [
+    {
+      "log": ".harness/evidence/releases/0.4.0/protocol.log",
+      "sha256": "397617a7c62ed89ab633f5b8ca378aeb07b6c189bf7cfecb54a8736c73acb505"
+    },
+    {
+      "log": ".harness/evidence/releases/0.4.0/node.log",
+      "sha256": "2dc5852cdebf97eec6a568bf43bd76db06fb53bf1348b90f24fae5a394c30c11"
+    },
+    {
+      "log": ".harness/evidence/releases/0.4.0/archive-upgrade.log",
+      "sha256": "513544aec5943a3a3c156d9f39850450b121ac9bda80c59abf6491d7c773319c"
+    }
+  ]
+}

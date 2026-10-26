@@ -6,6 +6,7 @@ import subprocess
 
 from .graph import inventory
 from .tool_paths import binary as tool_binary
+from . import processes
 from .storage import HarnessError, atomic, digest, read, safe_path
 
 PACKAGE = 'graphifyy==0.9.27'
@@ -27,7 +28,7 @@ def _command(root, *args, timeout=120):
     if not binary:
         raise HarnessError('Graphify is unavailable. Install it locally through scripts/update-tools.py, then run ensure.')
     try:
-        result = subprocess.run([binary, *map(str, args)], cwd=root, capture_output=True,
+        result = processes.run([binary, *map(str, args)], cwd=root, capture_output=True,
                                 text=True, timeout=timeout, check=False)
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise HarnessError(f'Graphify command failed: {exc}') from exc
@@ -74,6 +75,8 @@ def install_binary(root=None):
 
 def ensure(root):
     root = Path(root).resolve()
+    from .verification import inventory as verification_inventory
+    verification_inventory(root)
     install_binary(root)
     current = status(root)
     if current['freshness'] == 'fresh':
@@ -87,7 +90,7 @@ def ensure(root):
         atomic(safe_path(root,GRAPH), {'nodes':[], 'links':[]})
     graph = root/GRAPH
     try:
-        data = json.loads(graph.read_text())
+        data = json.loads(graph.read_text(encoding='utf-8'))
     except (OSError, ValueError) as exc:
         raise HarnessError(f'Graphify did not produce valid graph.json: {exc}') from exc
     if not isinstance(data, dict) or not isinstance(data.get('nodes'), list) or not isinstance(data.get('links'), list):

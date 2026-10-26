@@ -4,17 +4,19 @@ import os
 from pathlib import Path
 import platform
 import re
-import signal
 import subprocess
 import sys
 import tempfile
+from .report_operation import operation as report_operation
 from . import graph, index_context, openspec_tool, readiness, verification, workflow
+from . import processes
 from .storage import HarnessError, atomic, digest, events, finish_transaction, now, read, redact, safe_path, transaction, uid, validate_schema
 
 TRANSITIONS = {'TODO':{'IN_PROGRESS','BLOCKED'},'IN_PROGRESS':{'IMPLEMENTED','BLOCKED','REWORK'},
  'IMPLEMENTED':{'VERIFIED','REWORK','BLOCKED'},'VERIFIED':{'DONE','REWORK','BLOCKED'},
  'DONE':{'REWORK'},'BLOCKED':{'IN_PROGRESS','REWORK'},'REWORK':{'IN_PROGRESS','BLOCKED'}}
 MUTABLE_TASK = {'status','evidence','next_action','history','approvals','execution','regression_evidence'}
+
 
 class Harness:
     def __init__(self, root):
@@ -52,7 +54,7 @@ class Harness:
                 'architecture':self.metadata('docs/ARCHITECTURE.md')['revision']}
 
     def metadata(self, rel):
-        text = safe_path(self.root,rel).read_text()
+        text = safe_path(self.root,rel).read_text(encoding='utf-8')
         values = {}
         for name in ['Status','Revision','Approval']:
             match = re.search(rf'^{name}: (.+)$',text,re.M)
@@ -100,7 +102,7 @@ class Harness:
                      f"specs/{feature['feature_id']}/spec.md", f"specs/{feature['feature_id']}/plan.md"]
             definitions[item['id']] = {'task':{k:v for k,v in item.items() if k not in MUTABLE_TASK},
                 'kind':feature['kind'], 'revisions':feature['revisions'],
-                'inputs':{rel:digest(safe_path(self.root,rel).read_text()) for rel in paths},
+                'inputs':{rel:digest(safe_path(self.root,rel).read_text(encoding='utf-8')) for rel in paths},
                 **({'spec_source':feature['spec_source'], 'openspec_inputs':openspec_tool.feature_source(self.root,feature)} if feature.get('spec_source') else {})}
         return digest(definitions)
 
@@ -162,8 +164,16 @@ class Harness:
             from .reporting import invalidate_current
             invalidate_current(self, 'Workflow assessment changed; query live status after the bounded assessment.')
         if event['type'] in {'interrupted','transition','verification','verification-stale','approval-recorded','workflow-selected','checkpoint','replanned','baseline-recognized','recovery-acknowledged','blocker','resolve'}:
-            from .reporting import refresh_current
-            refresh_current(self)
+            from .reporting import refresh_current, invalidate_current
+            if getattr(self, '_report_depth', 0):
+                first = not getattr(self, '_report_dirty', False)
+                self._report_dirty = True
+                if first:
+                    try: invalidate_current(self, 'Lifecycle operation is in progress; query live status for current state.')
+                    except (OSError, HarnessError):
+                        print('WARNING: lifecycle committed but report invalidation failed; query live status.', file=sys.stderr)
+            else:
+                refresh_current(self)
 
     def init(self):
         if (self.root/'.harness/state.json').exists():
@@ -185,7 +195,7 @@ class Harness:
             'docs/TECH_SPEC.md':['Goals','Users','Scope','Non-goals','Requirements','Stack','Persistence','Contracts','Security','Performance','Dependencies','Environments','Acceptance','Assumptions','Questions'],
             'docs/ARCHITECTURE.md':['Boundaries','Modules','Dependencies','Data flows','Persistence','Recovery','Integrations','Testing','Observability','ADRs']}.items():
             self.metadata(rel)
-            content = (self.root/rel).read_text()
+            content = (self.root/rel).read_text(encoding='utf-8')
             for section in sections:
                 if f'## {section}\n' not in content:
                     raise HarnessError(f'{rel}: missing section {section}')
@@ -198,7 +208,7 @@ class Harness:
         for feature in self.features().values():
             for name in ['spec.md','plan.md','verification.md']:
                 path = f"specs/{feature['feature_id']}/{name}"
-                text = safe_path(self.root,path).read_text()
+                text = safe_path(self.root,path).read_text(encoding='utf-8')
                 if not text.strip():
                     raise HarnessError(f'Empty feature document: {path}')
                 if name != 'verification.md':
@@ -206,7 +216,7 @@ class Harness:
                     for key,label in [('tech_spec','Tech-Spec-Revision'),('architecture','Architecture-Revision')]:
                         if f"{label}: {feature['revisions'][key]}\n" not in text:
                             raise HarnessError(f'{path}: missing/mismatched revision pin')
-            reqtext = (self.root/'docs/TECH_SPEC.md').read_text()+(self.root/f"specs/{feature['feature_id']}/spec.md").read_text()
+            reqtext = (self.root/'docs/TECH_SPEC.md').read_text(encoding='utf-8')+(self.root/f"specs/{feature['feature_id']}/spec.md").read_text(encoding='utf-8')
             if feature.get('spec_source'):
                 reqtext = '\n'.join(openspec_tool.feature_source(self.root,feature).values())
             for task in feature['tasks']:
@@ -260,12 +270,13 @@ class Harness:
     def application_ready(self):
         return readiness.project(self)['application_ready']
 
+    @report_operation
     def approve_onboarding(self, by, reference):
         self.reconcile()
         report = readiness.project(self, require_approval=False)
         if report['blockers']:
             raise HarnessError('Documentation not ready for approval: ' + '; '.join(report['blockers']))
-        content = safe_path(self.root,reference).read_text()
+        content = safe_path(self.root,reference).read_text(encoding='utf-8')
         if not readiness.substantive(by) or not readiness.substantive(content):
             raise HarnessError('Developer identity and substantive approval reference required.')
         record = read(self.root/'.harness/onboarding.json')
@@ -286,14 +297,14 @@ class Harness:
             raise HarnessError('Canonical revisions changed; replan and approve feature.')
         for name in ['spec.md','plan.md']:
             rel = f"specs/{feature['feature_id']}/{name}"
-            if self.metadata(rel)['status'] != 'APPROVED' or 'TBD' in (self.root/rel).read_text():
+            if self.metadata(rel)['status'] != 'APPROVED' or 'TBD' in (self.root/rel).read_text(encoding='utf-8'):
                 raise HarnessError(f'{rel} requires approved, completed inputs')
         if feature['kind'] == 'application':
             self.validate()
             report = readiness.report(self, task['id'])
             if report['blockers']:
                 raise HarnessError('Application implementation blocked: ' + '; '.join(report['blockers']))
-        if feature['kind'] == 'harness' and any(not p.startswith(('docs/','tests/','harnesslib/','schemas/','templates/','.agents/skills/','tests-node/','assets/')) and p not in {'AGENTS.md','harness','scripts/update-tools.py','scripts/python.sh','install.sh','scripts/build-assets.mjs','scripts/benchmark-workflow.py','scripts/test-package.mjs','src/cli.ts','src/integrations.ts','src/doctor.ts','src/copilot.ts','src/core.ts','src/engine.ts','scripts/test-codex-e2e.mjs','scripts/test-copilot-e2e.mjs'} for p in task['scope']):
+        if feature['kind'] == 'harness' and any(not p.startswith(('docs/','tests/','harnesslib/','schemas/','templates/','.agents/skills/','tests-node/','assets/')) and p not in {'AGENTS.md','harness','harness.cmd','install.ps1','scripts/python.ps1','scripts/uv.ps1','README.md','.github/workflows/verify.yml','scripts/test-wizard.py','scripts/test-upgrade.mjs','scripts/update-tools.py','scripts/python.sh','install.sh','scripts/build-assets.mjs','scripts/benchmark-workflow.py','scripts/test-package.mjs','src/cli.ts','src/integrations.ts','src/doctor.ts','src/copilot.ts','src/core.ts','src/engine.ts','scripts/test-codex-e2e.mjs','scripts/test-copilot-e2e.mjs'} for p in task['scope']):
             raise HarnessError('Harness task scope must stay within harness files.')
         for dep in task['dependencies']:
             _, other = self.task(dep)
@@ -316,7 +327,7 @@ class Harness:
             expected = [{'criterion':m['criterion'],'checks':m['checks'],'result':'PASS'}
                         for m in verification.acceptance(task)]
         except HarnessError: return False
-        logs_valid = all(not r.get('log') or (safe_path(self.root,r['log']).is_file() and r.get('log_hash') == digest(safe_path(self.root,r['log']).read_text())) for r in results)
+        logs_valid = all(not r.get('log') or (safe_path(self.root,r['log']).is_file() and r.get('log_hash') == digest(safe_path(self.root,r['log']).read_text(encoding='utf-8'))) for r in results)
         return (logs_valid and ev.get('definition_hash') == self.definition(task) and ev['task_id'] == task['id']
                 and ev['result'] == 'PASS' and passed == required and len(passed) == len(results)
                 and ev.get('checked_tasks') == [t['id'] for t in closure]
@@ -340,17 +351,18 @@ class Harness:
             expected = workflow.decision_binding(self,self.task(task['id'])[0],task) if task.get('workflow') and key in {'workflow-plan','plan'} else fingerprint
             if not approval or approval['fingerprint'] != expected:
                 raise HarnessError(f'Current {key} approval/review required for DONE')
-            content = safe_path(self.root,approval['reference']).read_text()
+            content = safe_path(self.root,approval['reference']).read_text(encoding='utf-8')
             if approval.get('reference_hash') != digest(content):
                 raise HarnessError(f'Current {key} reference changed; repeat review/approval')
             if key == 'review': verification.review(self, task, content)
 
+    @report_operation
     def replan(self, task_id, reference):
         self.reconcile()
         feature,task = self.task(task_id)
         if task['status'] not in {'REWORK','BLOCKED'}:
             raise HarnessError('Replan requires REWORK or BLOCKED; record the reason first')
-        content = safe_path(self.root,reference).read_text()
+        content = safe_path(self.root,reference).read_text(encoding='utf-8')
         if not readiness.substantive(content): raise HarnessError('Actual replan approval reference required')
         self.ready(feature,task)
         verification.acceptance(task); verification.validate_scope(self.root,task['scope'])
@@ -375,6 +387,7 @@ class Harness:
         self.checkpoint()
         return {'result':'PASS','task_id':task_id,'next_action':'Restart task; fresh verification and review required'}
 
+    @report_operation
     def transition(self, task_id, target, reason):
         self.reconcile()
         feature,task = self.task(task_id)
@@ -423,6 +436,7 @@ class Harness:
         if navigation_context: result['navigation_context'] = navigation_context
         return result
 
+    @report_operation
     def reconcile(self):
         finish_transaction(self.root)
         state = self.state()
@@ -450,6 +464,7 @@ class Harness:
                     state.update(phase=active['status'],next_action=active['next_action'])
                 self.save(state,self.event('verification-stale','Invalidated prior completion because evidence no longer matches.',feature=feature['feature_id']),feature)
 
+    @report_operation
     def checkpoint(self):
         self.reconcile()
         state = self.state()
@@ -467,20 +482,24 @@ class Harness:
 
     def status(self):
         state = self.state()
-        from .reporting import task_report
+        from .reporting import task_report, ReportSnapshot
+        snapshot = ReportSnapshot.capture(self)
         tasks = []
         for feature in self.features().values():
             for task in feature['tasks']:
-                report = task_report(self,task['id'])
+                report = task_report(self,task['id'],snapshot)
                 tasks.append({'id':task['id'],'status':task['status'],'evidence_current':report['verification']['status'] == 'PASS',
                               'regression_required':report['regression_required'],'effective_status':report['effective_status'],
                               'next_action':report['next_action']['message']})
         active = next((t for t in tasks if t['id'] == state['active_task']),None)
         if active: state = {**state,'next_action':active['next_action']}
-        return {'state':state,'tasks':tasks,'observed_changes':state['fingerprints'] != self.fingerprints(),
+        from .test_progress import observed
+        return {'state':state,'tasks':tasks,'observed_changes':state['fingerprints'] != snapshot.files,
+                'progress':observed(self.root),
                 'pending_transaction':(self.root/'.harness/transaction.json').exists(),'graph':graph.status(self.root),
                 'application_ready':self.application_ready(),'notice':'Last confirmed checkpoint, not exact live progress. Run resume to reconcile.'}
 
+    @report_operation
     def verify(self, task_id, regression=False):
         self.reconcile()
         self.validate()
@@ -541,7 +560,7 @@ class Harness:
                 elif name == 'graph-freshness':
                     if graph.status(self.root)['freshness'] != 'fresh': raise HarnessError('Graph stale/unavailable; update or explicitly revise the approved check plan.')
                 elif name == 'demo-doc':
-                    text = (self.root/'docs/DEMO.md').read_text()
+                    text = (self.root/'docs/DEMO.md').read_text(encoding='utf-8')
                     if 'resume' not in text or 'checkpoint' not in text: raise HarnessError('Demo must explain checkpoint and resume')
                 else: raise HarnessError('Unknown builtin check')
                 result.update(result='PASS',exit_code=0,summary='Builtin assertions passed.')
@@ -555,38 +574,42 @@ class Harness:
             result.update(result='BLOCKED',summary='Empty command configuration')
             return result
         # No shell; minimal inherited environment. No secrets or full environment logging.
-        env = {k:os.environ[k] for k in ['PATH','HOME','TMPDIR','LANG','SYSTEMROOT'] if k in os.environ}
+        env = processes.environment()
         env['PYTHONDONTWRITEBYTECODE']='1'
+        env['HARNESS_CHECK_NAME'] = name
+        operation = self.state().get('active_operation') or {}
+        env['HARNESS_OPERATION_ID'] = operation.get('id', 'direct-check')
         argv = [sys.executable if v=='{python}' else v for v in check['argv']]
         try:
             with tempfile.TemporaryFile() as output:
-                process = subprocess.Popen(argv,cwd=self.root,env=env,stdout=output,stderr=subprocess.STDOUT,start_new_session=True)
+                process = subprocess.Popen(processes.argv(argv),cwd=self.root,env=env,stdout=output,stderr=subprocess.STDOUT,start_new_session=True)
                 timed_out = False
                 try: code = process.wait(timeout=check['timeout_seconds'])
                 except subprocess.TimeoutExpired:
                     timed_out = True
-                    os.killpg(process.pid,signal.SIGKILL)
+                    processes.stop(process)
                     code = process.wait()
                 output.seek(0)
                 log_ref = f'.harness/evidence/logs/{uid()}.log'
                 log_path = safe_path(self.root,log_ref); log_path.parent.mkdir(parents=True,exist_ok=True)
-                with log_path.open('w') as log:
+                with log_path.open('w', encoding='utf-8') as log:
                     for line in output:
                         log.write(redact(line.decode(errors='replace')))
-                summary = log_path.read_text()[-4096:]
+                summary = log_path.read_text(encoding='utf-8')[-4096:]
                 result['log'] = log_ref
-                result['log_hash'] = digest(log_path.read_text())
+                result['log_hash'] = digest(log_path.read_text(encoding='utf-8'))
                 result.update(result='BLOCKED' if timed_out else 'PASS' if code==0 else 'FAIL',exit_code=code,
                               summary=('Timeout; process group killed. ' if timed_out else '')+summary)
         except OSError as exc:
             result.update(result='BLOCKED',summary=redact(str(exc)))
         return result
 
+    @report_operation
     def approve(self, task_id, kind, by, reference):
         self.reconcile()
         feature,task = self.task(task_id)
         path = safe_path(self.root,reference)
-        content = path.read_text()
+        content = path.read_text(encoding='utf-8')
         if not content.strip(): raise HarnessError('Approval/review reference is empty')
         if kind == 'review':
             if task['status'] != 'VERIFIED' or not self.current_evidence(task):
@@ -604,6 +627,7 @@ class Harness:
         self.save(self.state(),self.event('approval-recorded',f'Recorded {kind} by {by}; identity is not authenticated.',task_id,feature['feature_id']),feature)
         return {'recorded':kind,'limitation':'Agent-writable record; not authenticated approval or independent proof.'}
 
+    @report_operation
     def note(self, kind, message, next_action=None):
         state = self.state()
         message = redact(message)
@@ -617,6 +641,7 @@ class Harness:
         self.checkpoint()
         return {'recorded':True}
 
+    @report_operation
     def recovery_acknowledge(self, note):
         self.reconcile()
         state = self.state()
@@ -634,5 +659,5 @@ class Harness:
             lines += [f"- {event['timestamp']} `{event['type']}`: {event['summary']} Result: {event['result']}. Evidence: {', '.join(event['evidence']) or 'journal event '+event['id']}."]
         target = self.root/'docs/ENGINEERING_LOG.md'
         content = '\n'.join(lines)+'\n'
-        if not target.exists() or target.read_text() != content: target.write_text(content)
+        if not target.exists() or target.read_text(encoding='utf-8') != content: target.write_text(content, encoding='utf-8')
         return {'path':'docs/ENGINEERING_LOG.md','events':len(events(self.root))}

@@ -1,4 +1,6 @@
+from platform_support import symlink
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -33,11 +35,12 @@ class ToolUpdatesTests(unittest.TestCase):
         self.assertEqual(entry['target_version'], u.openspec_tool.VERSION)
 
     def test_local_executable_and_escape_rejected(self):
-        path = self.root/'.harness/tools/codegraph/node_modules/.bin/codegraph'
+        path = self.root/('.harness/tools/codegraph/node_modules/.bin/codegraph' + ('.cmd' if os.name == 'nt' else ''))
         path.parent.mkdir(parents=True)
         path.write_text('fixture')
         self.assertEqual(binary(self.root,'codegraph'), str(path))
-        path.unlink(); path.symlink_to('/bin/sh')
+        outside = self.root/'outside'; outside.write_text('outside')
+        path.unlink(); symlink(path, outside)
         with self.assertRaises(HarnessError): binary(self.root,'codegraph')
 
     def test_partial_failure_keeps_other_updates_and_checks(self):

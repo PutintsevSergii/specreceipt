@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 import re
 import stat
-from .storage import HarnessError, digest, safe_path
+from .storage import is_link, HarnessError, digest, safe_path
 
 # Build outputs and installed packages are not source inputs. Versions belong in
 # environment.json. Configuration, dotfiles and binary assets ARE inputs.
@@ -19,14 +19,14 @@ def inventory(root):
         base = Path(directory)
         for name in list(dirs):
             p = base/name
-            if p.is_symlink():
+            if is_link(p):
                 raise HarnessError('Verification cannot attest symlink directory: '+p.relative_to(root).as_posix())
         dirs[:] = sorted(d for d in dirs if d not in EXCLUDED)
         for name in sorted(files):
             if name == '.DS_Store' or name.endswith('.pyc'): continue
             path = base/name
             rel = path.relative_to(root).as_posix()
-            if path.is_symlink():
+            if is_link(path):
                 raise HarnessError('Verification cannot attest symlink input: '+rel)
             mode = path.stat().st_mode
             if not stat.S_ISREG(mode): raise HarnessError('Unsupported verification input: '+rel)

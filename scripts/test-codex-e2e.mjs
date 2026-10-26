@@ -4,6 +4,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { spawnSync, spawn } from "node:child_process";
 const source = process.cwd();
+const currentVersion = JSON.parse(fs.readFileSync(path.join(source, "package.json"), "utf8")).version;
 const continuing = process.env.HARNESS_E2E_CONTINUE;
 const base = fs.realpathSync(
   continuing ?? fs.mkdtempSync(path.join(os.tmpdir(), "harness-codex-e2e-")),
@@ -86,7 +87,7 @@ try {
         "--no-fund",
         "--cache",
         process.env.HARNESS_TEST_NPM_CACHE ?? path.join(base, "npm-cache"),
-        path.resolve(process.env.HARNESS_E2E_PACKAGE ?? path.join(source, "specreceipt-0.3.1.tgz")),
+        path.resolve(process.env.HARNESS_E2E_PACKAGE ?? path.join(source, `specreceipt-${currentVersion}.tgz`)),
       ],
       consumer,
     );

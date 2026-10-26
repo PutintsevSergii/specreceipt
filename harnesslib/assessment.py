@@ -11,9 +11,9 @@ import shutil
 import subprocess
 import tempfile
 import os
-import signal
 
 from . import verification
+from . import processes
 from .storage import HarnessError, atomic, digest, read, redact, safe_path
 
 REPORT = '.harness/assessment.json'
@@ -135,7 +135,7 @@ def assess(root, agent_command=None, response_file=None):
                        'Evaluate skills and actually available host tools using the context contract.\n'
                        'Save the JSON response to .harness/assessment-response.json, then run:\n\n'
                        '    ./harness assess --response .harness/assessment-response.json\n\n'
-                       'A discovered CLI or MCP configuration does not establish access.\n')
+                       'A discovered CLI or MCP configuration does not establish access.\n', encoding='utf-8')
     response = None
     if response_file is not None:
         path = safe_path(root, str(response_file))
@@ -148,14 +148,14 @@ def assess(root, agent_command=None, response_file=None):
             '.harness/checks.json', '.harness/onboarding.json', '.harness/environment.json',
             '.harness/runner.json', '.harness/state.json')}
         argv = [v.replace('{context}', str(root / CONTEXT)) for v in agent_command]
-        env = {k: os.environ[k] for k in ('PATH', 'HOME', 'TMPDIR', 'LANG', 'SYSTEMROOT') if k in os.environ}
+        env = processes.environment()
         with tempfile.TemporaryFile() as output:
-            process = subprocess.Popen(argv, cwd=root, env=env, stdout=output,
+            process = subprocess.Popen(processes.argv(argv), cwd=root, env=env, stdout=output,
                                        stderr=subprocess.DEVNULL, start_new_session=True)
             try:
                 code = process.wait(timeout=60)
             except subprocess.TimeoutExpired:
-                os.killpg(process.pid, signal.SIGKILL); process.wait()
+                processes.stop(process); process.wait()
                 raise HarnessError('Assessment agent timed out; inspect effects before retrying.')
             output.seek(0); data = output.read(MAX_BYTES + 1)
         if code or len(data) > MAX_BYTES:

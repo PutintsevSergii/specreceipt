@@ -26,14 +26,30 @@ jobs:
       - run: HARNESS_REAL_OPENSPEC="$RUNNER_TEMP/tools/node_modules/.bin/openspec" python3 scripts/test-wizard.py
       - run: HARNESS_REAL_OPENSPEC="$RUNNER_TEMP/tools/node_modules/.bin/openspec" npm run test:package
       - run: python3 -B harness self-test
-  windows-installer-contract:
+  windows-native:
     runs-on: windows-latest
+    timeout-minutes: 45
+    env:
+      HARNESS_REQUIRE_SYMLINK_TESTS: '1'
+    strategy:
+      matrix:
+        node: [20, 22, 24]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ matrix.node }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - run: npm ci
       - run: npm run check
       - run: npm run build
-      - run: node --test tests-node/windows.test.mjs
+      - run: node --test tests-node/windows.test.mjs tests-node/engine-upgrade.test.mjs tests-node/copilot.test.mjs
+      - run: python -B -X utf8 harness self-test
+      - run: npm install --prefix "$env:RUNNER_TEMP/tools" --ignore-scripts --no-audit --no-fund @fission-ai/openspec@1.14.3
+      - name: Native package and OpenSpec integration
+        run: |
+          $env:HARNESS_REAL_OPENSPEC = "$env:RUNNER_TEMP/tools/node_modules/.bin/openspec.cmd"
+          $env:HARNESS_PYTHON = (Get-Command python).Source
+          npm run test:package

@@ -21,7 +21,7 @@ def substantive(value):
 def documents(h, blockers):
     for rel, required in SECTIONS.items():
         try:
-            content = safe_path(h.root, rel).read_text()
+            content = safe_path(h.root, rel).read_text(encoding='utf-8')
             if h.metadata(rel)['status'] != 'APPROVED':
                 blockers.append(f'{rel}: developer-approved document required.')
             if not substantive(content):
@@ -43,7 +43,7 @@ def documents(h, blockers):
 def decisions(h, blockers, selected=None):
     """The decision queue remains the single decision source, using its documented table."""
     try:
-        content = safe_path(h.root, 'docs/DECISION_QUEUE.md').read_text()
+        content = safe_path(h.root, 'docs/DECISION_QUEUE.md').read_text(encoding='utf-8')
         rows = [[cell.strip() for cell in line.strip().strip('|').split('|')]
                 for line in content.splitlines() if line.strip().startswith('|')]
         expected = ['ID','Status','Blocks implementation','Affected work','Decision / why it matters']
@@ -82,7 +82,7 @@ def decisions(h, blockers, selected=None):
 def fingerprint(h, record):
     files = {}
     for rel in [*SECTIONS, 'docs/DECISION_QUEUE.md', '.harness/checks.json', '.harness/environment.json']:
-        files[rel] = safe_path(h.root, rel).read_text()
+        files[rel] = safe_path(h.root, rel).read_text(encoding='utf-8')
     return digest({'documents':files, 'onboarding':{k:v for k,v in record.items() if k != 'approval'}})
 
 
@@ -140,7 +140,7 @@ def project(h, require_approval=True, selected=None):
                 blockers.append('Developer documentation approval has not been recorded: use onboarding approve after actual approval.')
             else:
                 try:
-                    ref = safe_path(h.root, approval['reference']).read_text()
+                    ref = safe_path(h.root, approval['reference']).read_text(encoding='utf-8')
                     if not substantive(ref) or digest(ref) != approval['reference_hash'] or fingerprint(h,record) != approval['fingerprint']:
                         blockers.append('Documentation approval is stale; review changed inputs and obtain approval again.')
                 except (HarnessError, OSError) as exc:
@@ -169,7 +169,7 @@ def task_gaps(h, feature, task):
     for filename in ['spec.md','plan.md']:
         rel = f'specs/{feature["feature_id"]}/{filename}'
         try:
-            content = safe_path(h.root,rel).read_text()
+            content = safe_path(h.root,rel).read_text(encoding='utf-8')
             if h.metadata(rel)['status'] != 'APPROVED' or not substantive(content):
                 gaps.append(f'{rel}: approved, completed inputs required.')
             for key,label in [('tech_spec','Tech-Spec-Revision'),('architecture','Architecture-Revision')]:
@@ -179,8 +179,8 @@ def task_gaps(h, feature, task):
     for key in ['outcome','scope','requirements','acceptance_criteria','failure_scenarios']:
         values = task[key] if isinstance(task[key],list) else [task[key]]
         if not values or any(not substantive(value) for value in values): gaps.append(f'{task["id"]}: incomplete {key}.')
-    spec = safe_path(h.root, f'specs/{feature["feature_id"]}/spec.md').read_text()
-    reqs = spec + safe_path(h.root,'docs/TECH_SPEC.md').read_text()
+    spec = safe_path(h.root, f'specs/{feature["feature_id"]}/spec.md').read_text(encoding='utf-8')
+    reqs = spec + safe_path(h.root,'docs/TECH_SPEC.md').read_text(encoding='utf-8')
     if feature.get('spec_source'):
         try: reqs = '\n'.join(openspec_tool.feature_source(h.root,feature).values())
         except (HarnessError,OSError) as exc: gaps.append(str(exc)); reqs = ''

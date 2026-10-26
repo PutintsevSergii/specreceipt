@@ -1,5 +1,6 @@
 """Exact, approved recognition of outside changes; never a write permission."""
 import hashlib
+from .report_operation import operation as report_operation
 from .storage import HarnessError, digest, read, safe_path, uid, now
 from . import verification
 
@@ -54,7 +55,7 @@ def chain(h, task):
         if (manifest['previous'] != previous or manifest['task_id'] != task['id'] or
                 manifest['baseline'] != digest(task['execution']['baseline'])):
             raise HarnessError('Recognition chain or original baseline changed')
-        if digest(safe_path(h.root, record['approval']).read_text()) != record['approval_hash']:
+        if digest(safe_path(h.root, record['approval']).read_text(encoding='utf-8')) != record['approval_hash']:
             raise HarnessError('Recognition approval reference changed')
         previous = reference['hash']
         last = manifest
@@ -72,8 +73,9 @@ def propose(h, task):
             'entries':[entry(h,before,after,p) for p in paths]}
 
 
-def classify(h, task, allow_stale_definition=False):
-    before, after = baseline(task), h.fingerprints()
+def classify(h, task, allow_stale_definition=False, *, fingerprints=None):
+    before = baseline(task)
+    after = h.fingerprints() if fingerprints is None else fingerprints
     _, manifest = chain(h, task)
     recognized = set()
     if manifest:
@@ -98,11 +100,12 @@ def classify(h, task, allow_stale_definition=False):
             'unrecognized':[p for p in changes if not owned(task,p) and p not in recognized]}
 
 
+@report_operation
 def accept(h, task_id, manifest_path, approval, by):
     feature, task = h.task(task_id)
     if task['status'] not in {'BLOCKED','REWORK','IN_PROGRESS','IMPLEMENTED'}:
         raise HarnessError('Recognition requires an unfinished task before verification')
-    content = safe_path(h.root,approval).read_text()
+    content = safe_path(h.root,approval).read_text(encoding='utf-8')
     from .readiness import substantive
     if not substantive(content) or not by.strip():
         raise HarnessError('Explicit substantive developer approval reference required')
@@ -115,7 +118,7 @@ def accept(h, task_id, manifest_path, approval, by):
     ref = f'.harness/evidence/reconciliation/recognition-{uid()}.json'
     record = {'manifest':manifest,'approval':approval,'approval_hash':digest(content),'by':by,'at':now()}
     # Recheck immediately before the existing locked transaction commits.
-    if manifest != propose(h,task) or digest(safe_path(h.root,approval).read_text()) != record['approval_hash']:
+    if manifest != propose(h,task) or digest(safe_path(h.root,approval).read_text(encoding='utf-8')) != record['approval_hash']:
         raise HarnessError('Recognition inputs changed before recording')
     task['execution'].setdefault('recognitions',[]).append({'reference':ref,'hash':digest(record)})
     h.save(h.state(), h.event('baseline-recognized','Recognized exact pre-existing changes; no write scope granted.',task_id,feature['feature_id'],evidence=[ref]), feature, {ref:record})

@@ -28,6 +28,7 @@ import {
   installHint,
   executable,
   invoke,
+  pythonCommand,
 } from "./integrations.js";
 class DiagnosticIssue extends Error {}
 export function doctor(root: string) {
@@ -372,7 +373,7 @@ export function doctor(root: string) {
         "Installation validation does not grant application approval; run readiness TASK-ID.",
       );
     },
-    "Install Python >=3.11; restore the installed runtime or run upgrade for legacy/version mismatches. Native Windows requires WSL.",
+    "Install native Python >=3.11 or set HARNESS_PYTHON; restore the installed runtime or run upgrade for legacy/version mismatches.",
   );
   return { status: health(checks), checks };
 }
@@ -444,7 +445,7 @@ function executionDiagnostics(options: ExecutionOptions, installation = false) {
       add("agent-settings", "REQUIRED", false, "Invalid configuration or unsupported shell environment policy; actual tool environment cannot be attested.", "Use a supported default environment configuration or extend the preflight contract before launching; do not bypass policy.");
     }
   }
-  const shell = installation ? undefined : options.shell ?? (options.agent === "codex" ? { file: env.SHELL ?? "/bin/sh", login: true } : undefined);
+  const shell = installation ? undefined : options.shell ?? (options.agent === "codex" && process.platform !== "win32" ? { file: env.SHELL ?? "/bin/sh", login: true } : undefined);
   if (shell) {
     const quote = (s: string) => "'" + s.replaceAll("'", "'\\''") + "'";
     // Capture only inside this process. Environment values never enter diagnostics/evidence.
@@ -474,8 +475,8 @@ function executionDiagnostics(options: ExecutionOptions, installation = false) {
   let navigation = installed || !!options.taskId || fs.existsSync(path.join(root, ".harness/product.json"));
   let openspecRequired = navigation;
   if (installed) {
-    const python = toolEnv.HARNESS_PYTHON ?? executable("python3", toolEnv) ?? executable("python", toolEnv);
-    const version = python && invoke({ file: python, prefix: [] }, ["--version"], root, toolEnv, 5000);
+    const python = pythonCommand(toolEnv);
+    const version = python && invoke(python, ["--version"], root, toolEnv, 5000);
     const match = version && /Python (\d+)\.(\d+)/.exec(version.stdout || version.stderr);
     add("python", "REQUIRED", !!(version && version.status === 0 && match && Number(match[1]) === 3 && Number(match[2]) >= 11), "Python >=3.11 required by installed engine.", "Expose a compatible Python runtime in the actual tool environment.");
     try {
@@ -507,7 +508,8 @@ function executionDiagnostics(options: ExecutionOptions, installation = false) {
     ["graphify", ".harness/tools/graphify/bin/graphify", ["--version"], "graphify 0.9.27", navigation],
     ["openspec", ".harness/tools/openspec/node_modules/.bin/openspec", ["--version"], OPENSPEC_VERSION, openspecRequired],
   ] as const) {
-    const local = path.join(root, rel);
+    const nativeRel = process.platform === "win32" ? (name === "graphify" ? ".harness/tools/graphify/Scripts/graphify.exe" : rel + ".cmd") : rel;
+    const local = path.join(root, nativeRel);
     let binary: string | null = null;
     let managed = false;
     let base: string | null = null;
@@ -520,7 +522,8 @@ function executionDiagnostics(options: ExecutionOptions, installation = false) {
         } catch { /* Invalid managed entry blocks PATH fallback, like Python tool_paths.binary. */ }
       } else binary = executable(name, toolEnv);
     }
-    const probe = binary && invoke({ file: binary, prefix: [] }, [...args], root, toolEnv, 5000);
+    let probe;
+    try { probe = binary && invoke({ file: binary, prefix: [] }, [...args], root, toolEnv, 5000); } catch { probe = null; }
     const ok = !!probe && probe.status === 0 && probe.stdout.trim() === expected;
     add(name + "-cli", required ? "REQUIRED" : "OPTIONAL", ok,
       ok ? `${name} ${expected} available in tool environment.` : `${name} CLI missing, inaccessible or incompatible (expected ${expected}).`,

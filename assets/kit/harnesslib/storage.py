@@ -1,13 +1,18 @@
 """Validated JSON, process serialization, recoverable transactions and redaction."""
 import contextlib
 import datetime
-import fcntl
 import hashlib
 import json
 import os
 from pathlib import Path
 import re
+import stat
 import uuid
+
+if os.name == 'nt':
+    import msvcrt
+else:
+    import fcntl
 
 class HarnessError(Exception):
     pass
@@ -23,7 +28,7 @@ def digest(value):
 
 def read(path):
     try:
-        return json.loads(Path(path).read_text())
+        return json.loads(Path(path).read_text(encoding='utf-8'))
     except (OSError, ValueError) as exc:
         raise HarnessError(f'Cannot read JSON {path}: {exc}') from exc
 
@@ -32,16 +37,19 @@ def atomic(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_name(path.name + '.tmp-' + uid())
     try:
-        with tmp.open('x') as stream:
+        with tmp.open('x', encoding='utf-8') as stream:
             stream.write(json.dumps(data, indent=2, sort_keys=True) + '\n')
             stream.flush()
             os.fsync(stream.fileno())
         os.replace(tmp, path)
-        fd = os.open(path.parent, os.O_RDONLY)
-        try:
-            os.fsync(fd)
-        finally:
-            os.close(fd)
+        # Windows cannot open directories through os.open. The file is flushed
+        # before replacement; POSIX additionally persists the directory entry.
+        if os.name != 'nt':
+            fd = os.open(path.parent, os.O_RDONLY)
+            try:
+                os.fsync(fd)
+            finally:
+                os.close(fd)
     finally:
         tmp.unlink(missing_ok=True)
 
@@ -97,12 +105,28 @@ def validate_schema(value, schema, location='$'):
     if isinstance(value, (int, float)) and 'minimum' in schema and value < schema['minimum']:
         raise HarnessError(f'{location}: below minimum')
 
+def is_link(path):
+    """Include Windows junctions/reparse points in the existing no-link boundary."""
+    path = Path(path)
+    if path.is_symlink(): return True
+    if os.name == 'nt':
+        try:
+            return bool(path.lstat().st_file_attributes & stat.FILE_ATTRIBUTE_REPARSE_POINT)
+        except FileNotFoundError:
+            return False
+    return False
+
+
 def safe_path(root, rel):
     root = Path(root).resolve()
+    if os.name == 'nt' and (Path(rel).drive or ':' in str(rel) or any(
+            part != part.rstrip(' .') or re.fullmatch(r'(?i)(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\..*)?', part)
+            for part in Path(rel).parts)):
+        raise HarnessError(f'Unsafe repository path: {rel}')
     path = root / rel
     if Path(rel).is_absolute() or '..' in Path(rel).parts or not path.resolve().is_relative_to(root.resolve()):
         raise HarnessError(f'Unsafe repository path: {rel}')
-    if any(p.is_symlink() for p in [path, *path.parents] if p != root.parent):
+    if any(is_link(p) for p in [path, *path.parents] if p != root.parent):
         raise HarnessError(f'Symlink path disallowed: {rel}')
     return path
 
@@ -114,19 +138,30 @@ def lock(root):
     if safe_path(root, '.harness/installation-pending.json').exists():
         raise HarnessError('Installation or upgrade recovery required before lifecycle writes.')
     try:
-        handle = guard.open('x')
+        handle = guard.open('x', encoding='utf-8')
     except FileExistsError as exc:
         raise HarnessError('Another harness writer or installer is active; inspect stale locks before retrying.') from exc
     try:
-        with safe_path(root, '.harness/write.lock').open('a') as stream:
+        with safe_path(root, '.harness/write.lock').open('a+b') as stream:
             try:
-                fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            except BlockingIOError as exc:
+                if os.name == 'nt':
+                    if stream.seek(0, os.SEEK_END) == 0:
+                        stream.write(b'\0')
+                        stream.flush()
+                    stream.seek(0)
+                    msvcrt.locking(stream.fileno(), msvcrt.LK_NBLCK, 1)
+                else:
+                    fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError as exc:
                 raise HarnessError('Another harness writer is active; retry after it exits.') from exc
             try:
                 yield
             finally:
-                fcntl.flock(stream, fcntl.LOCK_UN)
+                if os.name == 'nt':
+                    stream.seek(0)
+                    msvcrt.locking(stream.fileno(), msvcrt.LK_UNLCK, 1)
+                else:
+                    fcntl.flock(stream, fcntl.LOCK_UN)
     finally:
         handle.close()
         guard.unlink()
@@ -136,7 +171,7 @@ def events(root):
     if not path.exists():
         return []
     try:
-        return [json.loads(line) for line in path.read_text().splitlines() if line]
+        return [json.loads(line) for line in path.read_text(encoding='utf-8').splitlines() if line]
     except ValueError as exc:
         raise HarnessError('Journal has a torn/invalid record; preserve it and use resume.') from exc
 

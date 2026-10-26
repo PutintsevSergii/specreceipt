@@ -1,3 +1,4 @@
+from platform_support import symlink
 """Counterexamples from the audit and real multi-task/adapter lifecycle regressions."""
 import copy
 import json
@@ -44,11 +45,11 @@ class HardeningTests(unittest.TestCase):
 
     def test_product_maintenance_scope_rejects_symlink_file_and_directory(self):
         src = self.root/'src'; src.mkdir()
-        alias = src/'integrations.ts'; alias.symlink_to(self.root/'docs/DEMO.md')
+        alias = src/'integrations.ts'; symlink(alias, self.root/'docs/DEMO.md')
         f, t = self.h.task('DEMO-001'); t['scope'] = ['src/integrations.ts']; self.write_tasks(f)
         with self.assertRaisesRegex(HarnessError, 'Symlink'):
             self.h.transition('DEMO-001', 'IN_PROGRESS', 'isolated alias regression')
-        alias.unlink(); src.rmdir(); src.symlink_to(self.root/'docs', target_is_directory=True)
+        alias.unlink(); src.rmdir(); symlink(src, self.root/'docs', target_is_directory=True)
         with self.assertRaisesRegex(HarnessError, 'Symlink'):
             self.h.transition('DEMO-001', 'IN_PROGRESS', 'isolated directory alias regression')
 
@@ -106,13 +107,15 @@ class HardeningTests(unittest.TestCase):
         self.assertFalse(self.h.current_evidence(self.h.task('DEMO-001')[1]))
         self.h.checkpoint()
         self.assertNotIn('fixture-private-value',(self.root/'.harness/state.json').read_text())
-        before=self.h.binding();(self.root/'docs/DEMO.md').chmod(0o755)
-        self.assertNotEqual(before,self.h.binding())
+        # Windows chmod controls read-only state, not POSIX executable bits.
+        if sys.platform != 'win32':
+            before=self.h.binding();(self.root/'docs/DEMO.md').chmod(0o755)
+            self.assertNotEqual(before,self.h.binding())
 
     def test_symlinks_fail_closed_and_os_metadata_is_ignored(self):
         before=self.h.binding();(self.root/'.DS_Store').write_text('os metadata')
         self.assertEqual(before,self.h.binding())
-        (self.root/'linked.py').symlink_to(self.root/'docs/DEMO.md')
+        symlink(self.root/'linked.py', self.root/'docs/DEMO.md')
         with self.assertRaisesRegex(HarnessError,'symlink'):self.h.binding()
 
     def test_outside_scope_add_delete_and_modify_are_blocked(self):
@@ -284,7 +287,11 @@ p.write_text('```harness-review\\n'+json.dumps(r)+'\\n```\\n')
         self.assertEqual(self.h.task('DEMO-001')[1]['status'],'TODO')
 
     def test_runner_refuses_check_bundle_exceeding_time_budget(self):
-        self.configure_runner();r=runner.run(self.h,10,3)
+        self.configure_runner()
+        # Test the declared check budget, independently of host fixture IO speed.
+        from unittest.mock import patch
+        with patch.object(runner.time, 'monotonic', return_value=0):
+            r=runner.run(self.h,10,3)
         self.assertEqual(r['action'],'time-budget',r)
         self.assertEqual(self.h.task('DEMO-001')[1]['status'],'IMPLEMENTED')
 
@@ -329,7 +336,7 @@ p.write_text('```harness-review\\n'+json.dumps(r)+'\\n```\\n')
         with self.assertRaises(HarnessError):self.h.transition('DEMO-001','IN_PROGRESS','fixture')
 
     def test_control_config_symlink_is_rejected(self):
-        p=self.root/'.harness/environment.json';p.unlink();p.symlink_to(self.root/'templates/onboarding.json')
+        p=self.root/'.harness/environment.json';p.unlink();symlink(p, self.root/'templates/onboarding.json')
         with self.assertRaises(HarnessError):self.h.binding()
 
     def test_legacy_missing_scope_snapshot_requires_reviewed_replacement(self):

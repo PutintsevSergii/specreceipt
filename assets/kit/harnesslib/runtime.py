@@ -9,25 +9,30 @@ import subprocess
 import tarfile
 import tempfile
 import urllib.request
+import zipfile
 
+from . import processes
 from .storage import HarnessError, atomic, now
 
 
 def directory():
+    if os.name == 'nt':
+        return Path(os.environ.get('HARNESS_RUNTIME_DIR') or
+                    str(Path(os.environ.get('LOCALAPPDATA', Path.home()/'AppData/Local'))/'harness/runtime')).expanduser().resolve()
     return Path(os.environ.get('HARNESS_RUNTIME_DIR') or
                 str(Path(os.environ.get('XDG_DATA_HOME', str(Path.home()/'.local/share')))/'harness/runtime')).expanduser().resolve()
 
 
 def activate():
     base = directory()
-    additions = [str(base/'bin'), str(base/'node/bin')]
+    additions = [str(base/'bin'), str(base/('node' if os.name == 'nt' else 'node/bin'))]
     existing = os.environ.get('PATH','').split(os.pathsep)
     os.environ['PATH'] = os.pathsep.join(additions + [p for p in existing if p not in additions])
 
 
 def command(argv, timeout=300, env=None):
     try:
-        result = subprocess.run(argv, capture_output=True, text=True, timeout=timeout, env=env)
+        result = processes.run(argv, capture_output=True, text=True, timeout=timeout, env=env)
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise HarnessError('Runtime provisioning command failed: ' + str(exc)) from exc
     if result.returncode:
@@ -53,11 +58,22 @@ def ensure_uv():
         command([found,'--version'],15)
         return found
     base = directory(); (base/'bin').mkdir(parents=True,exist_ok=True)
+    if os.name == 'nt':
+        command(['powershell.exe', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
+                 '-File', str(Path(__file__).resolve().parents[1]/'scripts/uv.ps1'),
+                 '-Destination', str(base/'bin')])
+        activate()
+        found = shutil.which('uv')
+        if not found: raise HarnessError('uv installation did not provide an executable.')
+        command([found, '--version'], 15)
+        return found
     with tempfile.TemporaryDirectory(prefix='harness-uv-') as folder:
-        installer = Path(folder)/'uv-install.sh'
-        download('https://astral.sh/uv/install.sh', installer, 2*1024*1024)
+        extension = 'ps1' if os.name == 'nt' else 'sh'
+        installer = Path(folder)/('uv-install.' + extension)
+        download('https://astral.sh/uv/install.' + extension, installer, 2*1024*1024)
         env = dict(os.environ, UV_UNMANAGED_INSTALL=str(base/'bin'))
-        command(['sh',str(installer)],env=env)
+        command((['powershell.exe','-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File']
+                 if os.name == 'nt' else ['sh']) + [str(installer)],env=env)
     activate()
     found = shutil.which('uv')
     if not found: raise HarnessError('uv installation did not provide an executable.')
@@ -81,9 +97,10 @@ def node_compatible():
 
 
 def node_platform():
-    system = {'Darwin':'darwin','Linux':'linux'}.get(platform.system())
+    system = {'Darwin':'darwin','Linux':'linux','Windows':'win'}.get(platform.system())
     arch = {'x86_64':'x64','AMD64':'x64','arm64':'arm64','aarch64':'arm64'}.get(platform.machine())
-    if not system or not arch: raise HarnessError('Automatic Node installation supports macOS/Linux/WSL on x64/arm64.')
+    if not system or not arch or (system == 'win' and arch != 'x64'):
+        raise HarnessError('Automatic Node installation supports Windows x64 and macOS/Linux x64/arm64.')
     return system, arch
 
 
@@ -98,8 +115,9 @@ def ensure_node():
         stage=Path(folder); checks=stage/'SHASUMS256.txt'
         url='https://nodejs.org/dist/latest-v22.x/'
         download(url+'SHASUMS256.txt',checks,1024*1024)
-        pattern=re.compile(r'([a-f0-9]{64})\s+(node-v22\.\d+\.\d+-'+system+'-'+arch+r'\.tar\.gz)')
-        matches=[m for line in checks.read_text().splitlines() if (m:=pattern.fullmatch(line))]
+        suffix = '.zip' if system == 'win' else '.tar.gz'
+        pattern=re.compile(r'([a-f0-9]{64})\s+(node-v22\.\d+\.\d+-'+system+'-'+arch+re.escape(suffix)+')')
+        matches=[m for line in checks.read_text(encoding='utf-8').splitlines() if (m:=pattern.fullmatch(line))]
         if len(matches)!=1: raise HarnessError('Cannot select a unique official Node 22 distribution.')
         checksum, name=matches[0].groups(); archive=stage/name
         download(url+name,archive,150*1024*1024)
@@ -107,7 +125,20 @@ def ensure_node():
             observed=hashlib.file_digest(stream,'sha256').hexdigest()
         if observed!=checksum:
             raise HarnessError('Node archive checksum mismatch.')
-        prefix=name[:-7]
+        prefix=name[:-len(suffix)]
+        if system == 'win':
+            with zipfile.ZipFile(archive) as zipped:
+                for item in zipped.infolist():
+                    parts = Path(item.filename).parts
+                    if (not parts or parts[0] != prefix or '..' in parts or
+                            Path(item.filename).is_absolute() or ':' in item.filename or
+                            '\\' in item.filename or (item.external_attr >> 16) & 0o170000 == 0o120000):
+                        raise HarnessError('Unsafe Node archive path.')
+                zipped.extractall(stage)
+            (stage/prefix).rename(destination)
+            activate()
+            if not node_compatible(): raise HarnessError('Downloaded Node/npm could not execute on this platform.')
+            return
         with tarfile.open(archive,'r:gz') as tar:
             for item in tar.getmembers():
                 parts=Path(item.name).parts

@@ -1,6 +1,7 @@
 """CLI contract and freshness tests without downloading an external package."""
 from pathlib import Path
 import shutil
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -43,7 +44,10 @@ class CodeGraphToolTests(unittest.TestCase):
                               'elif cmd=="query": print(json.dumps({"matches":["app.py"]}))\n')
             binary.chmod(0o755)
             original = shutil.which
-            with patch.object(codegraph_tool.shutil,'which',side_effect=lambda name: str(binary) if name=='codegraph' else original(name)):
+            real_run = codegraph_tool.processes.run
+            def launch(argv, **kwargs):
+                return real_run([sys.executable, *argv], **kwargs)
+            with patch.object(codegraph_tool.shutil,'which',side_effect=lambda name: str(binary) if name=='codegraph' else original(name)), patch.object(codegraph_tool.processes,'run',side_effect=launch):
                 self.assertTrue(codegraph_tool.ensure(root)['changed'])
                 self.assertEqual(codegraph_tool.status(root)['freshness'],'fresh')
                 self.assertFalse(codegraph_tool.ensure(root)['changed'])

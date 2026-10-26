@@ -3,6 +3,7 @@ import fnmatch
 import hashlib
 import json
 import re
+from .report_operation import operation as report_operation
 from .storage import HarnessError, digest, now, read, redact, safe_path
 from . import readiness
 
@@ -135,7 +136,7 @@ def evidence_signals(h, task, refs):
         length = path.stat().st_size; size += length
         if length > 65536 or size > 131072:
             ambiguous.append(ref + ' (inspection limit)'); continue
-        p, a = file_signals(ref, path.read_text(errors='replace'))
+        p, a = file_signals(ref, path.read_text(errors='replace', encoding='utf-8'))
         if p: positive.append(ref)
         if a: ambiguous.append(ref)
     return positive, ambiguous
@@ -163,7 +164,7 @@ def material(h, feature, task):
     paths = ['docs/TECH_SPEC.md', 'docs/ARCHITECTURE.md', 'docs/DECISION_QUEUE.md', '.harness/checks.json',
              f"specs/{feature['feature_id']}/spec.md", f"specs/{feature['feature_id']}/plan.md"]
     return digest({'risk_classifier':RISK_CLASSIFIER_VERSION, 'task':{k:task[k] for k in fields}, 'revisions':feature['revisions'], 'policy':policy(h),
-                   'source':feature.get('spec_source'), 'inputs':{p:digest(safe_path(h.root,p).read_text()) for p in paths}})
+                   'source':feature.get('spec_source'), 'inputs':{p:digest(safe_path(h.root,p).read_text(encoding='utf-8')) for p in paths}})
 
 
 def floor(h, task, facts):
@@ -202,7 +203,7 @@ def assess(h, task_id, facts_ref):
         if not path.is_file() or path.stat().st_size > 65536: raise HarnessError('Inspect a bounded file (at most 64 KiB): '+ref)
         size += path.stat().st_size
         if size > 131072: raise HarnessError('Assessment inspection exceeds 128 KiB')
-        inspected[ref] = digest(path.read_text())
+        inspected[ref] = digest(path.read_text(encoding='utf-8'))
     observed_sensitive, ambiguous = evidence_signals(h, task, inspected)
     policy_facts = {**facts, 'critical_risk':facts['critical_risk'] or bool(observed_sensitive)}
     minimum, reasons = floor(h, task, policy_facts)
@@ -221,7 +222,7 @@ def assess(h, task_id, facts_ref):
               'complexity':'HIGH' if complex_change else 'MEDIUM' if moderate else 'LOW', 'uncertainty':'HIGH' if deeper else ('MEDIUM' if facts['unknowns'] else 'LOW'),
               'execution_cost':{'FAST':'targeted','STANDARD':'structured','STRICT':'full'}[recommendation],
               'deeper_required':deeper, 'reasons':reasons, 'selected':None, 'at':now(),
-              'plan':safe_path(h.root,f"specs/{feature['feature_id']}/plan.md").read_text()}
+              'plan':safe_path(h.root,f"specs/{feature['feature_id']}/plan.md").read_text(encoding='utf-8')}
     if len(record['plan'].encode()) > 16384: raise HarnessError('Brief assessment plan must fit 16 KiB; link deeper planning artifacts')
     # Identical facts and material keep the existing confirmation stable.
     if old and all(old.get(k) == record[k] for k in ('material','facts','inspected','sensitive_evidence','minimum','deeper_required','reasons')): return old
@@ -241,7 +242,7 @@ def decision_binding(h, feature, task):
 
 def current_approval(h, task, key, fingerprint):
     a = task['approvals'].get(key)
-    try: return bool(a and a['fingerprint'] == fingerprint and a['reference_hash'] == digest(safe_path(h.root,a['reference']).read_text()))
+    try: return bool(a and a['fingerprint'] == fingerprint and a['reference_hash'] == digest(safe_path(h.root,a['reference']).read_text(encoding='utf-8')))
     except (OSError,HarnessError): return False
 
 
@@ -277,7 +278,7 @@ def check_deeper_review(h, feature, task, ambiguous):
     if not record or record['material'] != w['material'] or record['revision'] != w['revision']:
         raise HarnessError('Current bounded deeper review required before STRICT confirmation')
     path = safe_path(h.root, record['reference'])
-    if not path.is_file() or path.stat().st_size > 32768 or digest(path.read_text()) != record['reference_hash']:
+    if not path.is_file() or path.stat().st_size > 32768 or digest(path.read_text(encoding='utf-8')) != record['reference_hash']:
         raise HarnessError('Deeper review reference changed or exceeds 32 KiB')
     review = read(path)
     if not isinstance(review,dict) or set(review) != {'task_id','material','assessment_revision','items'} or review['task_id'] != task['id'] or review['material'] != w['material'] or review['assessment_revision'] != w['revision']:
@@ -321,7 +322,7 @@ def resolve(h, task_id, review_ref):
     path = safe_path(h.root,review_ref)
     if not path.is_file() or path.stat().st_size > 32768: raise HarnessError('Deeper review is missing or exceeds 32 KiB')
     previous = w.get('deeper_review')
-    w['deeper_review'] = {'reference':review_ref,'reference_hash':digest(path.read_text()),
+    w['deeper_review'] = {'reference':review_ref,'reference_hash':digest(path.read_text(encoding='utf-8')),
                           'material':w['material'],'revision':w['revision']}
     try: result = check_deeper_review(h,feature,task,ambiguous)
     except Exception:
@@ -361,6 +362,7 @@ def guard(h, feature, task):
         raise HarnessError('Selected workflow or project policy requires an OpenSpec source')
 
 
+@report_operation
 def confirm(h, task_id, profile, by, reference):
     feature, task = h.task(task_id)
     w = task.get('workflow')
@@ -374,7 +376,7 @@ def confirm(h, task_id, profile, by, reference):
         check_deeper_review(h,feature,task,ambiguous)
     minimum,_ = floor(h,task,{**w['facts'], 'critical_risk':w['facts']['critical_risk'] or bool(sensitive) or bool(w['sensitive_evidence'])})
     if PROFILES.index(profile) < PROFILES.index(minimum): raise HarnessError('Below policy minimum '+minimum)
-    if not readiness.substantive(by) or not readiness.substantive(safe_path(h.root,reference).read_text()):
+    if not readiness.substantive(by) or not readiness.substantive(safe_path(h.root,reference).read_text(encoding='utf-8')):
         raise HarnessError('Actual developer confirmation reference and identity required')
     w['selected'] = profile
     # Use the official approval path; selection and plan share one attestation.

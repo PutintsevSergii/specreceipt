@@ -2,28 +2,56 @@
 
 SpecReceipt is a repository-local engineering workflow toolkit for coding agents. It installs shared Skills, project instructions, templates and a Python lifecycle engine. A TypeScript CLI handles installation, diagnostics and upgrades. The Python engine owns task state, readiness, approvals, checks and evidence.
 
-`specreceipt@0.3.1` is distributed under the [Unlicense](LICENSE). Check the [npm package page](https://www.npmjs.com/package/specreceipt) for published versions.
+`specreceipt@0.4.0` is distributed under the [Unlicense](LICENSE). Check the [npm package page](https://www.npmjs.com/package/specreceipt) for published versions.
 
 ## Requirements
 
 - Node.js 20.19 through 24 and npm.
 - Python 3.11 or newer.
-- macOS or Linux; WSL is the supported route on Windows. Native Windows engine execution is unsupported.
+- Windows x64 (Windows PowerShell 5.1 or Command Prompt), macOS, or Linux. WSL and Bash are not required on Windows.
 - Git for merging user changes during upgrades.
 - OpenSpec 1.14.3 for `init`; CodeGraph and Graphify are installed separately when navigation is needed.
 
+## Native Windows setup
+
+From a source checkout, use existing native Python 3.11+ or set `HARNESS_PYTHON` to its executable path, then run `.\harness.cmd validate`. The launcher also recognizes `py` and previously provisioned user-local Python. Microsoft Store execution aliases are not treated as installed runtimes.
+
+To adopt the kit into another project and explicitly provision missing prerequisites:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 C:\projects\my-project
+```
+
+The execution-policy setting applies only to that process. No WSL, Bash, administrator access, or machine-wide policy change is required. Downloads need network access. Native prerequisites live under `%LOCALAPPDATA%\harness\runtime`, overridden by `HARNESS_RUNTIME_DIR`. Python, Node/npm and required navigation tools remain dependencies; unavailable downloads or incompatible tools report failure. Existing npm installations use `specreceipt.cmd` from either shell. See [native verification](specs/windows-native/verification.md) for current validation limits.
+
+## Fast feedback and full verification
+
+For a focused Windows development check, forward an explicit argument array to the native Python launcher:
+
+```powershell
+& .\scripts\python.ps1 -CommandArgs @('-B', '-m', 'unittest', 'discover', '-s', 'tests', '-p', 'test_performance.py', '-v')
+```
+
+On Linux/macOS use `python3 -B -m unittest discover -s tests -p test_performance.py -v`. Focused checks provide partial feedback. Final acceptance still requires `harness verify TASK-ID` and the complete self-test; no quick subset replaces those gates.
+
+During a self-test, `.harness/progress/self-test.json` exposes completed/total counts, the active test, elapsed time and the slowest cases. Live status includes this last observation. It is not process-liveness proof or execution evidence. Raw child output stays private until the final redacted log is recorded. Lifecycle operations update derived reports once at their final boundary; their durable state/events and fresh gate checks remain immediate.
+
+Windows bootstrap pins uv 0.13.5 and verifies the official archive SHA-256 before installing its executable. It tries GitHub Releases and the official Astral release mirror. Managed Python installation disables user-bin shortcuts and registry registration. If both sources are inaccessible, setup reports failure and supports retrying with an existing native uv/Python installation.
+
+The complete Python self-test has a 30-minute budget. On Windows without symlink privilege, real symlink fixtures explicitly report skips for error 1314; other errors still fail. Windows CI sets `HARNESS_REQUIRE_SYMLINK_TESTS=1`, which requires those tests to execute. Unprivileged junction-boundary regressions run locally.
+
 ## Install
 
-Once version 0.3.1 appears on npm, install it in a separate tools directory:
+Once version 0.4.0 appears on npm, install it in a separate tools directory:
 
 ```sh
-npm install --prefix /path/to/tools --ignore-scripts specreceipt@0.3.1
+npm install --prefix /path/to/tools --ignore-scripts specreceipt@0.4.0
 ```
 
 Before npm publication, use the reviewed local archive instead:
 
 ```sh
-npm install --prefix /path/to/tools --ignore-scripts /path/to/specreceipt-0.3.1.tgz
+npm install --prefix /path/to/tools --ignore-scripts /path/to/specreceipt-0.4.0.tgz
 npm install --prefix /path/to/project/.harness/tools/openspec --ignore-scripts @fission-ai/openspec@1.14.3
 cd /path/to/project
 /path/to/tools/node_modules/.bin/specreceipt init --target /path/to/project --dry-run

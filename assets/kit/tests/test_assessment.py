@@ -1,3 +1,4 @@
+from platform_support import symlink
 """Real subprocess assessment and corporate skill coexistence without a live provider."""
 import json
 from pathlib import Path
@@ -92,7 +93,7 @@ print(json.dumps({'inventory_hash':context['inventory_hash'],
     def test_symlink_skills_are_not_discovered(self):
         outside=Path(self.tmp.name)/'outside.md'; outside.write_text('do not inventory')
         linked=self.root/'.github/skills/linked'; linked.mkdir()
-        (linked/'SKILL.md').symlink_to(outside)
+        symlink(linked/'SKILL.md', outside)
         self.assertNotIn('.github/skills/linked/SKILL.md',[s['path'] for s in inventory(self.root)['skills']])
 
     def test_agent_failure_keeps_assessment_pending(self):

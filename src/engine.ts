@@ -2,8 +2,8 @@
 import * as path from "node:path";
 import { spawnSync } from "node:child_process";
 import { manifest, read, hash, safe } from "./filesystem.js";
-import { executable, kitAssets } from "./integrations.js";
-export const ENGINE_VERSION = "0.3.1";
+import { pythonCommand, kitAssets } from "./integrations.js";
+export const ENGINE_VERSION = "0.4.0";
 export const PROTOCOL_VERSION = 1;
 export interface Response {
   protocolVersion: number;
@@ -21,17 +21,14 @@ export function request(
   engineRoot = root,
   env: NodeJS.ProcessEnv = process.env,
 ): Response {
-  const python =
-    env.HARNESS_PYTHON || executable("python3", env) || executable("python", env);
+  const python = pythonCommand(env);
   if (!python)
     throw Error(
       "Python runtime missing. Install Python >=3.11 or set HARNESS_PYTHON.",
     );
-  if (process.platform === "win32")
-    throw Error("Python engine requires POSIX; use WSL.");
   const code =
     'import sys, importlib.util, pathlib; p=pathlib.Path(sys.argv[1])/"harnesslib"; s=importlib.util.spec_from_file_location("harnesslib", p/"__init__.py", submodule_search_locations=[str(p)]); m=importlib.util.module_from_spec(s); sys.modules["harnesslib"]=m; s.loader.exec_module(m); from harnesslib.protocol import main; sys.exit(main())';
-  const r = spawnSync(python, ["-I", "-B", "-c", code, engineRoot], {
+  const r = spawnSync(python.file, [...python.prefix, "-I", "-B", "-X", "utf8", "-c", code, engineRoot], {
     cwd: root,
     input: JSON.stringify({
       protocolVersion: PROTOCOL_VERSION,

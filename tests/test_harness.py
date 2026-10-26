@@ -1,3 +1,4 @@
+from platform_support import symlink
 """Behavioral acceptance tests; every mutation occurs in an isolated fixture."""
 import json
 from pathlib import Path
@@ -180,7 +181,7 @@ class HarnessTests(unittest.TestCase):
         git('add','.gitignore')
         before = git('status','--porcelain')
         preview = adopt(KIT,target)
-        self.assertTrue(preview['ignore_file'].endswith('info/exclude'))
+        self.assertEqual(Path(preview['ignore_file']).parts[-2:], ('info', 'exclude'))
         self.assertEqual(git('status','--porcelain'),before)
         adopt(KIT,target,False)
         Harness(target).init()
@@ -363,7 +364,7 @@ class HarnessTests(unittest.TestCase):
 
     def test_symlink_skill_rejected(self):
         p=self.root/'.agents/skills/planner/SKILL.md'
-        p.unlink(); p.symlink_to(self.root/'docs/TECH_SPEC.md')
+        p.unlink(); symlink(p, self.root/'docs/TECH_SPEC.md')
         result=self.skill_command('planner')
         self.assertNotEqual(result.returncode,0)
         self.assertIn('Symlink',result.stderr)
