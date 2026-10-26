@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "graph-config",
+  "type": "object",
+  "properties": {
+    "provider": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "max_bytes": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "exclude": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "required": [
+    "provider",
+    "version",
+    "max_bytes",
+    "exclude"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,12 @@
+{
+  "dist/cli.js": "4f8b1b2261ccd31245bf8d874f2dd27a875154a4f91f101029bd4d1b2296e020",
+  "dist/copilot.js": "eadc6a6d53765b0d954c64f528daea01ea42b95aca1127309e8c0aaeb3cfaffb",
+  "dist/core.js": "a40369224626c1b08ed5b1f4957a25aac3acb237fe75a6afea83f3eb23ac5367",
+  "dist/doctor.js": "0e1ad57842bea5a523812e0278b9619b803a8aafd08a2c728869e75f5baf6019",
+  "dist/engine.js": "69438847e7681e45633d5892b31ec9114e36d766a7bdbcb7541db050efcd97b3",
+  "dist/filesystem.js": "a0962413dc5179e6418d3d90177f54b7877c584e6f4c005d243275b5ed4ce59d",
+  "dist/install.js": "b586f76c496262c8480e5b5f58b3b23f80d4b3ff636a2008c2be05cf00b54135",
+  "dist/integrations.js": "8a477ba3b63f5cded6eb6b9db7664d4a8290467ecbe34de4568ad07056fac22e",
+  "dist/migrations.js": "a64cfb9300033e147037e8cc2c385babd3687b653452fd57f6fc81d03b4fb332",
+  "dist/upgrade.js": "b3fc73dcff80a505571d7800cd0a4ccd1235df5210c9ebabbc2a8bd0bf3faa87"
+}

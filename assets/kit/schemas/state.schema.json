@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "state",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "enum": [
+        1
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "updated_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "active_feature": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "active_task": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "phase": {
+      "type": "string",
+      "minLength": 1
+    },
+    "last_checkpoint": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "active_operation": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "uncertain_outcome": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "pending_decisions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "next_action": {
+      "type": "string",
+      "minLength": 1
+    },
+    "revisions": {
+      "type": "object",
+      "properties": {
+        "tech_spec": {
+          "type": "string",
+          "minLength": 1
+        },
+        "architecture": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "tech_spec",
+        "architecture"
+      ],
+      "additionalProperties": false
+    },
+    "git": {
+      "type": "object",
+      "properties": {
+        "head": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "branch": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "head",
+        "branch"
+      ],
+      "additionalProperties": false
+    },
+    "fingerprints": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "latest_verification": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "graph": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "created_at",
+    "updated_at",
+    "active_feature",
+    "active_task",
+    "phase",
+    "last_checkpoint",
+    "active_operation",
+    "uncertain_outcome",
+    "blockers",
+    "pending_decisions",
+    "next_action",
+    "revisions",
+    "git",
+    "fingerprints",
+    "latest_verification",
+    "graph"
+  ],
+  "additionalProperties": false
+}

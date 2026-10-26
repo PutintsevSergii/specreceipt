@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "evidence",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "enum": [
+        1
+      ]
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "fingerprint": {
+      "type": "string",
+      "minLength": 1
+    },
+    "revisions": {
+      "type": "object",
+      "properties": {
+        "tech_spec": {
+          "type": "string",
+          "minLength": 1
+        },
+        "architecture": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "tech_spec",
+        "architecture"
+      ],
+      "additionalProperties": false
+    },
+    "environment": {
+      "type": "object"
+    },
+    "check_config_hash": {
+      "type": "string",
+      "minLength": 1
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "check": {
+            "type": "string",
+            "minLength": 1
+          },
+          "result": {
+            "type": "string",
+            "enum": [
+              "PASS",
+              "FAIL",
+              "NOT_RUN",
+              "BLOCKED",
+              "NOT_APPLICABLE"
+            ]
+          },
+          "command": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "exit_code": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "summary": {
+            "type": "string"
+          },
+          "log": {
+            "type": "string",
+            "minLength": 1
+          },
+          "log_hash": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "check",
+          "result",
+          "command",
+          "exit_code",
+          "summary"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "result": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL",
+        "NOT_RUN",
+        "BLOCKED",
+        "NOT_APPLICABLE"
+      ]
+    },
+    "definition_hash": {
+      "type": "string",
+      "minLength": 1
+    },
+    "checked_tasks": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "acceptance_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "criterion": {
+            "type": "string",
+            "minLength": 1
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "result": {
+            "type": "string",
+            "enum": [
+              "PASS",
+              "FAIL"
+            ]
+          }
+        },
+        "required": [
+          "criterion",
+          "checks",
+          "result"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "id",
+    "task_id",
+    "created_at",
+    "fingerprint",
+    "revisions",
+    "environment",
+    "check_config_hash",
+    "results",
+    "result"
+  ],
+  "additionalProperties": false
+}

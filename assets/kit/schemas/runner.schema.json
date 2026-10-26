@@ -1,0 +1,59 @@
+{
+  "type": "object",
+  "properties": {
+    "enabled": {
+      "type": "boolean"
+    },
+    "approval_reference": {
+      "type": "string",
+      "minLength": 1
+    },
+    "approval_hash": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1
+    },
+    "implement_argv": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1
+    },
+    "review_argv": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1
+    },
+    "timeout_seconds": {
+      "type": "number",
+      "minimum": 1
+    },
+    "max_failures": {
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "required": [
+    "enabled",
+    "approval_reference",
+    "approval_hash",
+    "task_ids",
+    "implement_argv",
+    "review_argv",
+    "timeout_seconds",
+    "max_failures"
+  ],
+  "additionalProperties": false
+}

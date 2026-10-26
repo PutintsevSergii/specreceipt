@@ -1,0 +1,10 @@
+{
+  "enabled": false,
+  "approval_reference": "docs/approvals/runner.md",
+  "approval_hash": "SET_AFTER_ACTUAL_REVIEW",
+  "task_ids": ["TASK-001"],
+  "implement_argv": ["/absolute/path/to/approved-adapter", "implement", "{context}"],
+  "review_argv": ["/absolute/path/to/approved-adapter", "review", "{context}"],
+  "timeout_seconds": 120,
+  "max_failures": 2
+}

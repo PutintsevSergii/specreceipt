@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "mode": "UNCONFIRMED",
+  "sources": [],
+  "coverage": {
+    "purpose": {
+      "status": "OPEN",
+      "rationale": "",
+      "source_ids": []
+    },
+    "requirements": {
+      "status": "OPEN",
+      "rationale": "",
+      "source_ids": []
+    },
+    "stack": {
+      "status": "OPEN",
+      "rationale": "",
+      "source_ids": []
+    },
+    "data": {
+      "status": "OPEN",
+      "rationale": "",
+      "source_ids": []
+    },
+    "contracts": {
+      "status": "OPEN",
+      "rationale": "",
+      "source_ids": []
+    },
+    "security": {
+      "status": "OPEN",
+      "rationale": "",
+      "source_ids": []
+    },
+    "quality": {
+      "status": "OPEN",
+      "rationale": "",
+      "source_ids": []
+    },
+    "operations": {
+      "status": "OPEN",
+      "rationale": "",
+      "source_ids": []
+    },
+    "architecture": {
+      "status": "OPEN",
+      "rationale": "",
+      "source_ids": []
+    }
+  },
+  "application_checks": [],
+  "approval": null
+}

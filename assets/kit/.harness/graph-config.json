@@ -1,0 +1,12 @@
+{
+  "provider": "local-python-ast",
+  "version": "1",
+  "max_bytes": 1048576,
+  "exclude": [
+    "docs/ENGINEERING_LOG.md",
+    "specs/*/verification.md",
+    "specs/*/tasks.json",
+    "*.min.js",
+    "coverage/*"
+  ]
+}

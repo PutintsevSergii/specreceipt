@@ -1,0 +1,387 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "enum": [
+        1
+      ]
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "UNCONFIRMED",
+        "NEW",
+        "EXISTING"
+      ]
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "human",
+              "repository",
+              "document",
+              "service"
+            ]
+          },
+          "reference": {
+            "type": "string",
+            "minLength": 1
+          },
+          "authorization": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "reference",
+          "authorization"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "properties": {
+        "purpose": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "OPEN",
+                "RESOLVED",
+                "NOT_APPLICABLE"
+              ]
+            },
+            "rationale": {
+              "type": "string"
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "required": [
+            "status",
+            "rationale",
+            "source_ids"
+          ],
+          "additionalProperties": false
+        },
+        "requirements": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "OPEN",
+                "RESOLVED",
+                "NOT_APPLICABLE"
+              ]
+            },
+            "rationale": {
+              "type": "string"
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "required": [
+            "status",
+            "rationale",
+            "source_ids"
+          ],
+          "additionalProperties": false
+        },
+        "stack": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "OPEN",
+                "RESOLVED",
+                "NOT_APPLICABLE"
+              ]
+            },
+            "rationale": {
+              "type": "string"
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "required": [
+            "status",
+            "rationale",
+            "source_ids"
+          ],
+          "additionalProperties": false
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "OPEN",
+                "RESOLVED",
+                "NOT_APPLICABLE"
+              ]
+            },
+            "rationale": {
+              "type": "string"
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "required": [
+            "status",
+            "rationale",
+            "source_ids"
+          ],
+          "additionalProperties": false
+        },
+        "contracts": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "OPEN",
+                "RESOLVED",
+                "NOT_APPLICABLE"
+              ]
+            },
+            "rationale": {
+              "type": "string"
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "required": [
+            "status",
+            "rationale",
+            "source_ids"
+          ],
+          "additionalProperties": false
+        },
+        "security": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "OPEN",
+                "RESOLVED",
+                "NOT_APPLICABLE"
+              ]
+            },
+            "rationale": {
+              "type": "string"
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "required": [
+            "status",
+            "rationale",
+            "source_ids"
+          ],
+          "additionalProperties": false
+        },
+        "quality": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "OPEN",
+                "RESOLVED",
+                "NOT_APPLICABLE"
+              ]
+            },
+            "rationale": {
+              "type": "string"
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "required": [
+            "status",
+            "rationale",
+            "source_ids"
+          ],
+          "additionalProperties": false
+        },
+        "operations": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "OPEN",
+                "RESOLVED",
+                "NOT_APPLICABLE"
+              ]
+            },
+            "rationale": {
+              "type": "string"
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "required": [
+            "status",
+            "rationale",
+            "source_ids"
+          ],
+          "additionalProperties": false
+        },
+        "architecture": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "OPEN",
+                "RESOLVED",
+                "NOT_APPLICABLE"
+              ]
+            },
+            "rationale": {
+              "type": "string"
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "required": [
+            "status",
+            "rationale",
+            "source_ids"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "purpose",
+        "requirements",
+        "stack",
+        "data",
+        "contracts",
+        "security",
+        "quality",
+        "operations",
+        "architecture"
+      ],
+      "additionalProperties": false
+    },
+    "application_checks": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "approval": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "by": {
+          "type": "string",
+          "minLength": 1
+        },
+        "at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reference": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reference_hash": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fingerprint": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "by",
+        "at",
+        "reference",
+        "reference_hash",
+        "fingerprint"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "mode",
+    "sources",
+    "coverage",
+    "application_checks",
+    "approval"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Project onboarding readiness"
+}

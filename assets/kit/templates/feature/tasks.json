@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "feature_id": "feature-id",
+  "kind": "application",
+  "revisions": {
+    "tech_spec": "0",
+    "architecture": "0"
+  },
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "requirements": [
+        "REQ-001"
+      ],
+      "outcome": "TBD",
+      "scope": [
+        "TBD"
+      ],
+      "dependencies": [],
+      "acceptance_criteria": [
+        "TBD"
+      ],
+      "failure_scenarios": [
+        "TBD"
+      ],
+      "risk": "low",
+      "required_checks": [
+        "harness-validate"
+      ],
+      "approval_requirements": [
+        "developer"
+      ],
+      "approvals": {},
+      "status": "TODO",
+      "evidence": [],
+      "next_action": "Complete and approve the feature and plan.",
+      "history": [],
+      "acceptance_checks": [
+        {
+          "criterion": "TBD",
+          "checks": [
+            "harness-validate"
+          ]
+        }
+      ],
+      "workflow_required": true
+    }
+  ]
+}

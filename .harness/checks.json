@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "stack_revision": null,
+  "checks": {
+    "harness-validate": {
+      "kind": "builtin",
+      "argv": [],
+      "timeout_seconds": 30,
+      "approved": true,
+      "approval_reference": "Selected Strict engineering profile",
+      "purpose": "Validate harness record structure"
+    },
+    "harness-tests": {
+      "kind": "command",
+      "argv": [
+        "{python}",
+        "-B",
+        "harness",
+        "self-test"
+      ],
+      "timeout_seconds": 120,
+      "approved": true,
+      "approval_reference": "Selected Strict engineering profile",
+      "purpose": "Run isolated harness regressions"
+    }
+  }
+}

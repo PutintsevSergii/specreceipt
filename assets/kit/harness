@@ -1,0 +1,11 @@
+#!/bin/sh
+""":"
+exec sh "$(dirname "$0")/scripts/python.sh" "$0" "$@"
+":"""
+"""Repository-local harness entry point with an installation-time Python bootstrap."""
+import sys
+sys.dont_write_bytecode = True
+from harnesslib.runtime import activate
+activate()
+from harnesslib.cli import main
+raise SystemExit(main())
