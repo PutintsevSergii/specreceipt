@@ -2,7 +2,7 @@
 
 SpecReceipt is a repository-local engineering workflow toolkit for coding agents. It installs shared Skills, project instructions, templates and a Python lifecycle engine. A TypeScript CLI handles installation, diagnostics and upgrades. The Python engine owns task state, readiness, approvals, checks and evidence.
 
-**Unpublished candidate:** `specreceipt@0.3.0` is prepared locally under the [Unlicense](LICENSE). The npm package remains marked private pending publication review. Public npm installation and hosted CI have not yet been verified.
+**Unpublished npm candidate:** `specreceipt@0.3.0` is prepared under the [Unlicense](LICENSE). The npm package remains marked private pending publication review. Public npm installation has not yet been verified.
 
 ## Requirements
 
@@ -50,7 +50,7 @@ python3 -B harness self-test
 npm run test:package
 ```
 
-The package test installs a packed archive in a temporary consumer. Integration coverage with the real OpenSpec CLI requires `HARNESS_REAL_OPENSPEC` to name the installed 1.14.3 executable. A CI workflow is prepared in the public source candidate; its hosted result is pending publication.
+The package test installs a packed archive in a temporary consumer. Integration coverage with the real OpenSpec CLI requires `HARNESS_REAL_OPENSPEC` to name the installed 1.14.3 executable. Check the [GitHub Actions runs](https://github.com/PutintsevSergii/specreceipt/actions) for hosted verification results.
 
 ## Project information
 
@@ -60,4 +60,4 @@ The package test installs a packed archive in a temporary consumer. Integration 
 - [License](LICENSE)
 - [Third-party notices](THIRD_PARTY_NOTICES.md)
 
-This source is a release candidate. The exact public repository URL and npm registry result will be added after publication.
+This source is a release candidate. The [public repository](https://github.com/PutintsevSergii/specreceipt) is available; npm publication is pending a separate decision.
