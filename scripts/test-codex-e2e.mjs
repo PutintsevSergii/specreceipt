@@ -86,7 +86,7 @@ try {
         "--no-fund",
         "--cache",
         process.env.HARNESS_TEST_NPM_CACHE ?? path.join(base, "npm-cache"),
-        path.resolve(process.env.HARNESS_E2E_PACKAGE ?? path.join(source, "specreceipt-0.3.0.tgz")),
+        path.resolve(process.env.HARNESS_E2E_PACKAGE ?? path.join(source, "specreceipt-0.3.1.tgz")),
       ],
       consumer,
     );

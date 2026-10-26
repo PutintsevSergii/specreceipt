@@ -390,6 +390,8 @@ export interface ExecutionOptions {
   builtinMcpsDisabled?: boolean;
   // An already-connected host may perform a read-only tools/list, never start a server.
   mcpProbe?: () => { server: "codegraph"; available: boolean; tools: string[] };
+  // Host supplied observation; configuration alone is never tool availability.
+  mcpInventory?: () => { server: string; available: boolean; readOnlyTools: string[] }[];
 }
 export function agentEnvironment(agent: string, input: NodeJS.ProcessEnv) {
   const env = { ...input };
@@ -535,8 +537,29 @@ function executionDiagnostics(options: ExecutionOptions, installation = false) {
     catch { mcp = "unavailable"; }
   }
   add("codegraph-mcp", requiredMcps.has("codegraph") ? "REQUIRED" : "OPTIONAL", mcp === "available-via-host", `CodeGraph MCP: ${mcp}${options.builtinMcpsDisabled ? "; built-in MCPs disabled" : ""}. MCP never replaces a required CLI capability.`, "Connect/verify an authorized host integration if desired; configuration alone is not availability.");
-  for (const name of requiredMcps) if (name !== "codegraph")
-    add("required-mcp", "REQUIRED", false, "A required MCP integration cannot be verified by the supported host probe.", "Verify through a supported read-only host contract before paid execution; do not remove the requirement to bypass this check.");
+  let observed: { server: string; available: boolean; readOnlyTools: string[] }[] = [];
+  if (options.mcpInventory) {
+    try {
+      const inventory = options.mcpInventory();
+      if (!Array.isArray(inventory) || inventory.length > 64 || inventory.some(item =>
+        !item || typeof item.server !== "string" || !/^[a-zA-Z0-9_.-]{1,160}$/.test(item.server) ||
+        typeof item.available !== "boolean" || !Array.isArray(item.readOnlyTools) ||
+        item.readOnlyTools.length > 64 || item.readOnlyTools.some(tool => typeof tool !== "string" || !/^[a-zA-Z0-9_.-]{1,160}$/.test(tool))
+      ) || new Set(inventory.map(item => item.server)).size !== inventory.length) throw Error();
+      observed = inventory;
+      add("host-mcp-inventory", "OPTIONAL", true, "Read-only host MCP inventory observed; relevance and query results still require an investigation report.");
+    } catch {
+      add("host-mcp-inventory", "OPTIONAL", false, "Host MCP inventory probe failed or returned invalid metadata.");
+    }
+  } else add("host-mcp-inventory", "OPTIONAL", false, "No host MCP inventory supplied; configured servers remain unverified.");
+  for (const name of requiredMcps) if (name !== "codegraph") {
+    const entry = observed.find(item => item.server === name);
+    const available = !!(entry?.available && entry.readOnlyTools.length);
+    add("required-mcp:" + name, "REQUIRED", available,
+      available ? `Required MCP ${name} has host-observed read-only tools; task claims still need investigation evidence.` :
+      `Required MCP ${name} is configured but no read-only host capability was observed.`,
+      "Verify the existing host connection and a relevant read-only tool before paid execution.");
+  }
   return { status: checks.some(c => c.status === "FAIL") ? "FAIL" as const : checks.some(c => c.status === "WARN") ? "WARN" as const : "PASS" as const, checks, elapsedMs: performance.now() - started };
 }
 /** Call immediately at the paid spawn boundary, including resumed runs. */

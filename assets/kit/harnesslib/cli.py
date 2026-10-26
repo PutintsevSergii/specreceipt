@@ -6,7 +6,7 @@ import subprocess
 import sys
 import unittest
 from .core import Harness
-from . import assessment, installation, codegraph_tool, graph, graphify_tool, openspec_tool, readiness, runner, tool_updates, workflow, reporting
+from . import assessment, installation, codegraph_tool, graph, graphify_tool, investigation, openspec_tool, readiness, runner, tool_updates, workflow, reporting
 from .skills import catalog
 from .storage import HarnessError, lock, redact
 
@@ -24,6 +24,10 @@ def parser():
     wa = wf.add_parser('assess'); wa.add_argument('id'); wa.add_argument('--facts',required=True)
     ws = wf.add_parser('show'); ws.add_argument('id')
     wc = wf.add_parser('confirm'); wc.add_argument('id'); wc.add_argument('--profile',choices=workflow.PROFILES,required=True); wc.add_argument('--by',required=True); wc.add_argument('--reference',required=True)
+    wr = wf.add_parser('resolve'); wr.add_argument('id'); wr.add_argument('--review',required=True)
+    inv = sub.add_parser('investigation').add_subparsers(dest='action',required=True)
+    ir = inv.add_parser('record'); ir.add_argument('id'); ir.add_argument('--file',required=True)
+    ic = inv.add_parser('check'); ic.add_argument('id'); ic.add_argument('--current')
     sub.add_parser('next')
     tools = sub.add_parser('tools').add_subparsers(dest='action',required=True)
     updater = tools.add_parser('update')
@@ -104,7 +108,11 @@ def run(args,h):
     if cmd == 'workflow':
         if args.action == 'assess': return workflow.assess(h,args.id,args.facts)
         if args.action == 'show': return h.task(args.id)[1].get('workflow',{'selected':'STRICT','notice':'Legacy task; existing gates apply'})
+        if args.action == 'resolve': return workflow.resolve(h,args.id,args.review)
         return workflow.confirm(h,args.id,args.profile,args.by,args.reference)
+    if cmd == 'investigation':
+        if args.action == 'record': return investigation.record(h,args.id,args.file)
+        return investigation.check(h,args.id,args.current)
     if cmd == 'tools': return tool_updates.update(h.root,args.only,args.apply,args.check_latest,args.include_optional)
     if cmd == 'openspec':
         if args.action == 'status': return openspec_tool.status(h.root)
@@ -224,7 +232,7 @@ def main():
             print(str(exc),file=sys.stderr); return 1
     h = Harness(args.root)
     try:
-        readonly = (args.command=='tools' and not args.apply) or (args.command=='openspec' and args.action in {'status','context','validate','list','instructions'}) or args.command in {'status','validate','doctor','skills','readiness','next'} or args.command=='graph' and args.action=='status' or args.command=='graphify' and args.action in {'status','query'} or args.command=='codegraph' and args.action in {'status','query'} or args.command=='indexes' and args.action=='status'
+        readonly = (args.command=='tools' and not args.apply) or (args.command=='openspec' and args.action in {'status','context','validate','list','instructions'}) or (args.command=='investigation' and args.action=='check') or args.command in {'status','validate','doctor','skills','readiness','next'} or args.command=='graph' and args.action=='status' or args.command=='graphify' and args.action in {'status','query'} or args.command=='codegraph' and args.action in {'status','query'} or args.command=='indexes' and args.action=='status'
         if args.command == 'status' and (args.retain or args.retain_dir): readonly = False
         if readonly: result = run(args,h)
         else:

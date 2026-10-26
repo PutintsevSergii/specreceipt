@@ -3,7 +3,7 @@ import * as path from "node:path";
 import { spawnSync } from "node:child_process";
 import { manifest, read, hash, safe } from "./filesystem.js";
 import { executable, kitAssets } from "./integrations.js";
-export const ENGINE_VERSION = "0.3.0";
+export const ENGINE_VERSION = "0.3.1";
 export const PROTOCOL_VERSION = 1;
 export interface Response {
   protocolVersion: number;

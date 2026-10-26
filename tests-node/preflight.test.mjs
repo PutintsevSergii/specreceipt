@@ -59,6 +59,18 @@ test('MCP configured is not available, disabled wins, required unavailable integ
   fs.writeFileSync(config,'[mcp_servers.codegraph]\nenabled=false\n');
   assert.match(check(executionPreflight(o),'codegraph-mcp').message,/disabled/);
 });
+test('generic required MCP needs an observed read-only host capability',t=>{
+  const o=fixture(t);fs.mkdirSync(path.join(o.cwd,'.codex'));
+  fs.writeFileSync(path.join(o.cwd,'.codex/config.toml'),'[mcp_servers.contracts]\nrequired=true\ncommand="not-launched"\n');
+  assert.equal(check(executionPreflight(o),'required-mcp:contracts').status,'FAIL');
+  o.mcpInventory=()=>[{server:'contracts',available:true,readOnlyTools:[]}];
+  assert.equal(check(executionPreflight(o),'required-mcp:contracts').status,'FAIL');
+  o.mcpInventory=()=>[{server:'contracts',available:true,readOnlyTools:['read_contract']}];
+  assert.equal(check(executionPreflight(o),'required-mcp:contracts').status,'PASS');
+  o.mcpInventory=()=>[{server:'contracts',available:true,readOnlyTools:['read_contract']},{server:'contracts',available:true,readOnlyTools:['read_contract']}];
+  assert.equal(check(executionPreflight(o),'host-mcp-inventory').status,'WARN');
+  assert.equal(check(executionPreflight(o),'required-mcp:contracts').status,'FAIL');
+});
 test('ignore user config and unsupported environment policies are respected',t=>{
   const o=fixture(t);const home=path.join(o.cwd,'user');fs.mkdirSync(path.join(home,'.codex'),{recursive:true});o.env.HOME=home;
   fs.writeFileSync(path.join(home,'.codex/config.toml'),'[shell_environment_policy]\ninherit="none"\n');

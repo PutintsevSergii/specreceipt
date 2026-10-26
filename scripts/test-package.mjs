@@ -101,7 +101,7 @@ try {
     consumer,
   );
   const cli = path.join(consumer, "node_modules/specreceipt/dist/cli.js");
-  assert.match(run(process.execPath, [cli, "--version"], consumer), /0.3.0/);
+  assert.match(run(process.execPath, [cli, "--version"], consumer), /0.3.1/);
   const { executionPreflight, checkedAgentLaunch } = await import(pathToFileURL(path.join(consumer, "node_modules/specreceipt/dist/doctor.js")));
   const { executable } = await import(pathToFileURL(path.join(consumer, "node_modules/specreceipt/dist/integrations.js")));
   function assertPackagedPreflight(project, agent) {

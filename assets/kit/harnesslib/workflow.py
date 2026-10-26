@@ -1,8 +1,9 @@
 """Bounded workflow advice and Python-owned policy. Local consent records are attestations only."""
 import fnmatch
+import hashlib
 import json
 import re
-from .storage import HarnessError, digest, now, read, safe_path
+from .storage import HarnessError, digest, now, read, redact, safe_path
 from . import readiness
 
 PROFILES = ('FAST', 'STANDARD', 'STRICT')
@@ -244,6 +245,93 @@ def current_approval(h, task, key, fingerprint):
     except (OSError,HarnessError): return False
 
 
+def deeper_sources(h, feature, task, ambiguous):
+    """Map every reviewable finding to a current source; missing sources stay blocked."""
+    result = {}
+    for finding in ambiguous:
+        if finding.endswith(' (missing evidence)'):
+            raise HarnessError('Missing evidence cannot be resolved by deeper review: ' + finding)
+        task_finding = finding == 'task scope/requirements'
+        ref = (f'specs/{feature["feature_id"]}/tasks.json' if task_finding
+               else finding.removesuffix(' (inspection limit)'))
+        path = safe_path(h.root, ref)
+        if not path.is_file(): raise HarnessError('Deeper review source is missing: ' + ref)
+        sha = hashlib.sha256()
+        if task_finding:
+            # The workflow lives in tasks.json; hash the substantive task instead.
+            source = {key:task[key] for key in ('outcome','requirements','acceptance_criteria',
+                                                'failure_scenarios','scope','risk')}
+            sha.update(json.dumps(source, sort_keys=True, separators=(',', ':')).encode())
+        else:
+            with path.open('rb') as stream:
+                for chunk in iter(lambda: stream.read(65536), b''): sha.update(chunk)
+        with path.open('rb') as stream:
+            lines = sum(1 for _ in stream) or 1
+        result[finding] = (sha.hexdigest(), lines)
+    return result
+
+
+def check_deeper_review(h, feature, task, ambiguous):
+    w = task['workflow']
+    record = w.get('deeper_review')
+    if not record or record['material'] != w['material'] or record['revision'] != w['revision']:
+        raise HarnessError('Current bounded deeper review required before STRICT confirmation')
+    path = safe_path(h.root, record['reference'])
+    if not path.is_file() or path.stat().st_size > 32768 or digest(path.read_text()) != record['reference_hash']:
+        raise HarnessError('Deeper review reference changed or exceeds 32 KiB')
+    review = read(path)
+    if not isinstance(review,dict) or set(review) != {'task_id','material','assessment_revision','items'} or review['task_id'] != task['id'] or review['material'] != w['material'] or review['assessment_revision'] != w['revision']:
+        raise HarnessError('Deeper review does not match the assessed task')
+    sources = deeper_sources(h,feature,task,ambiguous)
+    items = review['items']
+    if not isinstance(items,list) or len(items) != len(sources):
+        raise HarnessError('Deeper review must cover every ambiguous source exactly once')
+    seen = set()
+    for item in items:
+        if not isinstance(item,dict) or set(item) != {'source','sha256','locations','finding','risk'}:
+            raise HarnessError('Invalid deeper review item')
+        source = item['source']
+        if not isinstance(source,str) or source not in sources or source in seen:
+            raise HarnessError('Deeper review source is missing, extra or duplicated')
+        seen.add(source)
+        sha, line_count = sources[source]
+        if item['sha256'] != sha: raise HarnessError('Deeper review source changed: ' + source)
+        if not isinstance(item['risk'],str) or item['risk'] not in {'HIGH','NOT_APPLICABLE'}:
+            raise HarnessError('Deeper review must resolve risk explicitly')
+        finding = item['finding']
+        if not isinstance(finding,str) or not 40 <= len(finding) <= 1000 or finding != redact(finding):
+            raise HarnessError('Deeper review needs a bounded, sanitized finding')
+        locations = item['locations']
+        if not isinstance(locations,list) or not 1 <= len(locations) <= 8:
+            raise HarnessError('Deeper review needs bounded source line locations')
+        for location in locations:
+            if not isinstance(location,int) or isinstance(location,bool) or not 1 <= location <= line_count:
+                raise HarnessError('Deeper review line is outside the source')
+    return {'sources': sorted(sources), 'reference': record['reference']}
+
+
+def resolve(h, task_id, review_ref):
+    feature, task = h.task(task_id)
+    w = task.get('workflow')
+    if not w or w['material'] != material(h,feature,task):
+        raise HarnessError('Assess current task inputs before deeper review')
+    _, ambiguous = evidence_signals(h,task,w['inspected'])
+    if not ambiguous or not w['deeper_required']:
+        raise HarnessError('No ambiguous sources require deeper review')
+    path = safe_path(h.root,review_ref)
+    if not path.is_file() or path.stat().st_size > 32768: raise HarnessError('Deeper review is missing or exceeds 32 KiB')
+    previous = w.get('deeper_review')
+    w['deeper_review'] = {'reference':review_ref,'reference_hash':digest(path.read_text()),
+                          'material':w['material'],'revision':w['revision']}
+    try: result = check_deeper_review(h,feature,task,ambiguous)
+    except Exception:
+        if previous is None: w.pop('deeper_review',None)
+        else: w['deeper_review'] = previous
+        raise
+    h.save(h.state(),h.event('workflow-deeper-reviewed','Bounded source review recorded; explicit STRICT confirmation still required.',task_id,feature['feature_id']),feature)
+    return {'result':'PASS',**result}
+
+
 def guard(h, feature, task):
     w = task.get('workflow')
     p = policy(h)
@@ -254,11 +342,13 @@ def guard(h, feature, task):
         return  # Existing records retain all legacy gates.
     if w['material'] != material(h,feature,task): raise HarnessError('Workflow reassessment required: material task inputs changed')
     sensitive, ambiguous = evidence_signals(h, task, w['inspected'])
-    if ambiguous: raise HarnessError('Deeper targeted assessment required: ' + ', '.join(ambiguous))
+    if ambiguous:
+        if w.get('selected') != 'STRICT': raise HarnessError('Deeper targeted assessment requires STRICT: ' + ', '.join(ambiguous))
+        check_deeper_review(h,feature,task,ambiguous)
     if w.get('selected') in {'FAST','STANDARD'} and sensitive:
         raise HarnessError('Workflow reassessment required: sensitive implementation scope ' + ', '.join(sensitive))
     minimum, _ = floor(h,task,{**w['facts'], 'critical_risk':w['facts']['critical_risk'] or bool(sensitive) or bool(w['sensitive_evidence'])})
-    if w['deeper_required'] or w['facts']['critical_unknowns'] or not w['inspected']: raise HarnessError('Deeper targeted assessment required before workflow confirmation')
+    if w['facts']['critical_unknowns'] or not w['inspected'] or (w['deeper_required'] and not ambiguous): raise HarnessError('Deeper targeted assessment required before workflow confirmation')
     if w.get('selected') not in PROFILES: raise HarnessError('Explicit workflow and plan confirmation required')
     if PROFILES.index(w['selected']) < PROFILES.index(minimum): raise HarnessError('Selected workflow is below policy minimum '+minimum)
     binding = decision_binding(h,feature,task)
@@ -277,9 +367,11 @@ def confirm(h, task_id, profile, by, reference):
     if not w: raise HarnessError('Assess task before confirmation')
     if profile not in PROFILES: raise HarnessError('Unknown workflow profile')
     if w['material'] != material(h,feature,task): raise HarnessError('Reassess changed material inputs')
-    if w['deeper_required'] or w['facts']['critical_unknowns'] or not w['inspected']: raise HarnessError('Resolve critical unknowns with targeted assessment first')
+    if w['facts']['critical_unknowns'] or not w['inspected'] or (w['deeper_required'] and not w.get('deeper_review')): raise HarnessError('Resolve critical unknowns with targeted assessment first')
     sensitive, ambiguous = evidence_signals(h, task, w['inspected'])
-    if ambiguous: raise HarnessError('Resolve critical unknowns with targeted assessment first: ' + ', '.join(ambiguous))
+    if ambiguous:
+        if profile != 'STRICT': raise HarnessError('Deeper review requires STRICT selection')
+        check_deeper_review(h,feature,task,ambiguous)
     minimum,_ = floor(h,task,{**w['facts'], 'critical_risk':w['facts']['critical_risk'] or bool(sensitive) or bool(w['sensitive_evidence'])})
     if PROFILES.index(profile) < PROFILES.index(minimum): raise HarnessError('Below policy minimum '+minimum)
     if not readiness.substantive(by) or not readiness.substantive(safe_path(h.root,reference).read_text()):

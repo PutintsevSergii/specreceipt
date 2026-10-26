@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.1 — release candidate
+
+- Add host-mediated, read-only MCP investigation evidence alongside repository findings, with required-source and freshness checks.
+- Resolve content-bound STRICT deeper reviews for ambiguous or oversized sources.
+- Keep 0.3.0 installations eligible for the managed upgrade path. npm publication remains pending.
+
 ## 0.3.0 — release candidate
 
 - Rename the npm package and CLI to `specreceipt`.

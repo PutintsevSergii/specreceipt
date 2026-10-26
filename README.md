@@ -2,7 +2,7 @@
 
 SpecReceipt is a repository-local engineering workflow toolkit for coding agents. It installs shared Skills, project instructions, templates and a Python lifecycle engine. A TypeScript CLI handles installation, diagnostics and upgrades. The Python engine owns task state, readiness, approvals, checks and evidence.
 
-**Unpublished npm candidate:** `specreceipt@0.3.0` is prepared under the [Unlicense](LICENSE). The npm package remains marked private pending publication review. Public npm installation has not yet been verified.
+**Unpublished npm candidate:** `specreceipt@0.3.1` is prepared under the [Unlicense](LICENSE). The npm package remains marked private pending publication review. Public npm installation has not yet been verified.
 
 ## Requirements
 
@@ -17,7 +17,7 @@ SpecReceipt is a repository-local engineering workflow toolkit for coding agents
 The example uses the reviewed tarball, not a registry package:
 
 ```sh
-npm install --prefix /path/to/tools --ignore-scripts /path/to/specreceipt-0.3.0.tgz
+npm install --prefix /path/to/tools --ignore-scripts /path/to/specreceipt-0.3.1.tgz
 npm install --prefix /path/to/project/.harness/tools/openspec --ignore-scripts @fission-ai/openspec@1.14.3
 cd /path/to/project
 /path/to/tools/node_modules/.bin/specreceipt init --target /path/to/project --dry-run
@@ -37,7 +37,7 @@ The project keeps its own instructions and OpenSpec material. The package uses a
 
 ## Upgrade an existing installation
 
-Install the new tarball in a separate tools directory. Run `specreceipt upgrade --target /path/to/project --dry-run`, inspect the changes, then run without `--dry-run`. For customized v0.1.0 or v0.2.0 installations, provide `--baseline /path/to/original/node_modules/my-ai-harness`. The package checks the baseline identity and preserves nonoverlapping user edits; conflicts block the upgrade. See [v0.3 contract](assets/kit/docs/V03.md). Keep a backup before changing an important repository.
+Install the new tarball in a separate tools directory. Run `specreceipt upgrade --target /path/to/project --dry-run`, inspect the changes, then run without `--dry-run`. Existing 0.3.0 installations use their recorded baselines. For customized v0.1.0 or v0.2.0 installations, provide `--baseline /path/to/original/node_modules/my-ai-harness`. The package checks the baseline identity and preserves nonoverlapping user edits; conflicts block the upgrade. See [v0.3 contract](assets/kit/docs/V03.md). Keep a backup before changing an important repository.
 
 ## Build and verify
 

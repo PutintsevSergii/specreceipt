@@ -127,6 +127,18 @@ test("upgrade preserves local Skills, shared rules, OpenSpec and custom files; d
   upgrade(root, prepareUpgrade(root));
   assert.deepEqual(snapshot(root), after);
 });
+test("0.3.0 installation manifest can upgrade to 0.3.1", (t) => {
+  const root = fixture(t);
+  const old = manifest(root);
+  old.packageVersion = "0.3.0";
+  old.engineVersion = "0.3.0";
+  fs.writeFileSync(path.join(root, MANIFEST_PATH), JSON.stringify(old));
+  const changes = prepareUpgrade(root);
+  assert.ok(!changes.some((change) => change.action === "conflict"));
+  upgrade(root, changes);
+  assert.equal(manifest(root).packageVersion, "0.3.1");
+  assert.equal(manifest(root).engineVersion, "0.3.1");
+});
 test("legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict", (t) => {
   const root = fixture(t);
   const rel = ".agents/skills/discovery/SKILL.md";

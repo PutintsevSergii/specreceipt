@@ -419,6 +419,17 @@
               "deeper_required": {
                 "type": "boolean"
               },
+              "deeper_review": {
+                "type": "object",
+                "properties": {
+                  "reference": {"type": "string", "minLength": 1},
+                  "reference_hash": {"type": "string", "minLength": 64},
+                  "material": {"type": "string", "minLength": 64},
+                  "revision": {"type": "integer", "minimum": 1}
+                },
+                "required": ["reference", "reference_hash", "material", "revision"],
+                "additionalProperties": false
+              },
               "reasons": {
                 "type": "array",
                 "items": {

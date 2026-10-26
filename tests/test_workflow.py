@@ -21,6 +21,20 @@ class WorkflowTests(test_harness.HarnessTests):
         (self.root/'.harness/consent.txt').write_text('Simulated fixture developer confirms workflow and brief plan.\n')
         return workflow.confirm(self.h,'DEMO-001',profile,'fixture','.harness/consent.txt')
 
+    def deeper_review(self, **changes):
+        f, t = self.h.task('DEMO-001')
+        w = t['workflow']
+        _, ambiguous = workflow.evidence_signals(self.h,t,w['inspected'])
+        sources = workflow.deeper_sources(self.h,f,t,ambiguous)
+        items = [{'source':source, 'sha256':sha, 'locations':[1], 'risk':'HIGH',
+                  'finding':'Inspected the exact source and retained the strict risk classification.'}
+                 for source,(sha,_) in sources.items()]
+        review = {'task_id':'DEMO-001','material':w['material'],
+                  'assessment_revision':w['revision'],'items':items}
+        review.update(changes)
+        atomic(self.root/'.harness/deeper-review.json',review)
+        return '.harness/deeper-review.json'
+
     def test_profile_recommendations_and_bounded_assessment(self):
         with patch.object(self.h,'fingerprints',side_effect=AssertionError('full inventory prohibited')):
             self.assertEqual(self.assess()['recommended'],'FAST')
@@ -132,7 +146,7 @@ class WorkflowTests(test_harness.HarnessTests):
     def test_confirmation_rechecks_evidence_without_recording_ambiguous_consent(self):
         self.assess()
         (self.root/'docs/DEMO.md').write_text('May affect production permissions.')
-        with self.assertRaisesRegex(HarnessError, 'unknown'):
+        with self.assertRaisesRegex(HarnessError, 'review'):
             self.confirm('STRICT')
         self.assertIsNone(self.h.task('DEMO-001')[1]['workflow']['selected'])
         self.assertEqual(self.h.task('DEMO-001')[1]['approvals'], {})
@@ -152,6 +166,54 @@ class WorkflowTests(test_harness.HarnessTests):
         f, t = self.h.task('DEMO-001')
         with self.assertRaisesRegex(HarnessError, 'inspection limit'):
             workflow.guard(self.h, f, t)
+
+    def test_strict_deeper_review_resolves_exact_ambiguous_sources(self):
+        (self.root/'docs/DEMO.md').write_text('Authentication impact is unknown.\n')
+        self.assess()
+        with self.assertRaisesRegex(HarnessError, 'unknown'):
+            self.confirm('STRICT')
+        ref = self.deeper_review()
+        self.assertEqual(workflow.resolve(self.h,'DEMO-001',ref)['result'],'PASS')
+        with self.assertRaisesRegex(HarnessError, 'STRICT'):
+            self.confirm('FAST')
+        self.confirm('STRICT')
+        f,t = self.h.task('DEMO-001')
+        workflow.guard(self.h,f,t)
+        (self.root/'docs/DEMO.md').write_text('Authentication impact may be unknown.\n')
+        with self.assertRaisesRegex(HarnessError, 'changed'):
+            workflow.guard(self.h,f,t)
+
+    def test_deeper_review_rejects_partial_or_tampered_record(self):
+        (self.root/'docs/DEMO.md').write_text('Authentication impact is unknown.\n')
+        f,t = self.h.task('DEMO-001')
+        t['scope'].append('large.txt')
+        atomic(self.root/'specs/harness-demo/tasks.json',f)
+        (self.root/'large.txt').write_text('x' * 65537)
+        self.assess()
+        ref = self.deeper_review()
+        review = json.loads((self.root/ref).read_text())
+        review['items'].pop()
+        atomic(self.root/ref,review)
+        with self.assertRaisesRegex(HarnessError, 'every ambiguous source'):
+            workflow.resolve(self.h,'DEMO-001',ref)
+        ref = self.deeper_review()
+        workflow.resolve(self.h,'DEMO-001',ref)
+        review = json.loads((self.root/ref).read_text())
+        review['items'][0]['finding'] = 'short'
+        atomic(self.root/ref,review)
+        with self.assertRaisesRegex(HarnessError, 'changed or exceeds'):
+            self.confirm('STRICT')
+
+    def test_task_metadata_review_survives_its_own_workflow_write(self):
+        f,t = self.h.task('DEMO-001')
+        t['outcome'] = 'Authentication impact is unknown.'
+        atomic(self.root/'specs/harness-demo/tasks.json',f)
+        self.assess()
+        ref = self.deeper_review()
+        workflow.resolve(self.h,'DEMO-001',ref)
+        self.confirm('STRICT')
+        f,t = self.h.task('DEMO-001')
+        workflow.guard(self.h,f,t)
 
     def test_public_exposure_and_medium_risk_are_distinct_from_security_floor(self):
         self.assertEqual(self.assess(public_api=True)['minimum'], 'STANDARD')

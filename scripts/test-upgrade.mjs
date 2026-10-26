@@ -50,7 +50,7 @@ function snapshot(root) {
 try {
   if (!process.env.HARNESS_LEGACY_PACKAGE || !process.env.HARNESS_UPGRADE_PACKAGE)
     throw Error("Set HARNESS_LEGACY_PACKAGE and HARNESS_UPGRADE_PACKAGE to reviewed archive paths.");
-  for (const version of ["0.1.0", "0.3.0"]) {
+  for (const version of ["0.1.0", "0.3.1"]) {
     const consumer = path.join(base, version);
     fs.mkdirSync(consumer);
     fs.writeFileSync(path.join(consumer, "package.json"), "{}");
@@ -65,7 +65,7 @@ try {
         "--cache",
         process.env.HARNESS_TEST_NPM_CACHE ?? path.join(base, "npm-cache"),
         path.resolve(
-          version === "0.3.0"
+          version === "0.3.1"
             ? process.env.HARNESS_UPGRADE_PACKAGE
             : process.env.HARNESS_LEGACY_PACKAGE,
         ),
@@ -80,7 +80,7 @@ try {
   }
   const oldPackage = path.join(base, "0.1.0/node_modules/my-ai-harness");
   const oldCli = path.join(oldPackage, "dist/cli.js");
-  const cli = path.join(base, "0.3.0/node_modules/specreceipt/dist/cli.js");
+  const cli = path.join(base, "0.3.1/node_modules/specreceipt/dist/cli.js");
   for (const scenario of [
     "clean",
     "customized",
@@ -149,7 +149,7 @@ try {
     const m = JSON.parse(
       fs.readFileSync(path.join(root, ".harness/installation-manifest.json")),
     );
-    assert.equal(m.packageVersion, "0.3.0");
+    assert.equal(m.packageVersion, "0.3.1");
     assert.equal(m.protocolVersion, 1);
     const status = JSON.parse(
       run(process.execPath, [cli, "status", "--target", root, "--json"]),

@@ -9,7 +9,7 @@ from . import cli
 from .storage import redact
 
 PROTOCOL_VERSION = 1
-ENGINE_VERSION = '0.3.0'
+ENGINE_VERSION = '0.3.1'
 
 
 def metadata(root):

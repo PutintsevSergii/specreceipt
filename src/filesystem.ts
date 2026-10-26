@@ -3,6 +3,7 @@ import * as path from "node:path";
 import { createHash, randomUUID } from "node:crypto";
 import {
   JOURNAL_PATH,
+  VERSION,
   MANIFEST_PATH,
   portablePath,
   managedSection,
@@ -271,7 +272,7 @@ export function ownership(
   return {
     schemaVersion: 2,
     packageVersion: version,
-    engineVersion: "0.3.0",
+    engineVersion: VERSION,
     protocolVersion: 1,
     configVersion: 2,
     migrations: previous?.migrations ?? [],

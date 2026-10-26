@@ -155,11 +155,16 @@ def project(h, require_approval=True, selected=None):
 
 def task_gaps(h, feature, task):
     gaps = []
-    from . import openspec_tool, workflow
+    from . import investigation, openspec_tool, workflow
     try: workflow.guard(h,feature,task)
     except (HarnessError,OSError) as exc: gaps.append(str(exc))
     try: openspec_tool.ready(h.root, feature)
     except (HarnessError, OSError) as exc: gaps.append(str(exc))
+    try:
+        if investigation.required(h, task['id']):
+            result = investigation.check(h, task['id'])
+            gaps.extend('Investigation: ' + gap for gap in result['gaps'])
+    except (HarnessError, OSError) as exc: gaps.append('Investigation: ' + str(exc))
     if feature['revisions'] != h.revisions(): gaps.append('Feature revision pins are stale.')
     for filename in ['spec.md','plan.md']:
         rel = f'specs/{feature["feature_id"]}/{filename}'

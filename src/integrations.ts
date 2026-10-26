@@ -21,11 +21,13 @@ export const KIT = path.join(PACKAGE_ROOT, "assets/kit");
 const adaptiveInstructions = `The Python Engine owns task workflow policy and OpenSpec requirements. For adaptive tasks, use specreceipt workflow assess TASK-ID --facts FILE; present its actual recommendation, policy minimum and plan, then wait for explicit developer confirmation before workflow confirm. Never treat a recommendation as approval.
 FAST/STANDARD use concise specifications and plans without a task OpenSpec change unless linked requirements or project policy require it. STRICT retains required OpenSpec sources and all quality gates. Preserve legacy task requirements. Installing the OpenSpec integration does not select a task execution profile. The strict policy in .harness/quality.json is the engineering baseline, not the task execution-profile minimum; Python enforces .harness/workflow-policy.json and task requirements.
 Keep readiness, required checks, substantive review and separate final developer approval after VERIFIED and before DONE.`;
+const investigationInstructions = `For repository stories, inspect the active host's available MCP tools and use relevant already-connected read-only tools within the user's authorized task. Compare results with exact code and approved requirements; record bounded source/revision references, contradictions and gaps with specreceipt investigation record TASK-ID --file FILE, then run specreceipt investigation check TASK-ID. Configuration alone does not prove access. Optional absence is NO_MCP or CODE_ONLY; project-required missing or stale sources block dependent claims. Never start a server, invoke a write tool or call an agent-reported trace authenticated proof.`;
 export const codexBlock = `${BEGIN}
 # AI Engineering Harness
 Select relevant roles from skill metadata or specreceipt skills; load only those roles. Use [the engineering guide](docs/HARNESS.md#reference-navigation) for the applicable procedure, not a full upfront read.
 Before new implementation, present the concrete spec/plan and obtain explicit approval; the initial request, silence and setup success are not approval. Renew approval for material changes.
 ${adaptiveInstructions}
+${investigationInstructions}
 Before application work, reconcile with specreceipt resume, inspect status/next, and require readiness for the selected task.
 Preserve project instructions and user changes. Never claim checks passed without execution evidence.
 Strict policy: [.harness/quality.json](.harness/quality.json). Installation health does not imply application readiness.
@@ -35,6 +37,7 @@ export const copilotBlock = `${BEGIN}
 Read AGENTS.md at the repository root before work; resolve all paths in this paragraph from that root. Discover roles with specreceipt skills and load only relevant .agents/skills/<role>/SKILL.md files. If the IDE does not discover that directory, open the selected Skill file explicitly.
 Use the shared workflow guide docs/HARNESS.md#reference-navigation only as needed. All Harness approvals and verification remain required; Copilot tool permission is not developer approval.
 ${adaptiveInstructions}
+${investigationInstructions}
 When OpenSpec is required, use official OpenSpec /opsx-* prompts in .github/prompts. Do not infer approval from a request to implement.
 ${END}`;
 export interface Command {
