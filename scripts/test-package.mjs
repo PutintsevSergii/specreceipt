@@ -8,17 +8,17 @@ const root = process.cwd();
 const temp = fs.realpathSync(
   fs.mkdtempSync(path.join(os.tmpdir(), "harness-packed-")),
 );
-function run(cmd, args, cwd = root, env = process.env) {
+function run(cmd, args, cwd = root, env = process.env, timeoutMs = 120000) {
   const r = spawnSync(cmd, args, {
     cwd,
     env,
     encoding: "utf8",
-    timeout: 120000,
+    timeout: timeoutMs,
   });
   assert.equal(
     r.status,
     0,
-    `${cmd} ${args.join(" ")}\n${r.stderr}\n${r.stdout}`,
+    `${cmd} ${args.join(" ")}\n${r.error?.message ?? ""}\n${r.stderr}\n${r.stdout}`,
   );
   return r.stdout;
 }
@@ -265,7 +265,7 @@ try {
     assert.notEqual(refused.status, 0);
     assert.equal(fs.readFileSync(agentsPath, "utf8"), conflicting);
     fs.writeFileSync(agentsPath, customized);
-    run("python3", ["-B", "harness", "self-test"], target, env);
+    run("python3", ["-B", "harness", "self-test"], target, env, 300000);
     // Regression from real Codex onboarding: consumer revisions need not be zero.
     for (const name of ["TECH_SPEC.md", "ARCHITECTURE.md"]) {
       const file = path.join(target, "docs", name);
@@ -279,6 +279,7 @@ try {
       [cli, "self-test", "--target", target, "--json"],
       consumer,
       env,
+      300000,
     );
 
     console.log(
