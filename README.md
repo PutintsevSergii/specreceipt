@@ -2,7 +2,7 @@
 
 SpecReceipt is a repository-local engineering workflow toolkit for coding agents. It installs shared Skills, project instructions, templates and a Python lifecycle engine. A TypeScript CLI handles installation, diagnostics and upgrades. The Python engine owns task state, readiness, approvals, checks and evidence.
 
-**Unpublished npm candidate:** `specreceipt@0.3.1` is prepared under the [Unlicense](LICENSE). The npm package remains marked private pending publication review. Public npm installation has not yet been verified.
+`specreceipt@0.3.1` is distributed under the [Unlicense](LICENSE). Check the [npm package page](https://www.npmjs.com/package/specreceipt) for published versions.
 
 ## Requirements
 
@@ -12,9 +12,15 @@ SpecReceipt is a repository-local engineering workflow toolkit for coding agents
 - Git for merging user changes during upgrades.
 - OpenSpec 1.14.3 for `init`; CodeGraph and Graphify are installed separately when navigation is needed.
 
-## Install a local archive
+## Install
 
-The example uses the reviewed tarball, not a registry package:
+Once version 0.3.1 appears on npm, install it in a separate tools directory:
+
+```sh
+npm install --prefix /path/to/tools --ignore-scripts specreceipt@0.3.1
+```
+
+Before npm publication, use the reviewed local archive instead:
 
 ```sh
 npm install --prefix /path/to/tools --ignore-scripts /path/to/specreceipt-0.3.1.tgz
@@ -60,4 +66,4 @@ The package test installs a packed archive in a temporary consumer. Integration 
 - [License](LICENSE)
 - [Third-party notices](THIRD_PARTY_NOTICES.md)
 
-This source is a release candidate. The [public repository](https://github.com/PutintsevSergii/specreceipt) is available; npm publication is pending a separate decision.
+The [public repository](https://github.com/PutintsevSergii/specreceipt) contains the source. Check the [npm package page](https://www.npmjs.com/package/specreceipt) for published versions.
