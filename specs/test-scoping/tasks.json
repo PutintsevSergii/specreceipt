@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "feature_id": "test-scoping",
+  "kind": "harness",
+  "revisions": {"tech_spec": "0", "architecture": "0"},
+  "tasks": [{
+    "id": "TST-001",
+    "requirements": ["TST-001", "TST-002", "TST-003", "TST-004", "TST-005", "TST-006"],
+    "outcome": "Explainable scoped development and PR test runs, with separate complete acceptance and unchanged utility runtime",
+    "scope": ["tests/", ".github/workflows/verify.yml", "CONTRIBUTING.md", "docs/TESTING.md", "docs/HARNESS.md", "specs/test-scoping/"],
+    "dependencies": [],
+    "acceptance_criteria": ["TST-001", "TST-002", "TST-003", "TST-004", "TST-005", "TST-006"],
+    "acceptance_checks": [
+      {"criterion": "TST-001", "checks": ["harness-tests"]},
+      {"criterion": "TST-002", "checks": ["harness-tests"]},
+      {"criterion": "TST-003", "checks": ["harness-tests"]},
+      {"criterion": "TST-004", "checks": ["harness-tests"]},
+      {"criterion": "TST-005", "checks": ["harness-validate", "harness-tests"]},
+      {"criterion": "TST-006", "checks": ["harness-validate", "harness-tests"]}
+    ],
+    "failure_scenarios": ["Missed fixture consumer", "Unknown or deleted file silently selects zero tests", "Scoped PASS misreported as full acceptance", "Required CI job left pending", "Changed utility runtime outside scope"],
+    "risk": "medium",
+    "required_checks": ["harness-validate", "harness-tests"],
+    "approval_requirements": ["developer"],
+    "approvals": {},
+    "status": "TODO",
+    "evidence": [],
+    "history": [],
+    "next_action": "Developer reviews draft spec/plan revision 1; record approval before implementation."
+  }]
+}
