@@ -7,6 +7,8 @@ import { pathToFileURL } from "node:url";
 import { nativeCommand, executable as findExecutable, pythonCommand } from "../dist/integrations.js";
 const root = process.cwd();
 const packageVersion = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8")).version;
+const selfTestMode = process.env.HARNESS_PACKAGE_SELF_TEST_MODE ?? "full";
+assert.ok(["full", "smoke"].includes(selfTestMode), "HARNESS_PACKAGE_SELF_TEST_MODE must be full or smoke");
 const temp = fs.realpathSync(
   fs.mkdtempSync(path.join(os.tmpdir(), "harness-packed-")),
 );
@@ -269,23 +271,27 @@ try {
     assert.notEqual(refused.status, 0);
     assert.equal(fs.readFileSync(agentsPath, "utf8"), conflicting);
     fs.writeFileSync(agentsPath, customized);
-    console.log("Running the complete packaged Python self-test (30-minute budget).");
-    run("python3", ["-B", "-X", "utf8", "harness", "self-test"], target, env, 1800000);
-    // Regression from real Codex onboarding: consumer revisions need not be zero.
-    for (const name of ["TECH_SPEC.md", "ARCHITECTURE.md"]) {
-      const file = path.join(target, "docs", name);
-      fs.writeFileSync(
-        file,
-        fs.readFileSync(file, "utf8").replace(/^Revision: .*$/m, "Revision: 7"),
+    if (selfTestMode === "full") {
+      // The separate Python CI job checks the source suite. Check the packaged
+      // CLI route once, including consumer documents with nonzero revisions.
+      for (const name of ["TECH_SPEC.md", "ARCHITECTURE.md"]) {
+        const file = path.join(target, "docs", name);
+        fs.writeFileSync(
+          file,
+          fs.readFileSync(file, "utf8").replace(/^Revision: .*$/m, "Revision: 7"),
+        );
+      }
+      console.log("Running the complete packaged CLI self-test (30-minute budget).");
+      run(
+        process.execPath,
+        [cli, "self-test", "--target", target, "--json"],
+        consumer,
+        env,
+        1800000,
       );
+    } else {
+      console.log("Packaged CLI smoke passed; complete packaged self-test runs in the designated Node job.");
     }
-    run(
-      process.execPath,
-      [cli, "self-test", "--target", target, "--json"],
-      consumer,
-      env,
-      1800000,
-    );
 
     console.log(
       "Packed CLI: actual init, repeat init, OpenSpec and legacy validation passed. Missing navigation dependencies remain reported by doctor.",

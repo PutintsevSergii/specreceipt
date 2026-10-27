@@ -97,6 +97,8 @@ jobs:
         os: [ubuntu-latest, macos-latest]
         node: [20, 22, 24]
     runs-on: ${{ matrix.os }}
+    env:
+      HARNESS_PACKAGE_SELF_TEST_MODE: ${{ matrix.node == 24 && 'full' || 'smoke' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -129,6 +131,7 @@ jobs:
     timeout-minutes: 45
     env:
       HARNESS_REQUIRE_SYMLINK_TESTS: '1'
+      HARNESS_PACKAGE_SELF_TEST_MODE: ${{ matrix.node == 24 && 'full' || 'smoke' }}
     strategy:
       fail-fast: false
       matrix:
