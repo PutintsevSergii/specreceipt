@@ -1,8 +1,8 @@
 # Scoped test execution plan
 
-Status: DRAFT
+Status: APPROVED
 Revision: 1
-Approval: Pending developer review of this concrete proposal.
+Approval: Developer approved revision 1 in chat on 2026-10-27: "Утверждаю план, реализуй".
 Tech-Spec-Revision: 0
 Architecture-Revision: 0
 
@@ -59,4 +59,4 @@ Target smoke runtime is at most 30 seconds on this host and selector unit tests 
 
 ## Approval and rollback
 
-The user requested planning and implementation, but AGENTS.md and the planner require approval of a concrete new plan before implementation. This revision is DRAFT; no test runner, test policy or CI edits are authorized by this document alone. Approval covers the test-only scope and the explicit CI frequency decision above. Historical task gates and runtime evidence semantics remain unchanged. Rollback removes the new runner/manifest and restores prior contributor/CI commands; existing full self-test continues working throughout.
+The user requested planning and implementation, but AGENTS.md and the planner require approval of a concrete new plan before implementation. The developer explicitly approved revision 1 in chat on 2026-10-27; implementation of this test-only plan is now authorized. Approval covers the test-only scope and the explicit CI frequency decision above. Historical task gates and runtime evidence semantics remain unchanged. Rollback removes the new runner/manifest and restores prior contributor/CI commands; existing full self-test continues working throughout.

@@ -1,0 +1,95 @@
+{
+  "acceptance_results": [
+    {
+      "checks": [
+        "harness-tests"
+      ],
+      "criterion": "TST-001",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-tests"
+      ],
+      "criterion": "TST-002",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-tests"
+      ],
+      "criterion": "TST-003",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-tests"
+      ],
+      "criterion": "TST-004",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "harness-tests"
+      ],
+      "criterion": "TST-005",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "harness-tests"
+      ],
+      "criterion": "TST-006",
+      "result": "FAIL"
+    }
+  ],
+  "check_config_hash": "67d44c23ea11296f97ac97b325608519a364be295f4b922614c8890ea055b743",
+  "checked_tasks": [
+    "TST-001"
+  ],
+  "created_at": "2026-10-27T06:02:50.156373+00:00",
+  "definition_hash": "7747e2f5b74754a0d8c4dd2ff1d87c07416dcf9917f1e9a50c2a23a4b8cdea29",
+  "environment": {
+    "declared": {
+      "application_runtime": "UNCONFIGURED",
+      "note": "Declare application versions during onboarding."
+    },
+    "machine": "AMD64",
+    "platform": "Windows",
+    "python": "3.12.14"
+  },
+  "fingerprint": "2c75f0ddc8b0c00958b677c9f3c28108f2c265ac6c9f3c6244898d449353823d",
+  "id": "1cf73157-8725-41a9-9a9b-0afac86ceb0c",
+  "result": "FAIL",
+  "results": [
+    {
+      "check": "harness-tests",
+      "command": [
+        "{python}",
+        "-B",
+        "harness",
+        "self-test"
+      ],
+      "exit_code": 1,
+      "log": ".harness/evidence/logs/f3baaa6c-7aed-4d1a-8a74-486d6749be94.log",
+      "log_hash": "bb2c95d2c36b7da3e4f69d94db24ce5898c01520b325cc3304030e6bd34c5433",
+      "result": "FAIL",
+      "summary": "nded_cli (test_codegraph_tool.CodeGraphToolTests.test_init_sync_and_query_use_bounded_cli) ... ok\n\ntest_task_context_is_saved_before_implementation_with_redaction (test_codegraph_tool.CodeGraphToolTests.test_task_context_is_saved_before_implementation_with_redaction) ... ok\n\ntest_empty_project_then_source_added (test_graphify_tool.GraphifyToolTests.test_empty_project_then_source_added) ... skipped 'Graphify CLI is not installed'\n\ntest_index_refresh_and_bounded_query (test_graphify_tool.GraphifyToolTests.test_index_refresh_and_bounded_query) ... skipped 'Graphify CLI is not installed'\n\ntest_acceptance_missing_unknown_and_duplicate_checks_block_start (test_hardening.HardeningTests.test_acceptance_missing_unknown_and_duplicate_checks_block_start) ... ok\n\ntest_changed_dependency_definition_invalidates_completion (test_hardening.HardeningTests.test_changed_dependency_definition_invalidates_completion) ... ok\n\ntest_completed_review_edit_is_not_accepted_historically (test_hardening.HardeningTests.test_completed_review_edit_is_not_accepted_historically) ... ok\n\ntest_configured_runner_completes_real_lifecycle (test_hardening.HardeningTests.test_configured_runner_completes_real_lifecycle) ... ok\n\ntest_control_config_symlink_is_rejected (test_hardening.HardeningTests.test_control_config_symlink_is_rejected) ... skipped 'Windows lacks symlink privilege (1314); real symlink coverage is required in strict CI.'\n\ntest_dependency_chain_survives_downstream_edits_and_rechecks_prerequisite (test_hardening.HardeningTests.test_dependency_chain_survives_downstream_edits_and_rechecks_prerequisite) ... ok\n\ntest_done_invalidated_by_changed_task_definition_and_review (test_hardening.HardeningTests.test_done_invalidated_by_changed_task_definition_and_review) ... ok\n\ntest_downstream_cannot_hide_broken_prerequisite_check (test_hardening.HardeningTests.test_downstream_cannot_hide_broken_prerequisite_check) ... ok\n\ntest_env_and_executable_bit_invalidate_evidence_without_exposing_values (test_hardening.HardeningTests.test_env_and_executable_bit_invalidate_evidence_without_exposing_values) ... ok\n\ntest_environment_config_is_subject_to_scope (test_hardening.HardeningTests.test_environment_config_is_subject_to_scope) ... ok\n\ntest_exact_product_maintenance_paths_start_without_broadening_scope (test_hardening.HardeningTests.test_exact_product_maintenance_paths_start_without_broadening_scope) ... ok\n\ntest_excluded_directory_cannot_be_claimed_as_verified_scope (test_hardening.HardeningTests.test_excluded_directory_cannot_be_claimed_as_verified_scope) ... ok\n\ntest_legacy_missing_scope_snapshot_requires_reviewed_replacement (test_hardening.HardeningTests.test_legacy_missing_scope_snapshot_requires_reviewed_replacement) ... ok\n\ntest_missing_legacy_coverage_invalidates_completion_without_crash (test_hardening.HardeningTests.test_missing_legacy_coverage_invalidates_completion_without_crash) ... ok\n\ntest_new_attempt_after_done_does_not_absorb_unfinished_retry (test_hardening.HardeningTests.test_new_attempt_after_done_does_not_absorb_unfinished_retry) ... ok\n\ntest_next_and_unconfigured_run_stop_at_real_work (test_hardening.HardeningTests.test_next_and_unconfigured_run_stop_at_real_work) ... ok\n\ntest_outside_scope_add_delete_and_modify_are_blocked (test_hardening.HardeningTests.test_outside_scope_add_delete_and_modify_are_blocked) ... ok\n\ntest_preexisting_edits_are_baselined_not_reverted (test_hardening.HardeningTests.test_preexisting_edits_are_baselined_not_reverted) ... ok\n\ntest_product_maintenance_scope_rejects_symlink_file_and_directory (test_hardening.HardeningTests.test_product_maintenance_scope_rejects_symlink_file_and_directory) ... skipped 'Windows lacks symlink privilege (1314); real symlink coverage is required in strict CI.'\n\ntest_product_maintenance_scope_rejects_unrelated_paths_and_aliases (test_hardening.HardeningTests.test_product_maintenance_scope_rejects_unrelated_paths_and_aliases) ... ok\n\ntest_regression_failure_does_not_rewrite_historical_completion (test_hardening.HardeningTests.test_regression_failure_does_not_rewrite_historical_completion) ... "
+    },
+    {
+      "check": "harness-validate",
+      "command": [],
+      "exit_code": 0,
+      "result": "PASS",
+      "summary": "Builtin assertions passed."
+    }
+  ],
+  "revisions": {
+    "architecture": "0",
+    "tech_spec": "0"
+  },
+  "schema_version": 1,
+  "task_id": "TST-001"
+}

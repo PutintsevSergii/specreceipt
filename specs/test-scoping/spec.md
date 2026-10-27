@@ -1,8 +1,8 @@
 # Scoped test execution
 
-Status: DRAFT
+Status: APPROVED
 Revision: 1
-Approval: Pending developer review of this concrete proposal.
+Approval: Developer approved revision 1 in chat on 2026-10-27: "Утверждаю план, реализуй".
 Tech-Spec-Revision: 0
 Architecture-Revision: 0
 

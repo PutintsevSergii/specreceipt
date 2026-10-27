@@ -1,0 +1,95 @@
+{
+  "acceptance_results": [
+    {
+      "checks": [
+        "harness-tests"
+      ],
+      "criterion": "TST-001",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-tests"
+      ],
+      "criterion": "TST-002",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-tests"
+      ],
+      "criterion": "TST-003",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-tests"
+      ],
+      "criterion": "TST-004",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "harness-tests"
+      ],
+      "criterion": "TST-005",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "harness-tests"
+      ],
+      "criterion": "TST-006",
+      "result": "FAIL"
+    }
+  ],
+  "check_config_hash": "67d44c23ea11296f97ac97b325608519a364be295f4b922614c8890ea055b743",
+  "checked_tasks": [
+    "TST-001"
+  ],
+  "created_at": "2026-10-27T06:13:15.293441+00:00",
+  "definition_hash": "7747e2f5b74754a0d8c4dd2ff1d87c07416dcf9917f1e9a50c2a23a4b8cdea29",
+  "environment": {
+    "declared": {
+      "application_runtime": "UNCONFIGURED",
+      "note": "Declare application versions during onboarding."
+    },
+    "machine": "AMD64",
+    "platform": "Windows",
+    "python": "3.12.14"
+  },
+  "fingerprint": "2c75f0ddc8b0c00958b677c9f3c28108f2c265ac6c9f3c6244898d449353823d",
+  "id": "d128464f-be74-4da8-a9d6-7bc21b0e39f0",
+  "result": "FAIL",
+  "results": [
+    {
+      "check": "harness-tests",
+      "command": [
+        "{python}",
+        "-B",
+        "harness",
+        "self-test"
+      ],
+      "exit_code": 1,
+      "log": ".harness/evidence/logs/f2ecc7c9-ad94-4337-aa8c-0ab733770ff4.log",
+      "log_hash": "1f6302eaeb3988f62d4ccc8d1ff53f4c114a39ba25a4de19cd02216952db5e1b",
+      "result": "FAIL",
+      "summary": "_reviewed_scope (test_hardening.HardeningTests.test_replan_preserves_source_boundary_and_accepts_reviewed_scope) ... ERROR\n\ntest_restart_does_not_launder_outside_scope_changes (test_hardening.HardeningTests.test_restart_does_not_launder_outside_scope_changes) ... ok\n\ntest_review_must_reference_latest_task_evidence (test_hardening.HardeningTests.test_review_must_reference_latest_task_evidence) ... ok\n\ntest_review_rejects_legacy_empty_and_open_findings (test_hardening.HardeningTests.test_review_rejects_legacy_empty_and_open_findings) ... ok\n\ntest_runner_budgets_persist_across_invocations (test_hardening.HardeningTests.test_runner_budgets_persist_across_invocations) ... ok\n\ntest_runner_check_failure_never_completes (test_hardening.HardeningTests.test_runner_check_failure_never_completes) ... ok\n\ntest_runner_configuration_change_revokes_authorization (test_hardening.HardeningTests.test_runner_configuration_change_revokes_authorization) ... ok\n\ntest_runner_does_not_invent_developer_approval (test_hardening.HardeningTests.test_runner_does_not_invent_developer_approval) ... ok\n\ntest_runner_enforces_task_allowlist (test_hardening.HardeningTests.test_runner_enforces_task_allowlist) ... ok\n\ntest_runner_failure_budget_survives_restart (test_hardening.HardeningTests.test_runner_failure_budget_survives_restart) ... ok\n\ntest_runner_refuses_check_bundle_exceeding_time_budget (test_hardening.HardeningTests.test_runner_refuses_check_bundle_exceeding_time_budget) ... ok\n\ntest_runner_repairs_failed_check_within_bounded_run (test_hardening.HardeningTests.test_runner_repairs_failed_check_within_bounded_run) ... ok\n\ntest_runner_repairs_review_feedback_without_fabricating_approval (test_hardening.HardeningTests.test_runner_repairs_review_feedback_without_fabricating_approval) ... ok\n\ntest_runner_reviewer_cannot_change_implementation (test_hardening.HardeningTests.test_runner_reviewer_cannot_change_implementation) ... ok\n\ntest_runner_stale_authorization_and_unlisted_task_block (test_hardening.HardeningTests.test_runner_stale_authorization_and_unlisted_task_block) ... ok\n\ntest_runner_timeout_records_uncertainty_and_never_replays (test_hardening.HardeningTests.test_runner_timeout_records_uncertainty_and_never_replays) ... ok\n\ntest_success_status_cannot_hide_failing_results_or_missing_coverage (test_hardening.HardeningTests.test_success_status_cannot_hide_failing_results_or_missing_coverage) ... ok\n\ntest_symlinks_fail_closed_and_os_metadata_is_ignored (test_hardening.HardeningTests.test_symlinks_fail_closed_and_os_metadata_is_ignored) ... skipped 'Windows lacks symlink privilege (1314); real symlink coverage is required in strict CI.'\n\ntest_scoped_decision_blocks_dependents (test_hardening.ScopedDecisionTests.test_scoped_decision_blocks_dependents) ... ok\n\ntest_scoped_decision_does_not_block_independent_task (test_hardening.ScopedDecisionTests.test_scoped_decision_does_not_block_independent_task) ... ok\n\ntest_unknown_selector_fails_closed (test_hardening.ScopedDecisionTests.test_unknown_selector_fails_closed) ... ok\n\ntest_adoption_before_git_init_stays_invisible (test_harness.HarnessTests.test_adoption_before_git_init_stays_invisible) ... ok\n\ntest_adoption_blocks_tracked_harness_files_without_untracking (test_harness.HarnessTests.test_adoption_blocks_tracked_harness_files_without_untracking) ... ok\n\ntest_adoption_is_invisible_to_git_and_preserves_user_files (test_harness.HarnessTests.test_adoption_is_invisible_to_git_and_preserves_user_files) ... ok\n\ntest_adoption_merges_ignores_without_replacing_project_rules (test_harness.HarnessTests.test_adoption_merges_ignores_without_replacing_project_rules) ... ok\n\ntest_application_blocked_by_draft (test_harness.HarnessTests.test_application_blocked_by_draft) ... ok\n\ntest_changed_review_invalidates_approval (test_harness.HarnessTests.test_changed_review_invalidates_approval) ... ok\n\ntest_command_approval_respected_for_builtins (test_harness.HarnessTests.test_command_approval_respected_for_builtins) ... ok\n\ntest_done_requires_separate_review (test_harness.HarnessTests.test_done_requires_separate_review) ... "
+    },
+    {
+      "check": "harness-validate",
+      "command": [],
+      "exit_code": 0,
+      "result": "PASS",
+      "summary": "Builtin assertions passed."
+    }
+  ],
+  "revisions": {
+    "architecture": "0",
+    "tech_spec": "0"
+  },
+  "schema_version": 1,
+  "task_id": "TST-001"
+}

@@ -1,0 +1,95 @@
+{
+  "acceptance_results": [
+    {
+      "checks": [
+        "harness-tests"
+      ],
+      "criterion": "TST-001",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-tests"
+      ],
+      "criterion": "TST-002",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-tests"
+      ],
+      "criterion": "TST-003",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-tests"
+      ],
+      "criterion": "TST-004",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "harness-tests"
+      ],
+      "criterion": "TST-005",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "harness-tests"
+      ],
+      "criterion": "TST-006",
+      "result": "PASS"
+    }
+  ],
+  "check_config_hash": "67d44c23ea11296f97ac97b325608519a364be295f4b922614c8890ea055b743",
+  "checked_tasks": [
+    "TST-001"
+  ],
+  "created_at": "2026-10-27T06:33:18.296068+00:00",
+  "definition_hash": "7747e2f5b74754a0d8c4dd2ff1d87c07416dcf9917f1e9a50c2a23a4b8cdea29",
+  "environment": {
+    "declared": {
+      "application_runtime": "UNCONFIGURED",
+      "note": "Declare application versions during onboarding."
+    },
+    "machine": "AMD64",
+    "platform": "Windows",
+    "python": "3.12.14"
+  },
+  "fingerprint": "2c75f0ddc8b0c00958b677c9f3c28108f2c265ac6c9f3c6244898d449353823d",
+  "id": "fe3f280e-871f-45fc-a4b2-07e3a419a93f",
+  "result": "PASS",
+  "results": [
+    {
+      "check": "harness-tests",
+      "command": [
+        "{python}",
+        "-B",
+        "harness",
+        "self-test"
+      ],
+      "exit_code": 0,
+      "log": ".harness/evidence/logs/ccf791c9-668e-4ef4-8b35-0a26b5f00dc4.log",
+      "log_hash": "368ae09f6c3e1378d3127d243433a4de9a703f0ff70aa99bb6f5274e84f5936c",
+      "result": "PASS",
+      "summary": "final_consent_requires_prior_review (test_workflow.WorkflowTests.test_final_consent_requires_prior_review) ... ok\n\ntest_floor_and_stricter_or_simpler_selection (test_workflow.WorkflowTests.test_floor_and_stricter_or_simpler_selection) ... ok\n\ntest_guards_allow_negatives_but_block_new_ambiguity_and_sensitive_code (test_workflow.WorkflowTests.test_guards_allow_negatives_but_block_new_ambiguity_and_sensitive_code) ... ok\n\ntest_identical_assessment_preserves_confirmation (test_workflow.WorkflowTests.test_identical_assessment_preserves_confirmation) ... ok\n\ntest_known_metadata_and_previous_advisor_conclusions_do_not_reinforce_risk (test_workflow.WorkflowTests.test_known_metadata_and_previous_advisor_conclusions_do_not_reinforce_risk) ... ok\n\ntest_material_changes_invalidate_but_implementation_does_not (test_workflow.WorkflowTests.test_material_changes_invalidate_but_implementation_does_not) ... ok\n\ntest_missing_inspection_blocks_low_risk_confirmation (test_workflow.WorkflowTests.test_missing_inspection_blocks_low_risk_confirmation) ... ok\n\ntest_negative_text_never_overrides_structured_or_project_strict_floors (test_workflow.WorkflowTests.test_negative_text_never_overrides_structured_or_project_strict_floors) ... ok\n\ntest_new_template_requires_assessment_before_start (test_workflow.WorkflowTests.test_new_template_requires_assessment_before_start) ... ok\n\ntest_oversize_guard_evidence_requires_investigation_instead_of_skipping (test_workflow.WorkflowTests.test_oversize_guard_evidence_requires_investigation_instead_of_skipping) ... ok\n\ntest_policy_change_invalidates_and_project_checks_cannot_be_omitted (test_workflow.WorkflowTests.test_policy_change_invalidates_and_project_checks_cannot_be_omitted) ... ok\n\ntest_profile_recommendations_and_bounded_assessment (test_workflow.WorkflowTests.test_profile_recommendations_and_bounded_assessment) ... ok\n\ntest_public_exposure_and_medium_risk_are_distinct_from_security_floor (test_workflow.WorkflowTests.test_public_exposure_and_medium_risk_are_distinct_from_security_floor) ... ok\n\ntest_reference_edit_invalidates_combined_consent (test_workflow.WorkflowTests.test_reference_edit_invalidates_combined_consent) ... ok\n\ntest_report_distinguishes_optional_approvals_and_legacy_plan (test_workflow.WorkflowTests.test_report_distinguishes_optional_approvals_and_legacy_plan) ... ok\n\ntest_reports_real_files_paths_and_missing_evidence (test_workflow.WorkflowTests.test_reports_real_files_paths_and_missing_evidence) ... ok\n\ntest_sensitive_task_metadata_cannot_claim_fast (test_workflow.WorkflowTests.test_sensitive_task_metadata_cannot_claim_fast) ... ok\n\ntest_sensitive_task_outcome_uses_same_narrative_classifier (test_workflow.WorkflowTests.test_sensitive_task_outcome_uses_same_narrative_classifier) ... ok\n\ntest_source_identifiers_override_negative_comments_and_match_boundaries (test_workflow.WorkflowTests.test_source_identifiers_override_negative_comments_and_match_boundaries) ... ok\n\ntest_strict_deeper_review_resolves_exact_ambiguous_sources (test_workflow.WorkflowTests.test_strict_deeper_review_resolves_exact_ambiguous_sources) ... ok\n\ntest_task_metadata_review_survives_its_own_workflow_write (test_workflow.WorkflowTests.test_task_metadata_review_survives_its_own_workflow_write) ... ok\n\ntest_unknowns_require_targeted_inspection_not_automatic_strict (test_workflow.WorkflowTests.test_unknowns_require_targeted_inspection_not_automatic_strict) ... ok\n\n\n\n----------------------------------------------------------------------\n\nRan 280 tests in 1157.368s\n\n\n\nOK (skipped=12)\n\nSlowest self-tests (seconds):\n\n  27.3657  test_hardening.HardeningTests.test_dependency_chain_survives_downstream_edits_and_rechecks_prerequisite\n\n  23.6150  test_hardening.HardeningTests.test_runner_repairs_review_feedback_without_fabricating_approval\n\n  22.9566  test_hardening.HardeningTests.test_changed_dependency_definition_invalidates_completion\n\n  22.9057  test_openspec.OpenSpecTests.test_real_execution_and_review_completion\n\n  21.3207  test_reconciliation.ReconciliationTests.test_risk_scheduling_release_and_other_feature_not_writable\n\n"
+    },
+    {
+      "check": "harness-validate",
+      "command": [],
+      "exit_code": 0,
+      "result": "PASS",
+      "summary": "Builtin assertions passed."
+    }
+  ],
+  "revisions": {
+    "architecture": "0",
+    "tech_spec": "0"
+  },
+  "schema_version": 1,
+  "task_id": "TST-001"
+}

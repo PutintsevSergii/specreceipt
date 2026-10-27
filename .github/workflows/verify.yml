@@ -1,10 +1,94 @@
 name: Verify SpecReceipt
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  release:
+    types: [published]
 permissions:
   contents: read
+concurrency:
+  group: verify-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+env:
+  FULL_RUN: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'release' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') }}
 jobs:
-  verify:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      python: ${{ steps.plan.outputs.python }}
+      node: ${{ steps.plan.outputs.node }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Explain selected checks
+        id: plan
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        shell: python
+        run: |
+          import json, os, subprocess, sys
+          output = os.path.join(os.environ['RUNNER_TEMP'], 'test-plan.json')
+          profile = 'full' if os.environ['FULL_RUN'] == 'true' else 'changed'
+          args = ['--profile', profile, '--dry-run', '--output', output]
+          if profile == 'changed':
+              base = os.environ.get('PR_BASE') or os.environ.get('PUSH_BEFORE') or 'origin/main'
+              if set(base) == {'0'}:
+                  base = 'origin/main'
+              args += ['--base', base]
+          subprocess.check_call([sys.executable, '-B', 'tests/run_scoped.py', *args])
+          with open(output) as f:
+              plan = json.load(f)
+          ids = {entry['id'] for entry in plan['commands']}
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write('python=' + str(bool(ids & {'python', 'validate'})).lower() + '\n')
+              f.write('node=' + str(bool(ids - {'python', 'validate'})).lower() + '\n')
+      - uses: actions/upload-artifact@v4
+        with:
+          name: selected-test-plan
+          path: ${{ runner.temp }}/test-plan.json
+  python:
+    needs: changes
+    if: needs.changes.outputs.python == 'true'
+    timeout-minutes: 45
     strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      HARNESS_REQUIRE_SYMLINK_TESTS: ${{ matrix.os == 'windows-latest' && '1' || '0' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          name: selected-test-plan
+          path: ${{ runner.temp }}
+      - name: Run selected python checks
+        shell: python
+        run: |
+          import json, os, subprocess, sys
+          plan_file = os.path.join(os.environ['RUNNER_TEMP'], 'test-plan.json')
+          with open(plan_file) as f:
+              plan = json.load(f)
+          subprocess.check_call([sys.executable, '-B', 'tests/run_scoped.py', '--profile', plan['profile'], '--plan-file', plan_file, '--language', 'python'])
+  verify:
+    needs: changes
+    if: needs.changes.outputs.node == 'true'
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
         node: [20, 22, 24]
@@ -17,21 +101,32 @@ jobs:
           cache: npm
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: '3.12'
       - run: npm ci
       - run: npm audit --omit=dev --audit-level=high
-      - run: npm run check && npm run build
       - run: npm install --prefix "$RUNNER_TEMP/tools" --ignore-scripts --no-audit --no-fund @fission-ai/openspec@1.14.3
-      - run: HARNESS_REAL_OPENSPEC="$RUNNER_TEMP/tools/node_modules/.bin/openspec" npm test
-      - run: HARNESS_REAL_OPENSPEC="$RUNNER_TEMP/tools/node_modules/.bin/openspec" python3 scripts/test-wizard.py
-      - run: HARNESS_REAL_OPENSPEC="$RUNNER_TEMP/tools/node_modules/.bin/openspec" npm run test:package
-      - run: python3 -B harness self-test
+      - uses: actions/download-artifact@v4
+        with:
+          name: selected-test-plan
+          path: ${{ runner.temp }}
+      - name: Run selected node checks
+        shell: python
+        run: |
+          import json, os, subprocess, sys
+          plan_file = os.path.join(os.environ['RUNNER_TEMP'], 'test-plan.json')
+          with open(plan_file) as f:
+              plan = json.load(f)
+          os.environ['HARNESS_REAL_OPENSPEC'] = os.path.join(os.environ['RUNNER_TEMP'], 'tools/node_modules/.bin/openspec' + ('.cmd' if os.name == 'nt' else ''))
+          subprocess.check_call([sys.executable, '-B', 'tests/run_scoped.py', '--profile', plan['profile'], '--plan-file', plan_file, '--language', 'node'])
   windows-native:
+    needs: changes
+    if: needs.changes.outputs.node == 'true'
     runs-on: windows-latest
     timeout-minutes: 45
     env:
       HARNESS_REQUIRE_SYMLINK_TESTS: '1'
     strategy:
+      fail-fast: false
       matrix:
         node: [20, 22, 24]
     steps:
@@ -41,15 +136,34 @@ jobs:
           node-version: ${{ matrix.node }}
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: '3.12'
       - run: npm ci
-      - run: npm run check
-      - run: npm run build
-      - run: node --test tests-node/windows.test.mjs tests-node/engine-upgrade.test.mjs tests-node/copilot.test.mjs
-      - run: python -B -X utf8 harness self-test
       - run: npm install --prefix "$env:RUNNER_TEMP/tools" --ignore-scripts --no-audit --no-fund @fission-ai/openspec@1.14.3
-      - name: Native package and OpenSpec integration
+      - uses: actions/download-artifact@v4
+        with:
+          name: selected-test-plan
+          path: ${{ runner.temp }}
+      - name: Run selected node checks
+        shell: python
         run: |
-          $env:HARNESS_REAL_OPENSPEC = "$env:RUNNER_TEMP/tools/node_modules/.bin/openspec.cmd"
-          $env:HARNESS_PYTHON = (Get-Command python).Source
-          npm run test:package
+          import json, os, subprocess, sys
+          plan_file = os.path.join(os.environ['RUNNER_TEMP'], 'test-plan.json')
+          with open(plan_file) as f:
+              plan = json.load(f)
+          os.environ['HARNESS_REAL_OPENSPEC'] = os.path.join(os.environ['RUNNER_TEMP'], 'tools/node_modules/.bin/openspec' + ('.cmd' if os.name == 'nt' else ''))
+          subprocess.check_call([sys.executable, '-B', 'tests/run_scoped.py', '--profile', plan['profile'], '--plan-file', plan_file, '--language', 'node'])
+  required:
+    if: always()
+    needs: [changes, python, verify, windows-native]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reject failed or cancelled dependencies
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          results = json.loads(os.environ['RESULTS'])
+          assert results['changes']['result'] == 'success', results
+          assert all(job['result'] in ('success', 'skipped') for job in results.values()), results
+          PY
