@@ -4,7 +4,7 @@ import * as fs from "node:fs";
 import { spawnSync } from "node:child_process";
 import { manifest, read, hash, safe } from "./filesystem.js";
 import { pythonCommand, kitAssets } from "./integrations.js";
-export const ENGINE_VERSION = "0.4.1";
+export const ENGINE_VERSION = "0.4.2";
 export const PROTOCOL_VERSION = 1;
 export interface Response {
   protocolVersion: number;

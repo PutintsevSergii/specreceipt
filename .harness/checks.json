@@ -61,6 +61,29 @@
       "approved": true,
       "approval_reference": "docs/WINDOWS_NATIVE_PLAN.md (developer approval in chat, 2026-10-26)",
       "purpose": "Require real CodeGraph and Graphify indexes on the native host"
+    },
+    "node-tests": {
+      "kind": "command",
+      "argv": [
+        "npm",
+        "test"
+      ],
+      "timeout_seconds": 600,
+      "approved": true,
+      "approval_reference": "Developer approved restoration plan in chat, 2026-10-27",
+      "purpose": "Regression of CLI, Codex/Copilot adapters, package and upgrade contracts"
+    },
+    "typescript": {
+      "kind": "command",
+      "argv": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "timeout_seconds": 120,
+      "approved": true,
+      "approval_reference": "Developer approved restoration plan in chat, 2026-10-27",
+      "purpose": "TypeScript interface compatibility"
     }
   }
 }

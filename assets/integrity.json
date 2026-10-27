@@ -19,7 +19,7 @@
   "harnesslib/investigation.py": "4c38fd533903493f3d9ed0aafbe114de44e32b3e2bd35b06a36aa438877f00cd",
   "harnesslib/openspec_tool.py": "b95aa30930d58a66187ddbc36791586634391bd6a52eeed9dac1df70d42b3dcb",
   "harnesslib/processes.py": "d28d5d0328846832be6e2af88f4239352ff1497898f697179e4c484968e1e6e2",
-  "harnesslib/protocol.py": "64715580bdcf107355f1f7a131d8dd717e48ece8dd1222131ef4f5cfa5236b64",
+  "harnesslib/protocol.py": "c30c5a8f0cad544ce917b1e862f93aa0f363801c6000b78778826ae062ab41ed",
   "harnesslib/readiness.py": "51060a8ffb859a7f98ddfda752944b8eeabd695a3a544900c95e9adfea09b0c8",
   "harnesslib/reconciliation.py": "a6a46dbfc344a3422a15b780b6431eb4f4a12b23bde77363ad9b61dadeb407e1",
   "harnesslib/report_operation.py": "64dd69ec3ffb31b68c5b8de22a14e5ad0bdc00f3c0592e72b3e7c27b8ed5953e",

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.2
+
+- Restore the required Node test and TypeScript checks in Harness verification.
+
 ## 0.4.1
 
 - Select scoped developer tests and separate Python regressions from Node-version CI jobs.
