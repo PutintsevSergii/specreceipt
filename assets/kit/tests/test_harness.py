@@ -329,7 +329,7 @@ class HarnessTests(unittest.TestCase):
         self.assertTrue(required <= set(available))
         skills = [available[name] for name in sorted(required)]
         for p in skills:
-            text=p.read_text()
+            text=p.read_text(encoding='utf-8')
             self.assertTrue(text.startswith('---\nname: '+p.parent.name+'\n'))
             for link in re.findall(r'\]\(([^)]+)\)',text):
                 self.assertTrue((p.parent/link).is_file(),str(p)+': '+link)

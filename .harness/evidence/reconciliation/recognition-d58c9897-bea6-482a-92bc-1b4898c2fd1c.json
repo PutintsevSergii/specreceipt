@@ -1,0 +1,23 @@
+{
+  "approval": "specs/npm-release/reviews/configuration-recognition.md",
+  "approval_hash": "16f73c5b2a8b34e8af07f7d8a4d8623f3f0240efebeac1acf1ece3ea224daf0e",
+  "at": "2026-10-27T07:00:44.896183+00:00",
+  "by": "Codex configuration reviewer under existing explicit developer release authorization",
+  "manifest": {
+    "baseline": "c058e78d9004cb7dbfe6222e2d225c9979cb443695b507faf4f0475fb9be6c3d",
+    "definition": "ac4a05060afebda55330ec2c88852130ea8f6f41813919f4fc74671afca0afe3",
+    "entries": [
+      {
+        "after": "1d510b5a0c84bf841b58de2406e450f253fd905697071d58cc28c16ac4726fc5",
+        "before": "25eaa1b0187422ab468c5013ad700f96a6cc10af7e4183630fa603d83d6b40aa",
+        "change": "MODIFIED",
+        "executable": false,
+        "path": "scripts/release.mjs",
+        "sha256": "4ce5c1df89d86466bd607ed02934b29546733b4fa8f9f351a962fed13230a573"
+      }
+    ],
+    "previous": null,
+    "schema_version": 1,
+    "task_id": "REL-001"
+  }
+}

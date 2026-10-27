@@ -1,0 +1,74 @@
+✔ all supported agents preserve configuration contract (7.383ms)
+✔ adapter accepts structured result and propagates nonzero or provider failure (6605.0049ms)
+✔ missing authentication and account restrictions use structured errors (4008.1652ms)
+✔ timeout, cancellation, missing process and unsupported capability fail closed (3503.9603ms)
+✔ no unrestricted permissions or inherited allow-all environment (1039.4022ms)
+✔ Python dispatch refuses untrusted context and missing readiness (15.0859ms)
+✔ missing optional CLI is detected without execution (4.038ms)
+﹣ official OpenSpec: Copilot and coexistence preserve instructions, repeat and upgrade (0.266ms) # SKIP
+✔ HTTP authentication and policy errors stay blocked (3029.86ms)
+﹣ cancellation terminates a descendant that ignores SIGTERM (0.5646ms) # SKIP
+{"result": "FAIL", "error": "docs/TECH_SPEC.md: missing Status: metadata"}
+{"result": "FAIL", "error": "Another harness writer or installer is active; inspect stale locks before retrying."}
+{"result": "FAIL", "error": "Installation or upgrade recovery required before lifecycle writes."}
+✔ release: one configuration value synchronizes consumers and lock metadata idempotently (41.4611ms)
+✔ release: malformed markers and lock identity fail before any writes (25.6126ms)
+✔ release: stable version and compatible npm validation rejects invalid inputs (1.0419ms)
+✔ release: publication requires own push/main and an exact current verified SHA (0.701ms)
+✔ release: existing version skips while a greater new version requests publication (19.2352ms)
+✔ release: registry denial, absence, outages and network errors never request publication (18.7187ms)
+✔ release: invalid metadata, downgrade and mismatched package identity fail closed (19.3494ms)
+✔ release: workflow connects the verified SHA gate to job-scoped OIDC publication (67.101ms)
+✔ Windows engine identity accepts native drive and directory casing (2091.2018ms)
+✖ Python owns initial state and setup event; installed CLI delegates help, errors and gates (6376.0381ms)
+✔ installed engine drift, wrong protocol, missing Python and root injection fail closed (5817.5566ms)
+✔ three-way Git merge covers local-only, remote-only, disjoint, overlap and missing Git (186.8084ms)
+✔ migration validates both versions, adds defaults, is ordered and idempotent (0.9322ms)
+✔ upgrade preserves local Skills, shared rules, OpenSpec and custom files; dry-run and repeat unchanged (9513.1912ms)
+✔ 0.3.0 installation manifest can upgrade to the current release (5426.5363ms)
+✔ 0.3.1 installation manifest can upgrade to the current release (5437.819ms)
+✔ legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict (3764.3972ms)
+✔ interrupted upgrade retains backup, recovery restores bytes and retry works (7900.06ms)
+✔ postvalidation failure retains journal and protects concurrent edits during recovery (6395.7424ms)
+✔ doctor engine cannot import project shadow modules; missing inventory entry is rejected (4848.0951ms)
+✔ lifecycle writes refuse installer lock and pending recovery, reads still work (7554.292ms)
+✔ custom runtime upgrade cannot silently claim upstream engine version (3542.1976ms)
+✔ interruption after configuration write restores pre-upgrade config and manifest (7774.6046ms)
+✔ packaged launchers use portable line endings and include native entry points (4.9691ms)
+✔ Windows copied environments preserve mixed-case Path discovery (4.5811ms)
+✔ Windows npm shims preserve argument boundaries without cmd interpolation (293.0236ms)
+✔ Windows managed Python is discovered from its runtime pointer (34.8182ms)
+✔ portable argument and file operations in spaces and Unicode directories (1174.9115ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 35
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 2
+ℹ todo 0
+ℹ duration_ms 77283.3402
+
+✖ failing tests:
+
+test at tests-node\engine-upgrade.test.mjs:144:1
+✖ Python owns initial state and setup event; installed CLI delegates help, errors and gates (6376.0381ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'C:\\Users\\tatja\\AppData\\Local\\Temp\\harness-tests\\harness-contract-j42TL9'
+  - 'c:\\users\\tatja\\appdata\\local\\temp\\harness-tests\\harness-contract-j42TL9'
+  
+      at TestContext.<anonymous> (file:///C:/sergii/projects/harness/tests-node/engine-upgrade.test.mjs:152:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'C:\\Users\\tatja\\AppData\\Local\\Temp\\harness-tests\\harness-contract-j42TL9',
+    expected: 'c:\\users\\tatja\\appdata\\local\\temp\\harness-tests\\harness-contract-j42TL9',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,9 +1,10 @@
 /** The only process boundary for lifecycle and diagnosis. */
 import * as path from "node:path";
+import * as fs from "node:fs";
 import { spawnSync } from "node:child_process";
 import { manifest, read, hash, safe } from "./filesystem.js";
 import { pythonCommand, kitAssets } from "./integrations.js";
-export const ENGINE_VERSION = "0.4.0";
+export const ENGINE_VERSION = "0.4.1";
 export const PROTOCOL_VERSION = 1;
 export interface Response {
   protocolVersion: number;
@@ -14,6 +15,14 @@ export interface Response {
   exitCode: number;
   data: any;
   error: { code: string; message: string } | null;
+}
+function sameDirectory(actual: unknown, expected: string): boolean {
+  if (typeof actual !== "string" || !actual) return false;
+  try {
+    return fs.realpathSync.native(actual) === fs.realpathSync.native(expected);
+  } catch {
+    return false;
+  }
 }
 export function request(
   root: string,
@@ -55,9 +64,9 @@ export function request(
   if (
     value.protocolVersion !== PROTOCOL_VERSION ||
     value.engineVersion !== ENGINE_VERSION ||
-    value.target !== root ||
-    value.cwd !== root ||
-    value.engineRoot !== engineRoot ||
+    !sameDirectory(value.target, root) ||
+    !sameDirectory(value.cwd, root) ||
+    !sameDirectory(value.engineRoot, engineRoot) ||
     !Number.isInteger(value.exitCode) ||
     value.exitCode !== r.status
   )

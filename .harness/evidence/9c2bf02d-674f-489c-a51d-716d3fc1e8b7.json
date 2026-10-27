@@ -1,0 +1,119 @@
+{
+  "acceptance_results": [
+    {
+      "checks": [
+        "harness-validate",
+        "native-typecheck",
+        "native-node"
+      ],
+      "criterion": "REL-001",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "native-typecheck",
+        "native-node"
+      ],
+      "criterion": "REL-002",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "native-typecheck",
+        "native-node"
+      ],
+      "criterion": "REL-003",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "native-typecheck",
+        "native-node"
+      ],
+      "criterion": "REL-004",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "native-typecheck",
+        "native-node"
+      ],
+      "criterion": "REL-005",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "native-typecheck",
+        "native-node"
+      ],
+      "criterion": "REL-006",
+      "result": "PASS"
+    }
+  ],
+  "check_config_hash": "67d44c23ea11296f97ac97b325608519a364be295f4b922614c8890ea055b743",
+  "checked_tasks": [
+    "REL-001"
+  ],
+  "created_at": "2026-10-27T07:30:20.462039+00:00",
+  "definition_hash": "ac4a05060afebda55330ec2c88852130ea8f6f41813919f4fc74671afca0afe3",
+  "environment": {
+    "declared": {
+      "application_runtime": "UNCONFIGURED",
+      "note": "Declare application versions during onboarding."
+    },
+    "machine": "AMD64",
+    "platform": "Windows",
+    "python": "3.12.14"
+  },
+  "fingerprint": "b3c324ec027f5617eb80dc3d6fc0852164657532832dfd1311e99dc1a6865375",
+  "id": "9c2bf02d-674f-489c-a51d-716d3fc1e8b7",
+  "result": "PASS",
+  "results": [
+    {
+      "check": "harness-validate",
+      "command": [],
+      "exit_code": 0,
+      "result": "PASS",
+      "summary": "Builtin assertions passed."
+    },
+    {
+      "check": "native-node",
+      "command": [
+        "node",
+        "--test",
+        "tests-node/windows.test.mjs",
+        "tests-node/engine-upgrade.test.mjs",
+        "tests-node/copilot.test.mjs"
+      ],
+      "exit_code": 0,
+      "log": ".harness/evidence/logs/ae255e47-bc89-46aa-b69b-5d50ae25b929.log",
+      "log_hash": "53fb4ff126351d75fdf9b6ea764c4826f13510e2eaf0ce2b601209a76f1c9cf5",
+      "result": "PASS",
+      "summary": "\u2714 all supported agents preserve configuration contract (5.5247ms)\n\u2714 adapter accepts structured result and propagates nonzero or provider failure (6644.0031ms)\n\u2714 missing authentication and account restrictions use structured errors (4112.6799ms)\n\u2714 timeout, cancellation, missing process and unsupported capability fail closed (3492.2154ms)\n\u2714 no unrestricted permissions or inherited allow-all environment (1015.2856ms)\n\u2714 Python dispatch refuses untrusted context and missing readiness (13.0438ms)\n\u2714 missing optional CLI is detected without execution (3.3214ms)\n\ufe63 official OpenSpec: Copilot and coexistence preserve instructions, repeat and upgrade (0.2123ms) # SKIP\n\u2714 HTTP authentication and policy errors stay blocked (3190.2137ms)\n\ufe63 cancellation terminates a descendant that ignores SIGTERM (0.571ms) # SKIP\n{\"result\": \"FAIL\", \"error\": \"Task must exist and have a unique ID: ABSENT\"}\n{\"result\": \"FAIL\", \"error\": \"docs/TECH_SPEC.md: missing Status: metadata\"}\n{\"result\": \"FAIL\", \"error\": \"Another harness writer or installer is active; inspect stale locks before retrying.\"}\n{\"result\": \"FAIL\", \"error\": \"Installation or upgrade recovery required before lifecycle writes.\"}\n\u2714 release: one configuration value synchronizes consumers and lock metadata idempotently (36.3151ms)\n\u2714 release: malformed markers and lock identity fail before any writes (25.6708ms)\n\u2714 release: stable version and compatible npm validation rejects invalid inputs (1.6007ms)\n\u2714 release: publication requires own push/main and an exact current verified SHA (0.7504ms)\n\u2714 release: existing version skips while a greater new version requests publication (18.2367ms)\n\u2714 release: registry denial, absence, outages and network errors never request publication (24.3885ms)\n\u2714 release: invalid metadata, downgrade and mismatched package identity fail closed (20.7388ms)\n\u2714 release: workflow connects the verified SHA gate to job-scoped OIDC publication (88.7777ms)\n\u2714 Windows engine identity accepts native drive and directory casing (2334.9824ms)\n\u2714 Python owns initial state and setup event; installed CLI delegates help, errors and gates (18265.0004ms)\n\u2714 installed engine drift, wrong protocol, missing Python and root injection fail closed (5619.8502ms)\n\u2714 three-way Git merge covers local-only, remote-only, disjoint, overlap and missing Git (146.7324ms)\n\u2714 migration validates both versions, adds defaults, is ordered and idempotent (0.7474ms)\n\u2714 upgrade preserves local Skills, shared rules, OpenSpec and custom files; dry-run and repeat unchanged (9675.8931ms)\n\u2714 0.3.0 installation manifest can upgrade to the current release (5849.3219ms)\n\u2714 0.3.1 installation manifest can upgrade to the current release (6227.7061ms)\n\u2714 legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict (5062.8084ms)\n\u2714 interrupted upgrade retains backup, recovery restores bytes and retry works (8545.5872ms)\n\u2714 postvalidation failure retains journal and protects concurrent edits during recovery (6886.4713ms)\n\u2714 doctor engine cannot import project shadow modules; missing inventory entry is rejected (5637.6711ms)\n\u2714 lifecycle writes refuse installer lock and pending recovery, reads still work (7548.8828ms)\n\u2714 custom runtime upgrade cannot silently claim upstream engine version (3636.7288ms)\n\u2714 interruption after configuration write restores pre-upgrade config and manifest (7369.432ms)\n\u2714 packaged launchers use portable line endings and include native entry points (5.1026ms)\n\u2714 Windows copied environments preserve mixed-case Path discovery (8.1476ms)\n\u2714 Windows npm shims preserve argument boundaries without cmd interpolation (330.4473ms)\n\u2714 Windows managed Python is discovered from its runtime pointer (36.6982ms)\n\u2714 portable argument and file operations in spaces and Unicode directories (1332.3437ms)\n\u2139 tests 38\n\u2139 suites 0\n\u2139 pass 36\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 2\n\u2139 todo 0\n\u2139 duration_ms 93533.3456\n"
+    },
+    {
+      "check": "native-typecheck",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "exit_code": 0,
+      "log": ".harness/evidence/logs/fd007166-7f21-4669-b3a6-6e3cf58d1db9.log",
+      "log_hash": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
+      "result": "PASS",
+      "summary": ""
+    }
+  ],
+  "revisions": {
+    "architecture": "0",
+    "tech_spec": "0"
+  },
+  "schema_version": 1,
+  "task_id": "REL-001"
+}

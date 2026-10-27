@@ -10,9 +10,128 @@ import { prepareUpgrade, upgrade, mergeText } from "../dist/upgrade.js";
 import { migrate } from "../dist/migrations.js";
 import { manifest, read, hash, recover, walk } from "../dist/filesystem.js";
 import { CONFIG_PATH, MANIFEST_PATH, DEFAULTS, VERSION } from "../dist/core.js";
+import { synchronize, version, registryDecision, publishContext, requirePublishingNpm } from '../scripts/release.mjs';
+import YAML from 'yaml';
+
+function releaseFixture(t) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'release-'));
+  t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
+  fs.mkdirSync(path.join(root,'src'));
+  fs.mkdirSync(path.join(root,'harnesslib'));
+  const pkg = {name:'specreceipt', version:'0.4.1', repository:{url:'git+https://github.com/PutintsevSergii/specreceipt.git'},publishConfig:{registry:'https://registry.npmjs.org/'}};
+  fs.writeFileSync(path.join(root,'package.json'),JSON.stringify(pkg));
+  fs.writeFileSync(path.join(root,'package-lock.json'),JSON.stringify({name:pkg.name,version:'0.4.0',packages:{'':{name:pkg.name,version:'0.4.0'},'node_modules/fixture':{version:'1.2.3'}}}));
+  fs.writeFileSync(path.join(root,'src/core.ts'),'export const VERSION = "0.4.0";\n');
+  fs.writeFileSync(path.join(root,'src/engine.ts'),'export const ENGINE_VERSION = "0.4.0";\nexport const PROTOCOL_VERSION = 1;\n');
+  fs.writeFileSync(path.join(root,'harnesslib/protocol.py'),"ENGINE_VERSION = '0.4.0'\nPROTOCOL_VERSION = 1\n");
+  return {root,pkg};
+}
+
+test('release: one configuration value synchronizes consumers and lock metadata idempotently',t=>{
+  const {root}=releaseFixture(t);
+  assert.throws(()=>synchronize(root,true),/drift/);
+  assert.equal(synchronize(root).changed.length,4);
+  assert.deepEqual(synchronize(root).changed,[]);
+  assert.equal(synchronize(root,true).version,'0.4.1');
+  assert.match(fs.readFileSync(path.join(root,'harnesslib/protocol.py'),'utf8'),/PROTOCOL_VERSION = 1/);
+  const lock=JSON.parse(fs.readFileSync(path.join(root,'package-lock.json')));
+  assert.equal(lock.packages[''].version,'0.4.1');
+  assert.equal(lock.packages['node_modules/fixture'].version,'1.2.3');
+});
+
+test('release: malformed markers and lock identity fail before any writes',t=>{
+  const {root}=releaseFixture(t);
+  const before=fs.readFileSync(path.join(root,'src/core.ts'),'utf8');
+  fs.appendFileSync(path.join(root,'src/engine.ts'),'export const ENGINE_VERSION = "duplicate";\n');
+  assert.throws(()=>synchronize(root),/exactly one/);
+  assert.equal(fs.readFileSync(path.join(root,'src/core.ts'),'utf8'),before);
+  fs.writeFileSync(path.join(root,'src/engine.ts'),'export const ENGINE_VERSION = "0.4.0";\n');
+  fs.writeFileSync(path.join(root,'package-lock.json'),JSON.stringify({name:'another',packages:{}}));
+  assert.throws(()=>synchronize(root),/identity/);
+  assert.equal(fs.readFileSync(path.join(root,'src/core.ts'),'utf8'),before);
+});
+
+test('release: stable version and compatible npm validation rejects invalid inputs',()=>{
+  for(const value of ['1.2','v1.2.3','01.2.3','1.2.3-next',null,'1.2.3\ninject','9007199254740992.0.0']) assert.throws(()=>version(value));
+  assert.equal(version('0.4.1'),'0.4.1');
+  for(const value of ['10.9.9','11.5.0','11.5.1-next']) assert.throws(()=>requirePublishingNpm(value));
+  requirePublishingNpm('11.5.1');requirePublishingNpm('12.0.0');
+});
+
+test('release: publication requires own push/main and an exact current verified SHA',()=>{
+  const sha='a'.repeat(40),repo='PutintsevSergii/specreceipt';
+  assert.equal(publishContext('push','refs/heads/main',repo,repo,sha,sha),true);
+  for(const args of [
+    ['pull_request','refs/heads/main',repo,repo,sha,sha],
+    ['workflow_dispatch','refs/heads/main',repo,repo,sha,sha],
+    ['push','refs/heads/feature',repo,repo,sha,sha],
+    ['push','refs/heads/main','fork/repo',repo,sha,sha],
+    ['push','refs/heads/main',repo,repo,sha,'b'.repeat(40)],
+    ['push','refs/heads/main',repo,repo,'invalid','invalid']]) assert.equal(publishContext(...args),false);
+});
+
+function npmMetadata(current=false) {
+  return {name:'specreceipt',versions:{'0.3.1':{name:'specreceipt',version:'0.3.1'},...(current?{'0.4.1':{name:'specreceipt',version:'0.4.1'}}:{})},'dist-tags':{latest:'0.3.1'}};
+}
+
+test('release: existing version skips while a greater new version requests publication',async t=>{
+  const {pkg}=releaseFixture(t);
+  for(const exists of [false,true]) {
+    const result=await registryDecision(pkg,async(url,options)=>{
+      assert.equal(url,'https://registry.npmjs.org/specreceipt');assert.ok(options.signal);
+      return {ok:true,json:async()=>npmMetadata(exists)};
+    });
+    assert.equal(result.publish,!exists);assert.equal(result.version,'0.4.1');
+  }
+});
+
+test('release: registry denial, absence, outages and network errors never request publication',async t=>{
+  const {pkg}=releaseFixture(t);
+  for(const status of [401,403,404,429,500,503]) await assert.rejects(()=>registryDecision(pkg,async()=>({ok:false,status})),/HTTP/);
+  await assert.rejects(()=>registryDecision(pkg,async()=>{throw Error('offline')}),/offline/);
+  await assert.rejects(()=>registryDecision(pkg,async()=>({ok:true,json:async()=>{throw Error('bad JSON')}})),/bad JSON/);
+});
+
+test('release: invalid metadata, downgrade and mismatched package identity fail closed',async t=>{
+  const {pkg}=releaseFixture(t);
+  for(const data of [{}, {name:'another',versions:{}}, {...npmMetadata(),versions:[]}, {...npmMetadata(),'dist-tags':{latest:'9.0.0'},versions:{'9.0.0':{name:'specreceipt',version:'9.0.0'}}}]) {
+    await assert.rejects(()=>registryDecision(pkg,async()=>({ok:true,json:async()=>data})));
+  }
+  for(const bad of [{...pkg,name:'other'},{...pkg,private:true},{...pkg,publishConfig:{registry:'https://untrusted.example'}},{...pkg,repository:{url:'wrong'}}]) {
+    await assert.rejects(()=>registryDecision(bad,async()=>{throw Error('must not fetch')}),/Unexpected/);
+  }
+});
+
+test('release: workflow connects the verified SHA gate to job-scoped OIDC publication',()=>{
+  const workflow=YAML.parse(fs.readFileSync('.github/workflows/verify.yml','utf8'));
+  const job=workflow.jobs.publish;
+  assert.equal(job.needs,'required');
+  assert.equal(job.permissions['id-token'],'write');
+  assert.equal(workflow.permissions['id-token'],undefined);
+  assert.match(job.if,/github.event_name == 'push'/);
+  assert.match(job.if,/refs\/heads\/main/);
+  assert.match(job.if,/PutintsevSergii\/specreceipt/);
+  assert.equal(job.steps[0].with.ref,'${{ github.sha }}');
+  assert.equal(job.steps[0].with['persist-credentials'],false);
+  assert.equal(job.concurrency['cancel-in-progress'],false);
+  assert.match(job.steps.find(s=>s.name==='Publish through npm Trusted Publishing').run,/\.tgz.*--access public.*--provenance/);
+  assert.equal(job.steps.find(s=>s.name==='Publish through npm Trusted Publishing').if,"steps.release.outputs.publish == 'true'");
+  assert.ok(workflow.jobs.python.steps.some(s=>s.run==='node scripts/release.mjs sync'));
+  assert.ok(workflow.jobs.python.steps.some(s=>s.run==='python -B -X utf8 harness init'));
+});
+
+test('Windows engine identity accepts native drive and directory casing', {skip:process.platform!=='win32'},()=>{
+  const root=fs.realpathSync.native(process.cwd());
+  for(const alias of [root[0].toLowerCase()+root.slice(1),root.toUpperCase()]) {
+    const result=request(alias,['contract'],alias);
+    assert.equal(fs.realpathSync.native(result.target),root);
+    assert.equal(fs.realpathSync.native(result.cwd),root);
+    assert.equal(fs.realpathSync.native(result.engineRoot),root);
+  }
+});
 const cli = path.resolve("dist/cli.js");
 function fixture(t) {
-  const root = fs.realpathSync(
+  const root = fs.realpathSync.native(
     fs.mkdtempSync(path.join(os.tmpdir(), "harness-contract-")),
   );
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
@@ -42,7 +161,7 @@ test("Python owns initial state and setup event; installed CLI delegates help, e
     { encoding: "utf8" },
   );
   assert.equal(p.status, 0);
-  assert.equal(JSON.parse(p.stdout).engineRoot, root);
+  assert.equal(fs.realpathSync.native(JSON.parse(p.stdout).engineRoot), fs.realpathSync.native(root));
   assert.equal(JSON.parse(read(root, ".harness/state.json")).phase, "SETUP");
   // Read-only calls do not modify target files.
   const after = snapshot(root);

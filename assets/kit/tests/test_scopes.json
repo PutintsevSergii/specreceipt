@@ -1,0 +1,510 @@
+{
+  "version": 1,
+  "python_modules": [
+    "test_adopt_bootstrap",
+    "test_assessment",
+    "test_codegraph_tool",
+    "test_graphify_tool",
+    "test_hardening",
+    "test_harness",
+    "test_installation",
+    "test_investigation",
+    "test_native_windows",
+    "test_onboarding",
+    "test_openspec",
+    "test_performance",
+    "test_protocol",
+    "test_reconciliation",
+    "test_reporting",
+    "test_test_selection",
+    "test_tool_updates",
+    "test_windows_setup",
+    "test_workflow"
+  ],
+  "node_files": [
+    "tests-node/copilot-fixture.test.mjs",
+    "tests-node/copilot.test.mjs",
+    "tests-node/engine-upgrade.test.mjs",
+    "tests-node/preflight.test.mjs",
+    "tests-node/product.test.mjs",
+    "tests-node/windows.test.mjs",
+    "tests-node/workflow.test.mjs"
+  ],
+  "smoke": [
+    "py:test_protocol.ProtocolTests",
+    "py:test_native_windows.NativePlatformTests.test_atomic_replace_failure_preserves_previous_json",
+    "py:test_codegraph_tool.CodeGraphToolTests.test_task_context_is_saved_before_implementation_with_redaction"
+  ],
+  "rules": [
+    {
+      "paths": [
+        "harnesslib/core.py",
+        "harnesslib/storage.py",
+        "harnesslib/verification.py",
+        "harnesslib/cli.py",
+        "harnesslib/protocol.py",
+        "harnesslib/__init__.py",
+        "harnesslib/processes.py",
+        "harnesslib/tool_paths.py"
+      ],
+      "checks": [
+        "full"
+      ],
+      "reason": "Foundational lifecycle, evidence or native process boundary"
+    },
+    {
+      "paths": [
+        "harnesslib/reporting.py",
+        "harnesslib/report_operation.py"
+      ],
+      "checks": [
+        "py:test_reporting",
+        "py:test_performance",
+        "py:test_reconciliation",
+        "py:test_hardening",
+        "py:test_harness"
+      ],
+      "reason": "Reports are consumed by lifecycle, recovery and runner paths"
+    },
+    {
+      "paths": [
+        "harnesslib/test_progress.py"
+      ],
+      "checks": [
+        "py:test_performance",
+        "py:test_harness"
+      ],
+      "reason": "Progress, output redaction and empty-suite contracts"
+    },
+    {
+      "paths": [
+        "harnesslib/workflow.py"
+      ],
+      "checks": [
+        "py:test_workflow",
+        "py:test_onboarding",
+        "py:test_hardening",
+        "node:tests-node/workflow.test.mjs"
+      ],
+      "reason": "Workflow policy and native installed consumer"
+    },
+    {
+      "paths": [
+        "harnesslib/readiness.py"
+      ],
+      "checks": [
+        "py:test_onboarding",
+        "py:test_workflow",
+        "py:test_hardening"
+      ],
+      "reason": "Readiness is consumed by lifecycle/workflow and runner"
+    },
+    {
+      "paths": [
+        "harnesslib/assessment.py",
+        "harnesslib/skills.py"
+      ],
+      "checks": [
+        "py:test_assessment",
+        "py:test_installation",
+        "py:test_adopt_bootstrap"
+      ],
+      "reason": "Assessment, role catalog and installed instruction consumers"
+    },
+    {
+      "paths": [
+        "harnesslib/investigation.py"
+      ],
+      "checks": [
+        "py:test_investigation",
+        "py:test_workflow",
+        "py:test_onboarding"
+      ],
+      "reason": "Investigation freshness and workflow gates"
+    },
+    {
+      "paths": [
+        "harnesslib/reconciliation.py"
+      ],
+      "checks": [
+        "py:test_reconciliation",
+        "py:test_harness",
+        "py:test_hardening"
+      ],
+      "reason": "Recovery, scope and evidence recognition"
+    },
+    {
+      "paths": [
+        "harnesslib/runner.py"
+      ],
+      "checks": [
+        "py:test_hardening",
+        "py:test_reporting"
+      ],
+      "reason": "Bounded local runner and reporting integration"
+    },
+    {
+      "paths": [
+        "harnesslib/adopt.py",
+        "harnesslib/installation.py",
+        "harnesslib/runtime.py"
+      ],
+      "checks": [
+        "full",
+        "package"
+      ],
+      "reason": "Kit adoption/runtime bootstrap is shared by integration fixtures and packages"
+    },
+    {
+      "paths": [
+        "harnesslib/graph.py"
+      ],
+      "checks": [
+        "py:test_harness",
+        "py:test_adopt_bootstrap",
+        "py:test_native_windows"
+      ],
+      "reason": "Navigation inventory and path boundaries"
+    },
+    {
+      "paths": [
+        "harnesslib/index_context.py",
+        "harnesslib/codegraph_tool.py"
+      ],
+      "checks": [
+        "py:test_codegraph_tool",
+        "py:test_installation",
+        "py:test_native_windows"
+      ],
+      "reason": "CodeGraph orchestration and native boundary"
+    },
+    {
+      "paths": [
+        "harnesslib/graphify_tool.py"
+      ],
+      "checks": [
+        "py:test_graphify_tool",
+        "py:test_codegraph_tool",
+        "py:test_installation",
+        "py:test_native_windows"
+      ],
+      "reason": "Graphify adapter and orchestration"
+    },
+    {
+      "paths": [
+        "harnesslib/openspec_tool.py"
+      ],
+      "checks": [
+        "py:test_openspec",
+        "py:test_installation",
+        "node:tests-node/product.test.mjs",
+        "package"
+      ],
+      "reason": "Python/Node OpenSpec contract and packaged consumer"
+    },
+    {
+      "paths": [
+        "harnesslib/tool_updates.py",
+        "scripts/update-tools.py"
+      ],
+      "checks": [
+        "py:test_tool_updates",
+        "py:test_installation"
+      ],
+      "reason": "Pinned tools and failure recovery"
+    },
+    {
+      "paths": [
+        "src/core.ts",
+        "src/cli.ts",
+        "src/engine.ts",
+        "src/filesystem.ts",
+        "src/install.ts",
+        "src/integrations.ts",
+        "src/migrations.ts"
+      ],
+      "checks": [
+        "full",
+        "package"
+      ],
+      "reason": "Shared Node contract, engine or installation boundary"
+    },
+    {
+      "paths": [
+        "src/upgrade.ts"
+      ],
+      "checks": [
+        "full",
+        "package",
+        "upgrade"
+      ],
+      "reason": "Upgrade requires native unit/package checks and reviewed archived versions"
+    },
+    {
+      "paths": [
+        "src/doctor.ts"
+      ],
+      "checks": [
+        "node:tests-node/preflight.test.mjs",
+        "node:tests-node/product.test.mjs",
+        "node:tests-node/windows.test.mjs"
+      ],
+      "reason": "Preflight and public diagnostics"
+    },
+    {
+      "paths": [
+        "src/copilot.ts"
+      ],
+      "checks": [
+        "node:tests-node/copilot.test.mjs",
+        "node:tests-node/copilot-fixture.test.mjs",
+        "node:tests-node/preflight.test.mjs"
+      ],
+      "reason": "Transport, fixture and preflight consumers"
+    },
+    {
+      "paths": [
+        "tests-node/copilot-fixture.test.mjs"
+      ],
+      "checks": [
+        "node:tests-node/copilot-fixture.test.mjs"
+      ],
+      "reason": "Changed native test module"
+    },
+    {
+      "paths": [
+        "tests-node/copilot.test.mjs"
+      ],
+      "checks": [
+        "node:tests-node/copilot.test.mjs"
+      ],
+      "reason": "Changed native test module"
+    },
+    {
+      "paths": [
+        "tests-node/engine-upgrade.test.mjs"
+      ],
+      "checks": [
+        "node:tests-node/engine-upgrade.test.mjs"
+      ],
+      "reason": "Changed native test module"
+    },
+    {
+      "paths": [
+        "tests-node/preflight.test.mjs"
+      ],
+      "checks": [
+        "node:tests-node/preflight.test.mjs"
+      ],
+      "reason": "Changed native test module"
+    },
+    {
+      "paths": [
+        "tests-node/product.test.mjs"
+      ],
+      "checks": [
+        "node:tests-node/product.test.mjs"
+      ],
+      "reason": "Changed native test module"
+    },
+    {
+      "paths": [
+        "tests-node/windows.test.mjs"
+      ],
+      "checks": [
+        "node:tests-node/windows.test.mjs"
+      ],
+      "reason": "Changed native test module"
+    },
+    {
+      "paths": [
+        "tests-node/workflow.test.mjs"
+      ],
+      "checks": [
+        "node:tests-node/workflow.test.mjs"
+      ],
+      "reason": "Changed native test module"
+    },
+    {
+      "paths": [
+        "tests/platform_support.py",
+        "tests/test_harness.py",
+        "tests/test_onboarding.py"
+      ],
+      "checks": [
+        "full"
+      ],
+      "reason": "Shared fixture/helper boundary; complete regression"
+    },
+    {
+      "paths": [
+        "tests/run_scoped.py",
+        "tests/test_scopes.json"
+      ],
+      "checks": [
+        "full"
+      ],
+      "reason": "Selection policy changes need a complete audit"
+    },
+    {
+      "paths": [
+        "schemas/*",
+        "templates/*",
+        ".agents/*",
+        "AGENTS.md",
+        ".harness/checks.json",
+        ".harness/environment.json",
+        ".harness/onboarding.json",
+        ".harness/graph-config.json"
+      ],
+      "checks": [
+        "full"
+      ],
+      "reason": "Schemas, templates, instructions and verification configuration affect fixtures"
+    },
+    {
+      "paths": [
+        "harness",
+        "harness.cmd",
+        "install.sh",
+        "install.ps1",
+        "scripts/python.sh",
+        "scripts/python.ps1",
+        "scripts/uv.ps1"
+      ],
+      "checks": [
+        "full",
+        "package"
+      ],
+      "reason": "Production launch/bootstrap and package boundary"
+    },
+    {
+      "paths": [
+        "assets/*",
+        "scripts/build-assets.mjs",
+        "package.json",
+        "package-lock.json",
+        "tsconfig.json",
+        ".gitattributes",
+        ".gitignore"
+      ],
+      "checks": [
+        "full",
+        "package"
+      ],
+      "reason": "Dependency, generated-kit or packaging inputs"
+    },
+    {
+      "paths": [
+        "scripts/test-package.mjs"
+      ],
+      "checks": [
+        "package"
+      ],
+      "reason": "Actual packaged entry points"
+    },
+    {
+      "paths": [
+        "scripts/test-upgrade.mjs"
+      ],
+      "checks": [
+        "upgrade"
+      ],
+      "reason": "Actual archived-version upgrade; reviewed archives required"
+    },
+    {
+      "paths": [
+        "scripts/test-wizard.py"
+      ],
+      "checks": [
+        "wizard"
+      ],
+      "reason": "Actual native/POSIX wizard applicability"
+    },
+    {
+      "paths": [
+        "scripts/test-codex-e2e.mjs",
+        "scripts/test-copilot-e2e.mjs",
+        "scripts/copilot-e2e-fixture.mjs"
+      ],
+      "checks": [
+        "node:tests-node/copilot-fixture.test.mjs",
+        "node:tests-node/product.test.mjs"
+      ],
+      "reason": "Controlled local boundary tests; paid/live agent runs remain separately authorized"
+    },
+    {
+      "paths": [
+        "scripts/benchmark-workflow.py"
+      ],
+      "checks": [
+        "py:test_workflow",
+        "node:tests-node/workflow.test.mjs"
+      ],
+      "reason": "Workflow benchmark consumers"
+    },
+    {
+      "paths": [
+        ".github/workflows/*"
+      ],
+      "checks": [
+        "full"
+      ],
+      "reason": "CI execution policy needs full migration coverage"
+    },
+    {
+      "paths": [
+        "docs/HARNESS.md",
+        "docs/V02.md",
+        "docs/V03.md",
+        "docs/COPILOT.md",
+        "docs/TECH_SPEC.md",
+        "docs/ARCHITECTURE.md",
+        "docs/DECISION_QUEUE.md",
+        "docs/adr/*"
+      ],
+      "checks": [
+        "py:test_adopt_bootstrap",
+        "py:test_installation",
+        "py:test_assessment",
+        "validate"
+      ],
+      "reason": "Kit documentation and instruction consumers are not prose-only"
+    },
+    {
+      "paths": [
+        "specs/*"
+      ],
+      "checks": [
+        "validate"
+      ],
+      "reason": "Task/spec records need structural validation"
+    },
+    {
+      "paths": [
+        "scripts/release.mjs"
+      ],
+      "checks": [
+        "node:tests-node/engine-upgrade.test.mjs",
+        "py:test_protocol",
+        "typecheck",
+        "package"
+      ],
+      "reason": "Version synchronization and publication guards require native engine, protocol and package contracts"
+    }
+  ],
+  "prose": [
+    "README.md",
+    "CONTRIBUTING.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "SECURITY.md",
+    "THIRD_PARTY_NOTICES.md",
+    "docs/TESTING.md",
+    "docs/releases/*",
+    "tests/README.md",
+    "docs/HARNESS_PERFORMANCE_PLAN.md",
+    "docs/WINDOWS_NATIVE_PLAN.md",
+    "docs/WINDOWS_NATIVE_FOLLOWUP.md"
+  ]
+}

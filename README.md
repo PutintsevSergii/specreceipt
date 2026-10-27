@@ -2,7 +2,7 @@
 
 SpecReceipt is a repository-local engineering workflow toolkit for coding agents. It installs shared Skills, project instructions, templates and a Python lifecycle engine. A TypeScript CLI handles installation, diagnostics and upgrades. The Python engine owns task state, readiness, approvals, checks and evidence.
 
-`specreceipt@0.4.0` is distributed under the [Unlicense](LICENSE). Check the [npm package page](https://www.npmjs.com/package/specreceipt) for published versions.
+`specreceipt` is distributed under the [Unlicense](LICENSE). Check the [npm package page](https://www.npmjs.com/package/specreceipt) for published versions. The release version is defined in `package.json`; see [npm automation](docs/NPM_RELEASE.md).
 
 ## Requirements
 
@@ -42,16 +42,16 @@ The complete Python self-test has a 30-minute budget. On Windows without symlink
 
 ## Install
 
-Once version 0.4.0 appears on npm, install it in a separate tools directory:
+After publication, install the latest published version in a separate tools directory:
 
 ```sh
-npm install --prefix /path/to/tools --ignore-scripts specreceipt@0.4.0
+npm install --prefix /path/to/tools --ignore-scripts specreceipt
 ```
 
-Before npm publication, use the reviewed local archive instead:
+Before npm publication, use the reviewed local archive instead (replace `VERSION` with the version from `package.json`):
 
 ```sh
-npm install --prefix /path/to/tools --ignore-scripts /path/to/specreceipt-0.4.0.tgz
+npm install --prefix /path/to/tools --ignore-scripts /path/to/specreceipt-VERSION.tgz
 npm install --prefix /path/to/project/.harness/tools/openspec --ignore-scripts @fission-ai/openspec@1.14.3
 cd /path/to/project
 /path/to/tools/node_modules/.bin/specreceipt init --target /path/to/project --dry-run

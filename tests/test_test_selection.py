@@ -219,6 +219,14 @@ class SelectionTests(unittest.TestCase):
         self.assertEqual(calls[0][0][-1], 'space and & value')
         self.assertNotIn('shell', calls[0][1])
         self.assertIn(str(self.root/'tests'), calls[0][1]['env']['PYTHONPATH'])
+        self.assertEqual(calls[0][1]['env']['PYTHONUTF8'], '1')
+        self.assertEqual(calls[0][1]['env']['PYTHONIOENCODING'], 'utf-8')
+
+    def test_full_python_commands_force_utf8_on_system_locale_runners(self):
+        plan = scoped.commands(self.root, self.config, self.select('core.py'), 'python')
+        for command in plan:
+            self.assertIn('-X', command['argv'])
+            self.assertEqual(command['argv'][command['argv'].index('-X')+1], 'utf8')
 
     def test_upgrade_prerequisites_are_explicit_blocker(self):
         with patch.dict(os.environ, {}, clear=True), self.assertRaises(scoped.SelectionError):

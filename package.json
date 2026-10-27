@@ -1,6 +1,6 @@
 {
   "name": "specreceipt",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Repository-local engineering workflow and evidence toolkit for coding agents",
   "license": "Unlicense",
   "publishConfig": {
@@ -33,9 +33,11 @@
     "THIRD_PARTY_NOTICES.md"
   ],
   "scripts": {
-    "build": "tsc && node scripts/build-assets.mjs",
+    "build": "node scripts/release.mjs sync && tsc && node scripts/build-assets.mjs",
+    "version:sync": "node scripts/release.mjs sync",
+    "version:check": "node scripts/release.mjs check",
     "test": "node --test tests-node/*.test.mjs",
-    "check": "tsc --noEmit",
+    "check": "node scripts/release.mjs sync && tsc --noEmit",
     "prepack": "npm run build",
     "test:package": "node scripts/test-package.mjs",
     "test:upgrade": "node scripts/test-upgrade.mjs",

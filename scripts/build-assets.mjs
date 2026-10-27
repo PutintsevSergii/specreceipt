@@ -10,6 +10,8 @@ import {
 } from "node:fs";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
+import { synchronize } from "./release.mjs";
+synchronize(undefined, true);
 const contracts = await import("../dist/core.js");
 const packageVersion = JSON.parse(readFileSync("package.json", "utf8")).version;
 if (contracts.VERSION !== packageVersion)

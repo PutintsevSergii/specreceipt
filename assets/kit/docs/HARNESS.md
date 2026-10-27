@@ -8,7 +8,7 @@ The developer owns product choices and approvals. The agent investigates, propos
 
 ## Reference navigation
 
-Self-test progress is available in `.harness/progress/self-test.json` and live status. It contains last-observed counts, active test and elapsed time, not a liveness or PASS guarantee. Completed self-tests print their five slowest cases. For fast feedback, explicitly select a module with the native Python launcher or `python3 -m unittest`; the final required self-test still executes the complete discovered suite.
+Self-test progress is available in `.harness/progress/self-test.json` and live status. It contains last-observed counts, active test and elapsed time, not a liveness or PASS guarantee. Completed self-tests print their five slowest cases. During edits, use `python3 -B tests/run_scoped.py --profile changed --language python --dry-run` to explain affected tests, then omit `--dry-run` to execute; `--profile smoke` provides a short contract check. On Windows use native Python or `scripts/python.ps1`. See [test entry points](../tests/README.md). A scoped run never replaces a task-required complete self-test; final required self-test still executes the complete discovered suite.
 
 Reporting captures one read-only source snapshot per report, shared across its tasks. Derived report refreshes are coalesced at the public operation boundary. State/event transactions remain durable as they occur; critical transitions, approvals and before/after-check fingerprints continue to read fresh inputs. No persistent or modification-time-based source cache is used.
 

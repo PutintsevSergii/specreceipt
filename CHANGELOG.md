@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1
+
+- Select scoped developer tests and separate Python regressions from Node-version CI jobs.
+- Derive CLI, Python engine and lockfile versions from package.json.
+- Publish new versions from verified main commits using npm Trusted Publishing; ordinary commits do not increment the version.
+
 ## 0.4.0
 
 - Run natively on Windows x64 through PowerShell or Command Prompt without WSL, with user-local runtime provisioning and verified uv downloads.

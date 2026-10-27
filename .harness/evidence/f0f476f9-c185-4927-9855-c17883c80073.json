@@ -1,0 +1,119 @@
+{
+  "acceptance_results": [
+    {
+      "checks": [
+        "harness-validate",
+        "native-typecheck",
+        "native-node"
+      ],
+      "criterion": "REL-001",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "native-typecheck",
+        "native-node"
+      ],
+      "criterion": "REL-002",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "native-typecheck",
+        "native-node"
+      ],
+      "criterion": "REL-003",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "native-typecheck",
+        "native-node"
+      ],
+      "criterion": "REL-004",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "native-typecheck",
+        "native-node"
+      ],
+      "criterion": "REL-005",
+      "result": "FAIL"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "native-typecheck",
+        "native-node"
+      ],
+      "criterion": "REL-006",
+      "result": "FAIL"
+    }
+  ],
+  "check_config_hash": "67d44c23ea11296f97ac97b325608519a364be295f4b922614c8890ea055b743",
+  "checked_tasks": [
+    "REL-001"
+  ],
+  "created_at": "2026-10-27T07:22:57.993177+00:00",
+  "definition_hash": "ac4a05060afebda55330ec2c88852130ea8f6f41813919f4fc74671afca0afe3",
+  "environment": {
+    "declared": {
+      "application_runtime": "UNCONFIGURED",
+      "note": "Declare application versions during onboarding."
+    },
+    "machine": "AMD64",
+    "platform": "Windows",
+    "python": "3.12.14"
+  },
+  "fingerprint": "4475f9ba4789a06843e4a75200276da8591ff34f791b7e5ad8f214b89f44842b",
+  "id": "f0f476f9-c185-4927-9855-c17883c80073",
+  "result": "FAIL",
+  "results": [
+    {
+      "check": "harness-validate",
+      "command": [],
+      "exit_code": 0,
+      "result": "PASS",
+      "summary": "Builtin assertions passed."
+    },
+    {
+      "check": "native-node",
+      "command": [
+        "node",
+        "--test",
+        "tests-node/windows.test.mjs",
+        "tests-node/engine-upgrade.test.mjs",
+        "tests-node/copilot.test.mjs"
+      ],
+      "exit_code": 1,
+      "log": ".harness/evidence/logs/01a8f13e-75c3-43bd-8690-cf06316b2421.log",
+      "log_hash": "943aab6210d5386d2c1ba1e541f9bbb5be22068b2b2d3e26bf0b87b89c389ffb",
+      "result": "FAIL",
+      "summary": "ctive; inspect stale locks before retrying.\"}\n{\"result\": \"FAIL\", \"error\": \"Installation or upgrade recovery required before lifecycle writes.\"}\n\u2714 release: one configuration value synchronizes consumers and lock metadata idempotently (41.4611ms)\n\u2714 release: malformed markers and lock identity fail before any writes (25.6126ms)\n\u2714 release: stable version and compatible npm validation rejects invalid inputs (1.0419ms)\n\u2714 release: publication requires own push/main and an exact current verified SHA (0.701ms)\n\u2714 release: existing version skips while a greater new version requests publication (19.2352ms)\n\u2714 release: registry denial, absence, outages and network errors never request publication (18.7187ms)\n\u2714 release: invalid metadata, downgrade and mismatched package identity fail closed (19.3494ms)\n\u2714 release: workflow connects the verified SHA gate to job-scoped OIDC publication (67.101ms)\n\u2714 Windows engine identity accepts native drive and directory casing (2091.2018ms)\n\u2716 Python owns initial state and setup event; installed CLI delegates help, errors and gates (6376.0381ms)\n\u2714 installed engine drift, wrong protocol, missing Python and root injection fail closed (5817.5566ms)\n\u2714 three-way Git merge covers local-only, remote-only, disjoint, overlap and missing Git (186.8084ms)\n\u2714 migration validates both versions, adds defaults, is ordered and idempotent (0.9322ms)\n\u2714 upgrade preserves local Skills, shared rules, OpenSpec and custom files; dry-run and repeat unchanged (9513.1912ms)\n\u2714 0.3.0 installation manifest can upgrade to the current release (5426.5363ms)\n\u2714 0.3.1 installation manifest can upgrade to the current release (5437.819ms)\n\u2714 legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict (3764.3972ms)\n\u2714 interrupted upgrade retains backup, recovery restores bytes and retry works (7900.06ms)\n\u2714 postvalidation failure retains journal and protects concurrent edits during recovery (6395.7424ms)\n\u2714 doctor engine cannot import project shadow modules; missing inventory entry is rejected (4848.0951ms)\n\u2714 lifecycle writes refuse installer lock and pending recovery, reads still work (7554.292ms)\n\u2714 custom runtime upgrade cannot silently claim upstream engine version (3542.1976ms)\n\u2714 interruption after configuration write restores pre-upgrade config and manifest (7774.6046ms)\n\u2714 packaged launchers use portable line endings and include native entry points (4.9691ms)\n\u2714 Windows copied environments preserve mixed-case Path discovery (4.5811ms)\n\u2714 Windows npm shims preserve argument boundaries without cmd interpolation (293.0236ms)\n\u2714 Windows managed Python is discovered from its runtime pointer (34.8182ms)\n\u2714 portable argument and file operations in spaces and Unicode directories (1174.9115ms)\n\u2139 tests 38\n\u2139 suites 0\n\u2139 pass 35\n\u2139 fail 1\n\u2139 cancelled 0\n\u2139 skipped 2\n\u2139 todo 0\n\u2139 duration_ms 77283.3402\n\n\u2716 failing tests:\n\ntest at tests-node\\engine-upgrade.test.mjs:144:1\n\u2716 Python owns initial state and setup event; installed CLI delegates help, errors and gates (6376.0381ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  + actual - expected\n  \n  + 'C:\\\\Users\\\\tatja\\\\AppData\\\\Local\\\\Temp\\\\harness-tests\\\\harness-contract-j42TL9'\n  - 'c:\\\\users\\\\tatja\\\\appdata\\\\local\\\\temp\\\\harness-tests\\\\harness-contract-j42TL9'\n  \n      at TestContext.<anonymous> (file:///C:/sergii/projects/harness/tests-node/engine-upgrade.test.mjs:152:10)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 'C:\\\\Users\\\\tatja\\\\AppData\\\\Local\\\\Temp\\\\harness-tests\\\\harness-contract-j42TL9',\n    expected: 'c:\\\\users\\\\tatja\\\\appdata\\\\local\\\\temp\\\\harness-tests\\\\harness-contract-j42TL9',\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n"
+    },
+    {
+      "check": "native-typecheck",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "exit_code": 0,
+      "log": ".harness/evidence/logs/d136c096-b423-4135-9a75-6671b4139ab2.log",
+      "log_hash": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
+      "result": "PASS",
+      "summary": ""
+    }
+  ],
+  "revisions": {
+    "architecture": "0",
+    "tech_spec": "0"
+  },
+  "schema_version": 1,
+  "task_id": "REL-001"
+}

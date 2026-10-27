@@ -479,6 +479,18 @@
         "validate"
       ],
       "reason": "Task/spec records need structural validation"
+    },
+    {
+      "paths": [
+        "scripts/release.mjs"
+      ],
+      "checks": [
+        "node:tests-node/engine-upgrade.test.mjs",
+        "py:test_protocol",
+        "typecheck",
+        "package"
+      ],
+      "reason": "Version synchronization and publication guards require native engine, protocol and package contracts"
     }
   ],
   "prose": [

@@ -1,0 +1,50 @@
+✔ all supported agents preserve configuration contract (5.5247ms)
+✔ adapter accepts structured result and propagates nonzero or provider failure (6644.0031ms)
+✔ missing authentication and account restrictions use structured errors (4112.6799ms)
+✔ timeout, cancellation, missing process and unsupported capability fail closed (3492.2154ms)
+✔ no unrestricted permissions or inherited allow-all environment (1015.2856ms)
+✔ Python dispatch refuses untrusted context and missing readiness (13.0438ms)
+✔ missing optional CLI is detected without execution (3.3214ms)
+﹣ official OpenSpec: Copilot and coexistence preserve instructions, repeat and upgrade (0.2123ms) # SKIP
+✔ HTTP authentication and policy errors stay blocked (3190.2137ms)
+﹣ cancellation terminates a descendant that ignores SIGTERM (0.571ms) # SKIP
+{"result": "FAIL", "error": "Task must exist and have a unique ID: ABSENT"}
+{"result": "FAIL", "error": "docs/TECH_SPEC.md: missing Status: metadata"}
+{"result": "FAIL", "error": "Another harness writer or installer is active; inspect stale locks before retrying."}
+{"result": "FAIL", "error": "Installation or upgrade recovery required before lifecycle writes."}
+✔ release: one configuration value synchronizes consumers and lock metadata idempotently (36.3151ms)
+✔ release: malformed markers and lock identity fail before any writes (25.6708ms)
+✔ release: stable version and compatible npm validation rejects invalid inputs (1.6007ms)
+✔ release: publication requires own push/main and an exact current verified SHA (0.7504ms)
+✔ release: existing version skips while a greater new version requests publication (18.2367ms)
+✔ release: registry denial, absence, outages and network errors never request publication (24.3885ms)
+✔ release: invalid metadata, downgrade and mismatched package identity fail closed (20.7388ms)
+✔ release: workflow connects the verified SHA gate to job-scoped OIDC publication (88.7777ms)
+✔ Windows engine identity accepts native drive and directory casing (2334.9824ms)
+✔ Python owns initial state and setup event; installed CLI delegates help, errors and gates (18265.0004ms)
+✔ installed engine drift, wrong protocol, missing Python and root injection fail closed (5619.8502ms)
+✔ three-way Git merge covers local-only, remote-only, disjoint, overlap and missing Git (146.7324ms)
+✔ migration validates both versions, adds defaults, is ordered and idempotent (0.7474ms)
+✔ upgrade preserves local Skills, shared rules, OpenSpec and custom files; dry-run and repeat unchanged (9675.8931ms)
+✔ 0.3.0 installation manifest can upgrade to the current release (5849.3219ms)
+✔ 0.3.1 installation manifest can upgrade to the current release (6227.7061ms)
+✔ legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict (5062.8084ms)
+✔ interrupted upgrade retains backup, recovery restores bytes and retry works (8545.5872ms)
+✔ postvalidation failure retains journal and protects concurrent edits during recovery (6886.4713ms)
+✔ doctor engine cannot import project shadow modules; missing inventory entry is rejected (5637.6711ms)
+✔ lifecycle writes refuse installer lock and pending recovery, reads still work (7548.8828ms)
+✔ custom runtime upgrade cannot silently claim upstream engine version (3636.7288ms)
+✔ interruption after configuration write restores pre-upgrade config and manifest (7369.432ms)
+✔ packaged launchers use portable line endings and include native entry points (5.1026ms)
+✔ Windows copied environments preserve mixed-case Path discovery (8.1476ms)
+✔ Windows npm shims preserve argument boundaries without cmd interpolation (330.4473ms)
+✔ Windows managed Python is discovered from its runtime pointer (36.6982ms)
+✔ portable argument and file operations in spaces and Unicode directories (1332.3437ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 2
+ℹ todo 0
+ℹ duration_ms 93533.3456

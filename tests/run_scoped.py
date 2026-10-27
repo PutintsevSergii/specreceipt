@@ -182,9 +182,9 @@ def commands(root, config, selection, language='all'):
     python = [c[3:] for c in checks if c.startswith('py:')]
     if language != 'node':
         if python:
-            planned.append({'id': 'python', 'argv': [sys.executable, '-B', str(root/'harness'), 'self-test'] if selection['full'] else [sys.executable, '-B', '-c', PYTHON_RUNNER, *sorted(python)]})
+            planned.append({'id': 'python', 'argv': [sys.executable, '-B', '-X', 'utf8', str(root/'harness'), 'self-test'] if selection['full'] else [sys.executable, '-B', '-X', 'utf8', '-c', PYTHON_RUNNER, *sorted(python)]})
         if 'validate' in checks:
-            planned.append({'id': 'validate', 'argv': [sys.executable, '-B', str(root/'harness'), 'validate']})
+            planned.append({'id': 'validate', 'argv': [sys.executable, '-B', '-X', 'utf8', str(root/'harness'), 'validate']})
     if language != 'python':
         node = [c[5:] for c in checks if c.startswith('node:')]
         # Keep the existing Windows compatibility set; POSIX-only fixtures stay on POSIX.
@@ -193,7 +193,8 @@ def commands(root, config, selection, language='all'):
         node_checks = bool(node or set(checks) & {'typecheck', 'package', 'upgrade', 'wizard'})
         if node_checks:
             # Direct Node entry points avoid npm .cmd shell interpolation on Windows.
-            planned.extend([{'id':'typecheck', 'argv':['node', 'node_modules/typescript/bin/tsc', '--noEmit']},
+            planned.extend([{'id':'version-sync', 'argv':['node', 'scripts/release.mjs', 'sync']},
+                            {'id':'typecheck', 'argv':['node', 'node_modules/typescript/bin/tsc', '--noEmit']},
                             {'id':'build-types', 'argv':['node', 'node_modules/typescript/bin/tsc']},
                             {'id':'build-assets', 'argv':['node', 'scripts/build-assets.mjs']}])
         if node:
@@ -227,6 +228,8 @@ def execute(root, plan, run=subprocess.run):
     env = dict(os.environ)
     env['PYTHONPATH'] = os.pathsep.join([str(root), str(root/'tests'), env.get('PYTHONPATH', '')])
     env['HARNESS_PYTHON'] = sys.executable
+    env['PYTHONUTF8'] = '1'
+    env['PYTHONIOENCODING'] = 'utf-8'
     results = []
     for command in plan:
         argv = command['argv']
