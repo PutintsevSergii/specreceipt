@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.3
+
+- Allow reviewed task-policy replans to precede exact recognition of intervening source changes, while keeping task start and verification blocked until the approved manifest is accepted.
+
 ## 0.4.2
 
 - Restore the required Node test and TypeScript checks in Harness verification.

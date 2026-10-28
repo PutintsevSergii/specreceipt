@@ -245,8 +245,10 @@ p.write_text('```harness-review\\n'+json.dumps(r)+'\\n```\\n')
         self.h.transition('DEMO-001','IN_PROGRESS','approved replan')
         (self.root/'outside.txt').write_text('Unrelated source edit')
         self.h.transition('DEMO-001','REWORK','fixture')
+        result=self.h.replan('DEMO-001',p.relative_to(self.root).as_posix())
+        self.assertEqual(result['pending_outside_changes'],1)
         with self.assertRaisesRegex(HarnessError,'outside approved scope'):
-            self.h.replan('DEMO-001',p.relative_to(self.root).as_posix())
+            self.h.transition('DEMO-001','IN_PROGRESS','unrecognized source still blocks')
 
     def test_runner_configuration_change_revokes_authorization(self):
         self.configure_runner()

@@ -380,12 +380,19 @@ class Harness:
             if path in current: baseline[path]=current[path]
         task['execution']['policy_baseline'] = baseline
         task['execution']['definition'] = self.definition(task)
-        verification.scope_changes(self,task,allow_stale_recognition=True)
+        # Replan authorizes changed policy inputs, not intervening source edits.
+        # Keep the original source baseline and require exact recognition before
+        # the next start/implementation/verification gate.
+        from . import reconciliation
+        changes = reconciliation.classify(self,task,allow_stale_definition=True)
         task['approvals']={}
         archive = f'.harness/evidence/reconciliation/execution-before-replan-{uid()}.json'
         self.save(self.state(),self.event('replanned','Recorded explicit reviewed replanning: '+reference,task_id,evidence=[archive]),feature,{archive:original_execution})
         self.checkpoint()
-        return {'result':'PASS','task_id':task_id,'next_action':'Restart task; fresh verification and review required'}
+        next_action = ('Propose exact baseline recognition for developer review before restart'
+                       if changes['unrecognized'] else 'Restart task; fresh verification and review required')
+        return {'result':'PASS','task_id':task_id,'pending_outside_changes':len(changes['unrecognized']),
+                'next_action':next_action}
 
     @report_operation
     def transition(self, task_id, target, reason):

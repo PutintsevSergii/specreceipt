@@ -87,6 +87,37 @@ class ReconciliationTests(unittest.TestCase):
         self.assertEqual(self.task()['execution']['baseline'],old)
         with self.assertRaisesRegex(HarnessError,'stale'):self.h.transition('DEMO-001','IN_PROGRESS','stale')
         self.accept();self.h.transition('DEMO-001','IN_PROGRESS','fresh approval')
+    def test_policy_replan_can_precede_exact_outside_source_recognition(self):
+        self.start()
+        original=copy.deepcopy(self.task()['execution']['baseline'])
+        self.h.transition('DEMO-001','REWORK','approved policy revision and concurrent work')
+        checks=read(self.root/'.harness/checks.json')
+        checks['checks']['harness-tests']['purpose']='Revised approved test purpose'
+        atomic(self.root/'.harness/checks.json',checks)
+        for name in ('TECH_SPEC.md','ARCHITECTURE.md'):
+            path=self.root/'docs'/name
+            path.write_text(path.read_text()+'\nApproved fixture policy update.\n')
+        (self.root/'outside.txt').write_text('Approved concurrent source change')
+        with self.assertRaisesRegex(HarnessError,'policy inputs'):self.manifest()
+        (self.root/'.harness/replan.md').write_text('Simulated developer approves the exact revised policy inputs for this fixture.')
+        result=self.h.replan('DEMO-001','.harness/replan.md')
+        self.assertEqual(result['result'],'PASS')
+        self.assertEqual(self.task()['execution']['baseline'],original)
+        with self.assertRaisesRegex(HarnessError,'outside approved scope'):
+            self.h.transition('DEMO-001','IN_PROGRESS','recognition still pending')
+        manifest=self.manifest()
+        self.assertEqual([e['path'] for e in manifest['entries']],['outside.txt'])
+        self.accept(manifest)
+        self.h.transition('DEMO-001','IN_PROGRESS','recognized exact concurrent source')
+        self.h.transition('DEMO-001','IMPLEMENTED','fixture implementation unchanged')
+        self.assertEqual(self.h.verify('DEMO-001')['result'],'PASS')
+        (self.root/'outside.txt').write_text('Later unapproved change')
+        with self.assertRaises(HarnessError):verification.scope_changes(self.h,self.task())
+        (self.root/'outside.txt').write_text('Approved concurrent source change')
+        policy=self.root/'docs/TECH_SPEC.md'
+        policy.write_text(policy.read_text()+'\nLater unapproved policy change.\n')
+        with self.assertRaisesRegex(HarnessError,'Task inputs changed since start'):
+            verification.scope_changes(self.h,self.task())
     def test_policy_and_in_scope_cannot_be_recognized(self):
         self.start();(self.root/'docs/TECH_SPEC.md').write_text('changed policy')
         with self.assertRaisesRegex(HarnessError,'policy'):self.manifest()
