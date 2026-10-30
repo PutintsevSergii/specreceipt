@@ -1,0 +1,119 @@
+{
+  "acceptance_results": [
+    {
+      "checks": [
+        "harness-validate",
+        "native-typecheck",
+        "native-node"
+      ],
+      "criterion": "REL-001",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "native-typecheck",
+        "native-node"
+      ],
+      "criterion": "REL-002",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "native-typecheck",
+        "native-node"
+      ],
+      "criterion": "REL-003",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "native-typecheck",
+        "native-node"
+      ],
+      "criterion": "REL-004",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "native-typecheck",
+        "native-node"
+      ],
+      "criterion": "REL-005",
+      "result": "PASS"
+    },
+    {
+      "checks": [
+        "harness-validate",
+        "native-typecheck",
+        "native-node"
+      ],
+      "criterion": "REL-006",
+      "result": "PASS"
+    }
+  ],
+  "check_config_hash": "bb71123120b5a38c4988ef3583f7ed41171882b57d22a4ae761c2b233b2e15c9",
+  "checked_tasks": [
+    "REL-001"
+  ],
+  "created_at": "2026-10-27T21:10:25.270249+00:00",
+  "definition_hash": "bb64f5c24609feaf0a5b82264ba5f2f53d68f0dc20f2ac33649640263eac2f92",
+  "environment": {
+    "declared": {
+      "application_runtime": "UNCONFIGURED",
+      "note": "Record significant toolchain/container/database versions here before application verification. Do not put credentials here."
+    },
+    "machine": "arm64",
+    "platform": "Darwin",
+    "python": "3.14.3"
+  },
+  "fingerprint": "696c7b562cf2b0341db93c3977c5f779ff71a78a8bafb22dee7b352919581b73",
+  "id": "40bb8169-3509-4d10-838a-29bd77671b5b",
+  "result": "PASS",
+  "results": [
+    {
+      "check": "harness-validate",
+      "command": [],
+      "exit_code": 0,
+      "result": "PASS",
+      "summary": "Builtin assertions passed."
+    },
+    {
+      "check": "native-node",
+      "command": [
+        "node",
+        "--test",
+        "tests-node/windows.test.mjs",
+        "tests-node/engine-upgrade.test.mjs",
+        "tests-node/copilot.test.mjs"
+      ],
+      "exit_code": 0,
+      "log": ".harness/evidence/logs/a0e42ad9-5f0b-462d-8bc0-bac01043baaa.log",
+      "log_hash": "d3fe08122cd32cac1db4531674ed8e9fc2ef8f1324e4777395917491e65f0495",
+      "result": "PASS",
+      "summary": "s help, errors and gates\nok 20 - Python owns initial state and setup event; installed CLI delegates help, errors and gates\n  ---\n  duration_ms: 2526.964416\n  ...\n# Subtest: installed engine drift, wrong protocol, missing Python and root injection fail closed\nok 21 - installed engine drift, wrong protocol, missing Python and root injection fail closed\n  ---\n  duration_ms: 1055.98425\n  ...\n# Subtest: three-way Git merge covers local-only, remote-only, disjoint, overlap and missing Git\nok 22 - three-way Git merge covers local-only, remote-only, disjoint, overlap and missing Git\n  ---\n  duration_ms: 10.004417\n  ...\n# Subtest: migration validates both versions, adds defaults, is ordered and idempotent\nok 23 - migration validates both versions, adds defaults, is ordered and idempotent\n  ---\n  duration_ms: 0.159083\n  ...\n# Subtest: upgrade preserves local Skills, shared rules, OpenSpec and custom files; dry-run and repeat unchanged\nok 24 - upgrade preserves local Skills, shared rules, OpenSpec and custom files; dry-run and repeat unchanged\n  ---\n  duration_ms: 1737.070042\n  ...\n# Subtest: 0.3.0 installation manifest can upgrade to the current release\nok 25 - 0.3.0 installation manifest can upgrade to the current release\n  ---\n  duration_ms: 1310.549042\n  ...\n# Subtest: 0.3.1 installation manifest can upgrade to the current release\nok 26 - 0.3.1 installation manifest can upgrade to the current release\n  ---\n  duration_ms: 1298.429375\n  ...\n# Subtest: legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict\nok 27 - legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict\n  ---\n  duration_ms: 954.597916\n  ...\n# Subtest: interrupted upgrade retains backup, recovery restores bytes and retry works\nok 28 - interrupted upgrade retains backup, recovery restores bytes and retry works\n  ---\n  duration_ms: 1663.583791\n  ...\n# Subtest: postvalidation failure retains journal and protects concurrent edits during recovery\nok 29 - postvalidation failure retains journal and protects concurrent edits during recovery\n  ---\n  duration_ms: 1510.203167\n  ...\n# Subtest: doctor engine cannot import project shadow modules; missing inventory entry is rejected\nok 30 - doctor engine cannot import project shadow modules; missing inventory entry is rejected\n  ---\n  duration_ms: 1135.879334\n  ...\n# Subtest: lifecycle writes refuse installer lock and pending recovery, reads still work\nok 31 - lifecycle writes refuse installer lock and pending recovery, reads still work\n  ---\n  duration_ms: 1559.066166\n  ...\n# Subtest: custom runtime upgrade cannot silently claim upstream engine version\nok 32 - custom runtime upgrade cannot silently claim upstream engine version\n  ---\n  duration_ms: 965.609709\n  ...\n# Subtest: interruption after configuration write restores pre-upgrade config and manifest\nok 33 - interruption after configuration write restores pre-upgrade config and manifest\n  ---\n  duration_ms: 1502.616334\n  ...\n# Subtest: packaged launchers use portable line endings and include native entry points\nok 34 - packaged launchers use portable line endings and include native entry points\n  ---\n  duration_ms: 0.92575\n  ...\n# Subtest: Windows copied environments preserve mixed-case Path discovery\nok 35 - Windows copied environments preserve mixed-case Path discovery # SKIP\n  ---\n  duration_ms: 0.048292\n  ...\n# Subtest: Windows npm shims preserve argument boundaries without cmd interpolation\nok 36 - Windows npm shims preserve argument boundaries without cmd interpolation # SKIP\n  ---\n  duration_ms: 0.041125\n  ...\n# Subtest: Windows managed Python is discovered from its runtime pointer\nok 37 - Windows managed Python is discovered from its runtime pointer # SKIP\n  ---\n  duration_ms: 0.040458\n  ...\n# Subtest: portable argument and file operations in spaces and Unicode directories\nok 38 - portable argument and file operations in spaces and Unicode directories\n  ---\n  duration_ms: 94.8225\n  ...\n1..38\n# tests 38\n# suites 0\n# pass 33\n# fail 0\n# cancelled 0\n# skipped 5\n# todo 0\n# duration_ms 17336.39025\n"
+    },
+    {
+      "check": "native-typecheck",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "exit_code": 0,
+      "log": ".harness/evidence/logs/eade9725-d8e3-44ae-a7f9-46671bede07a.log",
+      "log_hash": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
+      "result": "PASS",
+      "summary": ""
+    }
+  ],
+  "revisions": {
+    "architecture": "0",
+    "tech_spec": "0"
+  },
+  "schema_version": 1,
+  "task_id": "REL-001"
+}
