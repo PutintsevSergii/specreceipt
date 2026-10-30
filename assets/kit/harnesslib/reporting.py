@@ -238,10 +238,10 @@ def report(h, task_id=None, format='json', retain=False, retain_dir=None):
                 dest = safe_path(h.root,'.harness/evidence/reports/'+task['task_id']+'-'+uid())
             dest.mkdir(parents=True,exist_ok=True)
             refs = [f['path'] for f in task['changed_files'] if f['change'] != 'deleted']
-            refs += [str(Path(p).relative_to(h.root)) for k,p in task['paths'].items() if k in {'evidence','review'} and p]
+            refs += [Path(p).relative_to(h.root).as_posix() for k,p in task['paths'].items() if k in {'evidence','review'} and p]
             refs += [c['log'] for c in task['verification']['checks'] if c.get('log')]
             if task['paths']['evidence']:
-                refs += list(evidence_artifacts(h,str(Path(task['paths']['evidence']).relative_to(h.root))))
+                refs += list(evidence_artifacts(h,Path(task['paths']['evidence']).relative_to(h.root).as_posix()))
             total = 0
             for ref in sorted(set(refs)):
                 source = safe_path(h.root,ref)

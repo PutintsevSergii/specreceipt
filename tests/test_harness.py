@@ -332,7 +332,13 @@ class HarnessTests(unittest.TestCase):
             text=p.read_text(encoding='utf-8')
             self.assertTrue(text.startswith('---\nname: '+p.parent.name+'\n'))
             for link in re.findall(r'\]\(([^)]+)\)',text):
-                self.assertTrue((p.parent/link).is_file(),str(p)+': '+link)
+                filename, separator, fragment = link.partition('#')
+                target = p.parent/filename
+                self.assertTrue(target.is_file(),str(p)+': '+link)
+                if separator:
+                    headings = re.findall(r'^#{1,6} (.+)$',target.read_text(encoding='utf-8'),re.MULTILINE)
+                    anchors = {re.sub(r'[^\w\- ]','',heading.lower()).replace(' ','-') for heading in headings}
+                    self.assertIn(fragment,anchors,str(p)+': '+link)
 
     def skill_command(self, *args):
         return subprocess.run([sys.executable,str(self.root/'harness'),'skills',*args],capture_output=True,text=True)
