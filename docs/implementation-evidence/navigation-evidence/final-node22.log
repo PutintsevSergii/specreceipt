@@ -1,0 +1,436 @@
+
+> specreceipt@0.4.3 test
+> node --test tests-node/*.test.mjs
+
+TAP version 13
+# Subtest: Codex runner preview binds exact commands and Unicode approval to Python hash
+ok 1 - Codex runner preview binds exact commands and Unicode approval to Python hash
+  ---
+  duration_ms: 597.563292
+  ...
+# Subtest: Codex adapter refuses a direct launch without active Python intent
+ok 2 - Codex adapter refuses a direct launch without active Python intent
+  ---
+  duration_ms: 301.282459
+  ...
+# Subtest: E2E planning executables delegate and reject approval, installs and outside targets
+ok 3 - E2E planning executables delegate and reject approval, installs and outside targets
+  ---
+  duration_ms: 1463.6235
+  ...
+# Subtest: all supported agents preserve configuration contract
+ok 4 - all supported agents preserve configuration contract
+  ---
+  duration_ms: 48.575583
+  ...
+# Subtest: adapter accepts structured result and propagates nonzero or provider failure
+ok 5 - adapter accepts structured result and propagates nonzero or provider failure
+  ---
+  duration_ms: 1966.419541
+  ...
+# Subtest: missing authentication and account restrictions use structured errors
+ok 6 - missing authentication and account restrictions use structured errors
+  ---
+  duration_ms: 1200.785458
+  ...
+# Subtest: timeout, cancellation, missing process and unsupported capability fail closed
+ok 7 - timeout, cancellation, missing process and unsupported capability fail closed
+  ---
+  duration_ms: 718.580709
+  ...
+# Subtest: no unrestricted permissions or inherited allow-all environment
+ok 8 - no unrestricted permissions or inherited allow-all environment
+  ---
+  duration_ms: 290.928917
+  ...
+# Subtest: Python dispatch refuses untrusted context and missing readiness
+ok 9 - Python dispatch refuses untrusted context and missing readiness
+  ---
+  duration_ms: 41.376959
+  ...
+# Subtest: missing optional CLI is detected without execution
+ok 10 - missing optional CLI is detected without execution
+  ---
+  duration_ms: 9.6845
+  ...
+# Subtest: official OpenSpec: Copilot and coexistence preserve instructions, repeat and upgrade
+ok 11 - official OpenSpec: Copilot and coexistence preserve instructions, repeat and upgrade
+  ---
+  duration_ms: 31517.383708
+  ...
+# Subtest: HTTP authentication and policy errors stay blocked
+ok 12 - HTTP authentication and policy errors stay blocked
+  ---
+  duration_ms: 926.13825
+  ...
+# Subtest: cancellation terminates a descendant that ignores SIGTERM
+ok 13 - cancellation terminates a descendant that ignores SIGTERM
+  ---
+  duration_ms: 1442.727084
+  ...
+# {"result": "FAIL", "error": "Task must exist and have a unique ID: ABSENT"}
+# {"result": "FAIL", "error": "docs/TECH_SPEC.md: missing Status: metadata"}
+# {"result": "FAIL", "error": "Another harness writer or installer is active; inspect stale locks before retrying."}
+# {"result": "FAIL", "error": "Installation or upgrade recovery required before lifecycle writes."}
+# Subtest: release: one configuration value synchronizes consumers and lock metadata idempotently
+ok 14 - release: one configuration value synchronizes consumers and lock metadata idempotently
+  ---
+  duration_ms: 6.544875
+  ...
+# Subtest: release: malformed markers and lock identity fail before any writes
+ok 15 - release: malformed markers and lock identity fail before any writes
+  ---
+  duration_ms: 6.537041
+  ...
+# Subtest: release: stable version and compatible npm validation rejects invalid inputs
+ok 16 - release: stable version and compatible npm validation rejects invalid inputs
+  ---
+  duration_ms: 0.227875
+  ...
+# Subtest: release: publication requires own push/main and an exact current verified SHA
+ok 17 - release: publication requires own push/main and an exact current verified SHA
+  ---
+  duration_ms: 0.116209
+  ...
+# Subtest: release: existing version skips while a greater new version requests publication
+ok 18 - release: existing version skips while a greater new version requests publication
+  ---
+  duration_ms: 1.437416
+  ...
+# Subtest: release: registry denial, absence, outages and network errors never request publication
+ok 19 - release: registry denial, absence, outages and network errors never request publication
+  ---
+  duration_ms: 6.487791
+  ...
+# Subtest: release: invalid metadata, downgrade and mismatched package identity fail closed
+ok 20 - release: invalid metadata, downgrade and mismatched package identity fail closed
+  ---
+  duration_ms: 15.334208
+  ...
+# Subtest: release: workflow connects the verified SHA gate to job-scoped OIDC publication
+ok 21 - release: workflow connects the verified SHA gate to job-scoped OIDC publication
+  ---
+  duration_ms: 152.301459
+  ...
+# Subtest: Windows engine identity accepts native drive and directory casing
+ok 22 - Windows engine identity accepts native drive and directory casing # SKIP
+  ---
+  duration_ms: 0.096083
+  ...
+# Subtest: Python owns initial state and setup event; installed CLI delegates help, errors and gates
+ok 23 - Python owns initial state and setup event; installed CLI delegates help, errors and gates
+  ---
+  duration_ms: 9208.854041
+  ...
+# Subtest: installed engine drift, wrong protocol, missing Python and root injection fail closed
+ok 24 - installed engine drift, wrong protocol, missing Python and root injection fail closed
+  ---
+  duration_ms: 4427.238041
+  ...
+# Subtest: three-way Git merge covers local-only, remote-only, disjoint, overlap and missing Git
+ok 25 - three-way Git merge covers local-only, remote-only, disjoint, overlap and missing Git
+  ---
+  duration_ms: 147.946
+  ...
+# Subtest: migration validates both versions, adds defaults, is ordered and idempotent
+ok 26 - migration validates both versions, adds defaults, is ordered and idempotent
+  ---
+  duration_ms: 0.246709
+  ...
+# Subtest: upgrade preserves local Skills, shared rules, OpenSpec and custom files; dry-run and repeat unchanged
+ok 27 - upgrade preserves local Skills, shared rules, OpenSpec and custom files; dry-run and repeat unchanged
+  ---
+  duration_ms: 7335.566375
+  ...
+# Subtest: 0.3.0 installation manifest can upgrade to the current release
+ok 28 - 0.3.0 installation manifest can upgrade to the current release
+  ---
+  duration_ms: 6895.011167
+  ...
+# Subtest: 0.3.1 installation manifest can upgrade to the current release
+ok 29 - 0.3.1 installation manifest can upgrade to the current release
+  ---
+  duration_ms: 5799.259167
+  ...
+# Subtest: legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict
+ok 30 - legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict
+  ---
+  duration_ms: 3995.645792
+  ...
+# Subtest: interrupted upgrade retains backup, recovery restores bytes and retry works
+ok 31 - interrupted upgrade retains backup, recovery restores bytes and retry works
+  ---
+  duration_ms: 4906.125875
+  ...
+# Subtest: postvalidation failure retains journal and protects concurrent edits during recovery
+ok 32 - postvalidation failure retains journal and protects concurrent edits during recovery
+  ---
+  duration_ms: 1707.114875
+  ...
+# Subtest: doctor engine cannot import project shadow modules; missing inventory entry is rejected
+ok 33 - doctor engine cannot import project shadow modules; missing inventory entry is rejected
+  ---
+  duration_ms: 1782.9285
+  ...
+# Subtest: lifecycle writes refuse installer lock and pending recovery, reads still work
+ok 34 - lifecycle writes refuse installer lock and pending recovery, reads still work
+  ---
+  duration_ms: 2051.739041
+  ...
+# Subtest: custom runtime upgrade cannot silently claim upstream engine version
+ok 35 - custom runtime upgrade cannot silently claim upstream engine version
+  ---
+  duration_ms: 1507.830916
+  ...
+# Subtest: interruption after configuration write restores pre-upgrade config and manifest
+ok 36 - interruption after configuration write restores pre-upgrade config and manifest
+  ---
+  duration_ms: 1901.029666
+  ...
+# Subtest: legacy upgrade without navigation policy retains dual-provider requirements
+ok 37 - legacy upgrade without navigation policy retains dual-provider requirements
+  ---
+  duration_ms: 1512.939667
+  ...
+# Subtest: child PATH wins over parent; missing optional tools allow repository search fallback
+ok 38 - child PATH wins over parent; missing optional tools allow repository search fallback
+  ---
+  duration_ms: 1448.048458
+  ...
+# Subtest: required navigation and version failures prevent paid launch, even with available MCP
+ok 39 - required navigation and version failures prevent paid launch, even with available MCP
+  ---
+  duration_ms: 3462.848333
+  ...
+# Subtest: agent shell PATH transformation is probed rather than assumed
+ok 40 - agent shell PATH transformation is probed rather than assumed
+  ---
+  duration_ms: 247.599917
+  ...
+# Subtest: MCP configured is not available, disabled wins, required unavailable integration blocks
+ok 41 - MCP configured is not available, disabled wins, required unavailable integration blocks
+  ---
+  duration_ms: 616.953042
+  ...
+# Subtest: generic required MCP needs an observed read-only host capability
+ok 42 - generic required MCP needs an observed read-only host capability
+  ---
+  duration_ms: 1021.571125
+  ...
+# Subtest: ignore user config and unsupported environment policies are respected
+ok 43 - ignore user config and unsupported environment policies are respected
+  ---
+  duration_ms: 394.460667
+  ...
+# {"result": "FAIL", "error": "Invalid .harness/navigation.json: use version 1 source with no providers or required with unique codegraph/graphify providers."}
+# Subtest: Copilot probes sanitized supplied environment and does not launch on required failure
+ok 44 - Copilot probes sanitized supplied environment and does not launch on required failure
+  ---
+  duration_ms: 1054.817375
+  ...
+# Subtest: incompatible agent capability fails and IDE-only needs no CLI
+ok 45 - incompatible agent capability fails and IDE-only needs no CLI
+  ---
+  duration_ms: 204.658667
+  ...
+# Subtest: broken managed tool must not fall back to compatible PATH executable
+ok 46 - broken managed tool must not fall back to compatible PATH executable
+  ---
+  duration_ms: 791.989084
+  ...
+# Subtest: MCP effective disabled override and unrelated host tools are not treated as available
+ok 47 - MCP effective disabled override and unrelated host tools are not treated as available
+  ---
+  duration_ms: 527.587917
+  ...
+# Subtest: selected required check executable missing in child environment fails before spawn
+ok 48 - selected required check executable missing in child environment fails before spawn
+  ---
+  duration_ms: 1284.43175
+  ...
+# Subtest: symlinked managed tool directory is rejected instead of passing PATH fallback
+ok 49 - symlinked managed tool directory is rejected instead of passing PATH fallback
+  ---
+  duration_ms: 1364.326709
+  ...
+# Subtest: empty symlinked managed directory cannot fall through to PATH
+ok 50 - empty symlinked managed directory cannot fall through to PATH
+  ---
+  duration_ms: 1569.571291
+  ...
+# Subtest: application runtime versions are not replaced by Harness runtime pins
+ok 51 - application runtime versions are not replaced by Harness runtime pins
+  ---
+  duration_ms: 1812.856833
+  ...
+# Subtest: unknown engine requirements never downgrade navigation to optional
+ok 52 - unknown engine requirements never downgrade navigation to optional
+  ---
+  duration_ms: 1299.521416
+  ...
+# Subtest: source and individual required navigation policies reach execution diagnostics
+ok 53 - source and individual required navigation policies reach execution diagnostics
+  ---
+  duration_ms: 2474.582916
+  ...
+# Subtest: installed agent rules require a linked decision before final DONE
+ok 54 - installed agent rules require a linked decision before final DONE
+  ---
+  duration_ms: 0.494167
+  ...
+# Subtest: selection, configuration, paths and shared markers reject invalid inputs
+ok 55 - selection, configuration, paths and shared markers reject invalid inputs
+  ---
+  duration_ms: 0.333333
+  ...
+# Subtest: pure plan detects drift, preserves project content, and supports unchanged upgrades
+ok 56 - pure plan detects drift, preserves project content, and supports unchanged upgrades
+  ---
+  duration_ms: 0.654709
+  ...
+# Subtest: A/B/D/F/G: install preserves existing Codex project and repeats without drift
+ok 57 - A/B/D/F/G: install preserves existing Codex project and repeats without drift
+  ---
+  duration_ms: 8815.22875
+  ...
+# Subtest: C: existing OpenSpec sources and generated skill customization remain intact
+ok 58 - C: existing OpenSpec sources and generated skill customization remain intact
+  ---
+  duration_ms: 4073.057083
+  ...
+# Subtest: conflict preflight and symlink refusal leave user files untouched
+ok 59 - conflict preflight and symlink refusal leave user files untouched
+  ---
+  duration_ms: 534.309333
+  ...
+# Subtest: partial write rollback preserves original data; concurrent recovery edits block
+ok 60 - partial write rollback preserves original data; concurrent recovery edits block
+  ---
+  duration_ms: 181.333291
+  ...
+# Subtest: E/H: dry run is read-only and noninteractive init never prompts
+ok 61 - E/H: dry run is read-only and noninteractive init never prompts
+  ---
+  duration_ms: 311.809417
+  ...
+# Subtest: duplicate skills and missing references produce actionable diagnostics
+ok 62 - duplicate skills and missing references produce actionable diagnostics
+  ---
+  duration_ms: 7107.912583
+  ...
+# Subtest: real pinned OpenSpec stages Codex skills when explicitly enabled
+ok 63 - real pinned OpenSpec stages Codex skills when explicitly enabled
+  ---
+  duration_ms: 513.51575
+  ...
+# Subtest: invalid existing config and legacy OpenSpec layout block before mutation
+ok 64 - invalid existing config and legacy OpenSpec layout block before mutation
+  ---
+  duration_ms: 241.475667
+  ...
+# Subtest: ownership coverage, executable mode and overriding Codex entry point are diagnosed
+ok 65 - ownership coverage, executable mode and overriding Codex entry point are diagnosed
+  ---
+  duration_ms: 6621.860667
+  ...
+# Subtest: OpenSpec version mismatch and failed generator never mutate the target
+ok 66 - OpenSpec version mismatch and failed generator never mutate the target
+  ---
+  duration_ms: 377.874083
+  ...
+# Subtest: YAML and TOML diagnostics reject syntax errors without leaking values
+ok 67 - YAML and TOML diagnostics reject syntax errors without leaking values
+  ---
+  duration_ms: 6436.144292
+  ...
+# Subtest: review regressions: unsupported runtime and stale lock fail closed
+ok 68 - review regressions: unsupported runtime and stale lock fail closed
+  ---
+  duration_ms: 4426.580875
+  ...
+# Subtest: doctor returns JSON diagnostics for symlinked Codex configuration
+ok 69 - doctor returns JSON diagnostics for symlinked Codex configuration
+  ---
+  duration_ms: 3871.080542
+  ...
+# Subtest: a partial low-level write never publishes a torn created file
+ok 70 - a partial low-level write never publishes a torn created file
+  ---
+  duration_ms: 6.052708
+  ...
+# Subtest: new project with staged tool directory still defaults to source navigation
+ok 71 - new project with staged tool directory still defaults to source navigation
+  ---
+  duration_ms: 16.885792
+  ...
+# Subtest: packaged launchers use portable line endings and include native entry points
+ok 72 - packaged launchers use portable line endings and include native entry points
+  ---
+  duration_ms: 0.501917
+  ...
+# Subtest: Windows copied environments preserve mixed-case Path discovery
+ok 73 - Windows copied environments preserve mixed-case Path discovery # SKIP
+  ---
+  duration_ms: 0.075958
+  ...
+# Subtest: Windows npm shims preserve argument boundaries without cmd interpolation
+ok 74 - Windows npm shims preserve argument boundaries without cmd interpolation # SKIP
+  ---
+  duration_ms: 0.034625
+  ...
+# Subtest: Windows managed Python is discovered from its runtime pointer
+ok 75 - Windows managed Python is discovered from its runtime pointer # SKIP
+  ---
+  duration_ms: 0.031083
+  ...
+# Subtest: portable argument and file operations in spaces and Unicode directories
+ok 76 - portable argument and file operations in spaces and Unicode directories
+  ---
+  duration_ms: 366.568458
+  ...
+# {"result": "FAIL", "error": "Explicit workflow and plan confirmation required"}
+# {"result": "FAIL", "error": "Explicit workflow and plan confirmation required"}
+# Subtest: codex: installed advisor, combined confirmation, compact and JSON reports
+ok 77 - codex: installed advisor, combined confirmation, compact and JSON reports
+  ---
+  duration_ms: 10815.240959
+  ...
+# Subtest: copilot: installed advisor, combined confirmation, compact and JSON reports
+ok 78 - copilot: installed advisor, combined confirmation, compact and JSON reports
+  ---
+  duration_ms: 8536.515708
+  ...
+# Subtest: codex: generated instructions keep Adaptive separate from installed OpenSpec
+ok 79 - codex: generated instructions keep Adaptive separate from installed OpenSpec
+  ---
+  duration_ms: 4933.544
+  ...
+# Subtest: copilot: generated instructions keep Adaptive separate from installed OpenSpec
+ok 80 - copilot: generated instructions keep Adaptive separate from installed OpenSpec
+  ---
+  duration_ms: 5658.968792
+  ...
+# Subtest: copilot-ide: generated instructions keep Adaptive separate from installed OpenSpec
+ok 81 - copilot-ide: generated instructions keep Adaptive separate from installed OpenSpec
+  ---
+  duration_ms: 5189.054
+  ...
+# Subtest: codex,copilot: generated instructions keep Adaptive separate from installed OpenSpec
+ok 82 - codex,copilot: generated instructions keep Adaptive separate from installed OpenSpec
+  ---
+  duration_ms: 4581.996584
+  ...
+# Subtest: codex,copilot-ide: generated instructions keep Adaptive separate from installed OpenSpec
+ok 83 - codex,copilot-ide: generated instructions keep Adaptive separate from installed OpenSpec
+  ---
+  duration_ms: 3182.510041
+  ...
+1..83
+# tests 83
+# suites 0
+# pass 79
+# fail 0
+# cancelled 0
+# skipped 4
+# todo 0
+# duration_ms 53755.439417

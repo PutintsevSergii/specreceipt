@@ -356,3 +356,17 @@ test("interruption after configuration write restores pre-upgrade config and man
   upgrade(root, prepareUpgrade(root));
   assert.equal(JSON.parse(read(root, CONFIG_PATH)).schemaVersion, 2);
 });
+
+test('legacy upgrade without navigation policy retains dual-provider requirements', t => {
+  const root=fixture(t);
+  fs.unlinkSync(path.join(root,'.harness/navigation.json'));
+  const old=manifest(root);
+  delete old.files['.harness/navigation.json'];
+  old.packageVersion='0.3.1';old.engineVersion='0.3.1';
+  fs.writeFileSync(path.join(root,MANIFEST_PATH),JSON.stringify(old));
+  upgrade(root,prepareUpgrade(root));
+  assert.equal(fs.existsSync(path.join(root,'.harness/navigation.json')),false);
+  const requirements=request(root,['doctor','--execution-requirements']);
+  assert.equal(requirements.exitCode,0);
+  assert.deepEqual(requirements.data.navigation_providers,['codegraph','graphify']);
+});

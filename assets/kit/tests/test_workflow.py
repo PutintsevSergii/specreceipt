@@ -183,6 +183,45 @@ class WorkflowTests(test_harness.HarnessTests):
         with self.assertRaisesRegex(HarnessError, 'changed'):
             workflow.guard(self.h,f,t)
 
+    def test_strict_start_keeps_review_and_allows_only_scoped_implementation(self):
+        (self.root/'docs/DEMO.md').write_text('Authentication impact is unknown.\n')
+        self.assess(); ref=self.deeper_review()
+        workflow.resolve(self.h,'DEMO-001',ref); self.confirm('STRICT')
+        self.h.transition('DEMO-001','IN_PROGRESS','fixture approved start')
+        (self.root/'docs/DEMO.md').write_text('Implement authentication checks after the approved start.\n')
+        f,t=self.h.task('DEMO-001')
+        workflow.guard(self.h,f,t)
+        self.h.transition('DEMO-001','IMPLEMENTED','fixture scoped implementation')
+        (self.root/'outside.txt').write_text('unauthorized extra write\n')
+        with self.assertRaisesRegex(HarnessError,'outside approved scope'):
+            workflow.guard(self.h,f,t)
+
+    def test_strict_scoped_rework_reuses_approved_start_without_new_consent(self):
+        (self.root/'docs/DEMO.md').write_text('Authentication impact is unknown.\n')
+        self.assess(); ref=self.deeper_review()
+        workflow.resolve(self.h,'DEMO-001',ref); self.confirm('STRICT')
+        self.h.transition('DEMO-001','IN_PROGRESS','fixture approved start')
+        (self.root/'docs/DEMO.md').write_text('checkpoint then resume after reviewing the partial step.\n')
+        self.h.transition('DEMO-001','REWORK','fixture review requested a scoped correction')
+        f,t=self.h.task('DEMO-001')
+        workflow.guard(self.h,f,t)
+        self.h.transition('DEMO-001','IN_PROGRESS','fixture bounded rework')
+        self.h.transition('DEMO-001','IMPLEMENTED','fixture correction complete')
+
+    def test_strict_started_task_rejects_changed_review_and_policy(self):
+        (self.root/'docs/DEMO.md').write_text('Authentication impact is unknown.\n')
+        self.assess(); ref=self.deeper_review()
+        workflow.resolve(self.h,'DEMO-001',ref); self.confirm('STRICT')
+        self.h.transition('DEMO-001','IN_PROGRESS','fixture approved start')
+        f,t=self.h.task('DEMO-001')
+        (self.root/ref).write_text((self.root/ref).read_text()+'\n')
+        with self.assertRaisesRegex(HarnessError,'reference changed'):
+            workflow.guard(self.h,f,t)
+        self.deeper_review()
+        (self.root/'specs/harness-demo/plan.md').write_text((self.root/'specs/harness-demo/plan.md').read_text()+'\nChanged policy.\n')
+        with self.assertRaisesRegex(HarnessError,'reassessment'):
+            workflow.guard(self.h,f,t)
+
     def test_deeper_review_rejects_partial_or_tampered_record(self):
         (self.root/'docs/DEMO.md').write_text('Authentication impact is unknown.\n')
         f,t = self.h.task('DEMO-001')

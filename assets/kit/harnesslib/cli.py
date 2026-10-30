@@ -7,7 +7,7 @@ import sys
 import unittest
 from .core import Harness
 from .report_operation import scope as reporting_scope
-from . import assessment, installation, codegraph_tool, graph, graphify_tool, investigation, openspec_tool, readiness, runner, tool_updates, workflow, reporting
+from . import compact, assessment, index_context, installation, codegraph_tool, graph, graphify_tool, investigation, openspec_tool, readiness, runner, tool_updates, workflow, reporting
 from .skills import catalog
 from .storage import HarnessError, lock, redact
 
@@ -22,14 +22,20 @@ def parser():
         if name == 'status':
             command.add_argument('id',nargs='?'); command.add_argument('--format',choices=['json','markdown','terminal'],default='json'); command.add_argument('--retain',action='store_true'); command.add_argument('--retain-dir',type=Path)
     wf = sub.add_parser('workflow').add_subparsers(dest='action',required=True)
+    wp = wf.add_parser('propose'); wp.add_argument('--file',required=True)
+    wm = wf.add_parser('migrate'); wm.add_argument('--by'); wm.add_argument('--reference'); wm.add_argument('--expected')
+    wp = wf.add_parser('accept'); wp.add_argument('id'); wp.add_argument('--by',required=True); wp.add_argument('--reference',required=True); wp.add_argument('--expected',required=True)
     wa = wf.add_parser('assess'); wa.add_argument('id'); wa.add_argument('--facts',required=True)
     ws = wf.add_parser('show'); ws.add_argument('id')
     wc = wf.add_parser('confirm'); wc.add_argument('id'); wc.add_argument('--profile',choices=workflow.PROFILES,required=True); wc.add_argument('--by',required=True); wc.add_argument('--reference',required=True)
+    wc.add_argument('--expected')
     wr = wf.add_parser('resolve'); wr.add_argument('id'); wr.add_argument('--review',required=True)
     inv = sub.add_parser('investigation').add_subparsers(dest='action',required=True)
     ir = inv.add_parser('record'); ir.add_argument('id'); ir.add_argument('--file',required=True)
     ic = inv.add_parser('check'); ic.add_argument('id'); ic.add_argument('--current')
     sub.add_parser('next')
+    decision = sub.add_parser('approval-package')
+    decision.add_argument('id'); decision.add_argument('--format',choices=['json','markdown','terminal'],default='json')
     tools = sub.add_parser('tools').add_subparsers(dest='action',required=True)
     updater = tools.add_parser('update')
     updater.add_argument('--apply',action='store_true')
@@ -60,6 +66,7 @@ def parser():
     run.add_argument('--max-steps',type=int,default=20)
     run.add_argument('--max-seconds',type=int,default=600)
     run.add_argument('--new-run',action='store_true')
+    run.add_argument('--submit'); run.add_argument('--by',default='current IDE host'); run.add_argument('--reference')
     sub.add_parser('regression').add_argument('id')
     sub.add_parser('skills').add_argument('name', nargs='?')
     sub.add_parser('readiness').add_argument('id', nargs='?')
@@ -107,7 +114,14 @@ def parser():
 def run(args,h):
     cmd = args.command
     if cmd == 'workflow':
+        if args.action == 'propose':
+            from .storage import read, safe_path
+            return compact.proposal(h,read(safe_path(h.root,args.file)))
+        if args.action == 'migrate': return compact.migration(h,args.by,args.reference,args.expected)
+        if args.action == 'accept': return compact.accept(h,args.id,args.by,args.reference,args.expected)
+        if args.action == 'confirm' and compact.is_compact(h.task(args.id)[0]): return compact.confirm(h,args.id,args.profile,args.by,args.reference,args.expected)
         if args.action == 'assess': return workflow.assess(h,args.id,args.facts)
+        if args.action == 'show' and compact.is_compact(h.task(args.id)[0]): return compact.plan_card(h,args.id)
         if args.action == 'show': return h.task(args.id)[1].get('workflow',{'selected':'STRICT','notice':'Legacy task; existing gates apply'})
         if args.action == 'resolve': return workflow.resolve(h,args.id,args.review)
         return workflow.confirm(h,args.id,args.profile,args.by,args.reference)
@@ -128,7 +142,10 @@ def run(args,h):
         if args.action == 'refresh': return openspec_tool.refresh(h,args.feature)
     if cmd == 'assess': return assessment.assess(h.root, args.agent_command, args.response)
     if cmd == 'next': return runner.next_action(h)
-    if cmd == 'run': return runner.run(h,args.max_steps,args.max_seconds,args.new_run)
+    if cmd == 'approval-package': return reporting.approval_package(h,args.id,args.format)
+    if cmd == 'run':
+        if args.submit: runner.submit(h,args.submit,args.by,args.reference)
+        return runner.run(h,args.max_steps,args.max_seconds,args.new_run)
     if cmd == 'regression': return h.verify(args.id,regression=True)
     if cmd == 'skills': return catalog(h.root, args.name)
     if cmd == 'readiness': return readiness.report(h, args.id)
@@ -137,11 +154,10 @@ def run(args,h):
     if cmd == 'validate': return h.validate()
     if cmd == 'doctor':
         if args.execution_requirements:
-            # Reflect existing requirements, never create a new optional-navigation policy.
+            from .index_context import policy
             features = [h.task(args.task)[0]] if args.task else list(h.features().values())
-            application = any(f['kind'] == 'application' for f in features)
-            instructions = [(h.root/p).read_text(encoding='utf-8') for p in ('AGENTS.md','AGENTS.override.md','.github/copilot-instructions.md') if (h.root/p).is_file()]
-            navigation = application or any('./harness indexes ensure' in text for text in instructions)
+            providers = policy(h.root)['providers']
+            navigation = bool(providers)
             product = h.root/'.harness/product.json'
             configured = json.loads(product.read_text(encoding='utf-8')) if product.exists() else {}
             openspec = configured.get('workflow') == 'openspec' or any(f.get('spec_source') for f in features)
@@ -156,8 +172,10 @@ def run(args,h):
                 if check['kind'] == 'command' and check['argv']:
                     executable = check['argv'][0].replace('{python}',sys.executable)
                     executables.append({'check':name,'executable':executable})
-            return {'result':'PASS','navigation_cli_required':navigation,'openspec_required':openspec,'executables':executables,
-                    'reason':'Application lifecycle requires CodeGraph and Graphify CLIs.' if application else 'Repository instructions require indexes ensure.' if navigation else 'No mandatory navigation requirement for selected execution.'}
+            return {'result':'PASS','navigation_cli_required':navigation,'navigation_providers':providers,'openspec_required':openspec,'executables':executables,
+                    'experience':workflow.policy(h).get('experience',{'version':1,'mode':'legacy'}),
+                    'experience_next_action':'Use workflow propose for eligible FAST tasks' if compact.enabled(h) else 'Use workflow migrate to preview explicit compact opt-in; legacy rules remain active',
+                    'reason':'Required navigation providers: '+', '.join(providers) if navigation else 'Source navigation; no graph CLI required.'}
         return {'result':'PASS','python':sys.version.split()[0],'runtime':('Python standard library; native Windows locking/process trees' if sys.platform == 'win32' else 'Python standard library; POSIX flock/process groups'),
                 'git':h.git(),'validation':h.validate(),'skills':len(list((h.root/'.agents/skills').glob('*/SKILL.md'))),
                 'permissions':'Runtime-managed; no hooks, merge protection, credentials or permission overrides installed.'}
@@ -197,7 +215,7 @@ def run(args,h):
         return codegraph_tool.query(h.root,args.term,args.limit)
     if cmd == 'indexes':
         if args.action == 'status': return {'codegraph':codegraph_tool.status(h.root),'graphify':graphify_tool.status(h.root)}
-        return {'codegraph':codegraph_tool.ensure(h.root),'graphify':graphify_tool.ensure(h.root)}
+        return index_context.ensure(h.root)
     raise HarnessError('Unsupported command')
 
 def main():
@@ -234,12 +252,12 @@ def main():
             print(str(exc),file=sys.stderr); return 1
     h = Harness(args.root)
     try:
-        readonly = (args.command=='tools' and not args.apply) or (args.command=='openspec' and args.action in {'status','context','validate','list','instructions'}) or (args.command=='investigation' and args.action=='check') or args.command in {'status','validate','doctor','skills','readiness','next'} or args.command=='graph' and args.action=='status' or args.command=='graphify' and args.action in {'status','query'} or args.command=='codegraph' and args.action in {'status','query'} or args.command=='indexes' and args.action=='status'
+        readonly = (args.command=='workflow' and args.action=='migrate' and not args.by) or (args.command=='tools' and not args.apply) or (args.command=='openspec' and args.action in {'status','context','validate','list','instructions'}) or (args.command=='investigation' and args.action=='check') or args.command in {'status','validate','doctor','skills','readiness','next','approval-package'} or args.command=='graph' and args.action=='status' or args.command=='graphify' and args.action in {'status','query'} or args.command=='codegraph' and args.action in {'status','query'} or args.command=='indexes' and args.action=='status'
         if args.command == 'status' and (args.retain or args.retain_dir): readonly = False
         if readonly: result = run(args,h)
         else:
             with lock(h.root), reporting_scope(h): result = run(args,h)
-        if args.command == 'status' and args.format in {'terminal','markdown'}:
+        if args.command in {'status','approval-package'} and args.format in {'terminal','markdown'} and result.get('result') != 'BLOCKED':
             print(redact(result['text']),end='')
         else:
             print(json.dumps(redact(result),indent=2,sort_keys=True))

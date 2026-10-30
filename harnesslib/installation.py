@@ -1,6 +1,6 @@
 """Provision the complete harness toolchain after adoption preflight succeeds."""
 from pathlib import Path
-from . import assessment, codegraph_tool, graphify_tool, openspec_tool, runtime, tool_updates
+from . import assessment, index_context, codegraph_tool, graphify_tool, openspec_tool, runtime, tool_updates
 from .storage import HarnessError, atomic, now, read, redact
 
 
@@ -30,7 +30,7 @@ def complete(root, openspec=True, agents='auto'):
         return value
     try:
         step('runtime',lambda:runtime.prepare(root))
-        names=['codegraph','graphify']+(['openspec'] if openspec else [])
+        names=index_context.policy(root)['providers']+(['openspec'] if openspec else [])
         configs=tool_updates.registry()
         for name in names:
             config=configs[name]
@@ -42,7 +42,8 @@ def complete(root, openspec=True, agents='auto'):
         if openspec:
             tools=selected_agents(root) if agents=='auto' else agents
             step('openspec-init',lambda:openspec_tool.initialize(root,tools,False))
-        for name,module in [('codegraph-index',codegraph_tool),('graphify-index',graphify_tool)]:
+        for provider in index_context.policy(root)['providers']:
+            name, module = provider + '-index', index_context.PROVIDERS[provider]
             def index(module=module):
                 result=module.ensure(root)
                 if result.get('freshness')!='fresh': raise HarnessError('Required index is not fresh.')

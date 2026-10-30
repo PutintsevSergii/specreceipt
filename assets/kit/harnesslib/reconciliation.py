@@ -13,9 +13,12 @@ def baseline(task):
 
 
 def protected(h, task):
-    paths = {'.harness/checks.json', '.harness/environment.json', '.harness/onboarding.json',
+    paths = {'.harness/navigation.json', '.harness/checks.json', '.harness/environment.json', '.harness/onboarding.json',
              '.harness/workflow-policy.json', '.harness/graph-config.json', '.harness/runner.json',
              'docs/TECH_SPEC.md', 'docs/ARCHITECTURE.md', 'docs/DECISION_QUEUE.md'}
+    checks=read(safe_path(h.root,'.harness/checks.json'))['checks']
+    for check in checks.values():
+        if check.get('input_contract'): paths.add(check['input_contract']['approval_reference'])
     for item in h.check_closure(task):
         feature, _ = h.task(item['id'])
         paths.update(f"specs/{feature['feature_id']}/{name}" for name in ('spec.md','plan.md','tasks.json'))

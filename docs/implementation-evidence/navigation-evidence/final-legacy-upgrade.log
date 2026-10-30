@@ -1,0 +1,134 @@
+TAP version 13
+# {"result": "FAIL", "error": "Task must exist and have a unique ID: ABSENT"}
+# {"result": "FAIL", "error": "docs/TECH_SPEC.md: missing Status: metadata"}
+# {"result": "FAIL", "error": "Another harness writer or installer is active; inspect stale locks before retrying."}
+# {"result": "FAIL", "error": "Installation or upgrade recovery required before lifecycle writes."}
+# Subtest: release: one configuration value synchronizes consumers and lock metadata idempotently
+ok 1 - release: one configuration value synchronizes consumers and lock metadata idempotently
+  ---
+  duration_ms: 3.678583
+  ...
+# Subtest: release: malformed markers and lock identity fail before any writes
+ok 2 - release: malformed markers and lock identity fail before any writes
+  ---
+  duration_ms: 1.598875
+  ...
+# Subtest: release: stable version and compatible npm validation rejects invalid inputs
+ok 3 - release: stable version and compatible npm validation rejects invalid inputs
+  ---
+  duration_ms: 0.107125
+  ...
+# Subtest: release: publication requires own push/main and an exact current verified SHA
+ok 4 - release: publication requires own push/main and an exact current verified SHA
+  ---
+  duration_ms: 0.089708
+  ...
+# Subtest: release: existing version skips while a greater new version requests publication
+ok 5 - release: existing version skips while a greater new version requests publication
+  ---
+  duration_ms: 1.509833
+  ...
+# Subtest: release: registry denial, absence, outages and network errors never request publication
+ok 6 - release: registry denial, absence, outages and network errors never request publication
+  ---
+  duration_ms: 1.524291
+  ...
+# Subtest: release: invalid metadata, downgrade and mismatched package identity fail closed
+ok 7 - release: invalid metadata, downgrade and mismatched package identity fail closed
+  ---
+  duration_ms: 1.285042
+  ...
+# Subtest: release: workflow connects the verified SHA gate to job-scoped OIDC publication
+ok 8 - release: workflow connects the verified SHA gate to job-scoped OIDC publication
+  ---
+  duration_ms: 9.909458
+  ...
+# Subtest: Windows engine identity accepts native drive and directory casing
+ok 9 - Windows engine identity accepts native drive and directory casing # SKIP
+  ---
+  duration_ms: 0.140292
+  ...
+# Subtest: Python owns initial state and setup event; installed CLI delegates help, errors and gates
+ok 10 - Python owns initial state and setup event; installed CLI delegates help, errors and gates
+  ---
+  duration_ms: 2667.503292
+  ...
+# Subtest: installed engine drift, wrong protocol, missing Python and root injection fail closed
+ok 11 - installed engine drift, wrong protocol, missing Python and root injection fail closed
+  ---
+  duration_ms: 1163.121667
+  ...
+# Subtest: three-way Git merge covers local-only, remote-only, disjoint, overlap and missing Git
+ok 12 - three-way Git merge covers local-only, remote-only, disjoint, overlap and missing Git
+  ---
+  duration_ms: 11.262542
+  ...
+# Subtest: migration validates both versions, adds defaults, is ordered and idempotent
+ok 13 - migration validates both versions, adds defaults, is ordered and idempotent
+  ---
+  duration_ms: 0.250041
+  ...
+# Subtest: upgrade preserves local Skills, shared rules, OpenSpec and custom files; dry-run and repeat unchanged
+ok 14 - upgrade preserves local Skills, shared rules, OpenSpec and custom files; dry-run and repeat unchanged
+  ---
+  duration_ms: 1844.3265
+  ...
+# Subtest: 0.3.0 installation manifest can upgrade to the current release
+ok 15 - 0.3.0 installation manifest can upgrade to the current release
+  ---
+  duration_ms: 1386.129541
+  ...
+# Subtest: 0.3.1 installation manifest can upgrade to the current release
+ok 16 - 0.3.1 installation manifest can upgrade to the current release
+  ---
+  duration_ms: 1410.605041
+  ...
+# Subtest: legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict
+ok 17 - legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict
+  ---
+  duration_ms: 1023.1015
+  ...
+# Subtest: interrupted upgrade retains backup, recovery restores bytes and retry works
+ok 18 - interrupted upgrade retains backup, recovery restores bytes and retry works
+  ---
+  duration_ms: 1822.535875
+  ...
+# Subtest: postvalidation failure retains journal and protects concurrent edits during recovery
+ok 19 - postvalidation failure retains journal and protects concurrent edits during recovery
+  ---
+  duration_ms: 1629.174625
+  ...
+# Subtest: doctor engine cannot import project shadow modules; missing inventory entry is rejected
+ok 20 - doctor engine cannot import project shadow modules; missing inventory entry is rejected
+  ---
+  duration_ms: 1220.037667
+  ...
+# Subtest: lifecycle writes refuse installer lock and pending recovery, reads still work
+ok 21 - lifecycle writes refuse installer lock and pending recovery, reads still work
+  ---
+  duration_ms: 1654.24725
+  ...
+# Subtest: custom runtime upgrade cannot silently claim upstream engine version
+ok 22 - custom runtime upgrade cannot silently claim upstream engine version
+  ---
+  duration_ms: 989.315958
+  ...
+# Subtest: interruption after configuration write restores pre-upgrade config and manifest
+ok 23 - interruption after configuration write restores pre-upgrade config and manifest
+  ---
+  duration_ms: 1575.495625
+  ...
+# Subtest: legacy upgrade without navigation policy retains dual-provider requirements
+ok 24 - legacy upgrade without navigation policy retains dual-provider requirements
+  ---
+  duration_ms: 1505.202375
+  ...
+1..24
+# tests 24
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 1
+# todo 0
+# duration_ms 19976.607042

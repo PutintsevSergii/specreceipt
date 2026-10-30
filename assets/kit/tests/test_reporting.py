@@ -3,6 +3,8 @@ import contextlib
 import io
 import json
 from pathlib import Path
+import subprocess
+import sys
 import unittest
 from unittest.mock import patch
 import test_harness
@@ -60,6 +62,59 @@ class ReportingTests(unittest.TestCase):
         r=reporting.task_report(self.h,'DEMO-001')
         self.assertEqual(r['approvals']['review']['status'],'STALE')
         self.assertEqual(r['next_action']['action'],'review')
+
+    def test_approval_package_links_exact_current_result_without_writes(self):
+        f,t=self.h.task('DEMO-001');t['approval_requirements']=['developer'];atomic(self.root/'specs/harness-demo/tasks.json',f)
+        self.h.transition('DEMO-001','IN_PROGRESS','fixture start')
+        (self.root/'docs/DEMO.md').write_text('Use checkpoint then resume to reconcile. Approved change.\n')
+        self.h.transition('DEMO-001','IMPLEMENTED','fixture implemented')
+        self.assertEqual(self.h.verify('DEMO-001')['result'],'PASS')
+        self.h.transition('DEMO-001','VERIFIED','fixture evidence')
+        self.review()
+        before = {p:p.read_bytes() for p in (self.root/'.harness/state.json',self.root/'.harness/events.jsonl',self.root/'specs/harness-demo/tasks.json')}
+        package = reporting.approval_package(self.h,'DEMO-001')
+        self.assertEqual(package['result'],'PASS')
+        self.assertEqual(package['review_verdict'],'PASS')
+        self.assertEqual(package['paths']['spec'],str(self.h.root/'specs/harness-demo/spec.md'))
+        self.assertEqual(package['paths']['plan'],str(self.h.root/'specs/harness-demo/plan.md'))
+        self.assertTrue(Path(package['paths']['evidence']).exists())
+        self.assertTrue(Path(package['paths']['review']).exists())
+        self.assertIn('DEMO-001',package['approval_effect'])
+        self.assertIn('publication',package['approval_effect'])
+        self.assertEqual(package['changed_files'][0]['path'],'docs/DEMO.md')
+        markdown=reporting.approval_package(self.h,'DEMO-001','markdown')['text']
+        self.assertIn('[Spec](<'+str(self.h.root/'specs/harness-demo/spec.md')+'>)',markdown)
+        self.assertIn('[Evidence](<'+package['paths']['evidence']+'>)',markdown)
+        self.assertIn('[docs/DEMO.md (modified, task scope)](<'+str(self.h.root/'docs/DEMO.md')+'>)',markdown)
+        self.assertIn('Limits:',markdown)
+        next_result=runner.next_action(self.h)
+        self.assertEqual(next_result['action'],'approval')
+        self.assertEqual(next_result['approval_package']['task_id'],'DEMO-001')
+        self.assertIn('approval-package DEMO-001',next_result['next_action']['command'])
+        cmd=[sys.executable,'-B',str(self.root/'harness'),'--root',str(self.root),'approval-package','DEMO-001','--format','markdown']
+        result=subprocess.run(cmd,capture_output=True,text=True)
+        self.assertEqual(result.returncode,0,result.stderr)
+        self.assertIn('[Review](<'+package['paths']['review']+'>)',result.stdout)
+        terminal=subprocess.run(cmd[:-1]+['terminal'],capture_output=True,text=True)
+        self.assertEqual(terminal.returncode,0,terminal.stderr)
+        self.assertIn('[Review](<'+package['paths']['review']+'>)',terminal.stdout)
+        structured=subprocess.run(cmd[:-2],capture_output=True,text=True)
+        self.assertEqual(structured.returncode,0,structured.stderr)
+        self.assertEqual(json.loads(structured.stdout)['paths']['review'],package['paths']['review'])
+        self.assertEqual(before,{p:p.read_bytes() for p in before})
+
+    def test_approval_package_blocks_missing_review_stale_evidence_and_wrong_phase(self):
+        f,t=self.h.task('DEMO-001');t['approval_requirements']=['developer'];atomic(self.root/'specs/harness-demo/tasks.json',f)
+        self.assertEqual(reporting.approval_package(self.h,'DEMO-001')['result'],'BLOCKED')
+        self.verified()
+        self.assertEqual(reporting.approval_package(self.h,'DEMO-001')['result'],'BLOCKED')
+        self.review()
+        review=self.root/'specs/harness-demo/reviews/review.md'
+        review.write_text(review.read_text()+'changed')
+        self.assertEqual(reporting.approval_package(self.h,'DEMO-001')['result'],'BLOCKED')
+        self.review()
+        (self.root/'docs/DEMO.md').write_text('checkpoint and resume changed')
+        self.assertEqual(reporting.approval_package(self.h,'DEMO-001')['result'],'BLOCKED')
 
     def test_done_regression_uses_latest_evidence_without_undoing_completion(self):
         self.verified(); self.review(); self.h.transition('DEMO-001','DONE','fixture')

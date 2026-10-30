@@ -1,0 +1,102 @@
+
+> specreceipt@0.4.3 test
+> node --test tests-node/*.test.mjs
+
+✔ Codex runner preview binds exact commands and Unicode approval to Python hash (344.783292ms)
+✔ Codex adapter refuses a direct launch without active Python intent (200.437417ms)
+✔ E2E planning executables delegate and reject approval, installs and outside targets (1035.832833ms)
+✔ all supported agents preserve configuration contract (28.255625ms)
+✔ adapter accepts structured result and propagates nonzero or provider failure (1580.157458ms)
+✔ missing authentication and account restrictions use structured errors (852.750834ms)
+✔ timeout, cancellation, missing process and unsupported capability fail closed (489.953542ms)
+✔ no unrestricted permissions or inherited allow-all environment (219.063917ms)
+✔ Python dispatch refuses untrusted context and missing readiness (43.47475ms)
+✔ missing optional CLI is detected without execution (0.5025ms)
+✔ official OpenSpec: Copilot and coexistence preserve instructions, repeat and upgrade (29710.674125ms)
+✔ HTTP authentication and policy errors stay blocked (724.432167ms)
+✔ cancellation terminates a descendant that ignores SIGTERM (1383.669167ms)
+{"result": "FAIL", "error": "Task must exist and have a unique ID: ABSENT"}
+{"result": "FAIL", "error": "docs/TECH_SPEC.md: missing Status: metadata"}
+{"result": "FAIL", "error": "Another harness writer or installer is active; inspect stale locks before retrying."}
+{"result": "FAIL", "error": "Installation or upgrade recovery required before lifecycle writes."}
+✔ release: one configuration value synchronizes consumers and lock metadata idempotently (49.1015ms)
+✔ release: malformed markers and lock identity fail before any writes (102.638417ms)
+✔ release: stable version and compatible npm validation rejects invalid inputs (0.25ms)
+✔ release: publication requires own push/main and an exact current verified SHA (0.131416ms)
+✔ release: existing version skips while a greater new version requests publication (5.859084ms)
+✔ release: registry denial, absence, outages and network errors never request publication (4.336792ms)
+✔ release: invalid metadata, downgrade and mismatched package identity fail closed (2.702125ms)
+✔ release: workflow connects the verified SHA gate to job-scoped OIDC publication (15.960167ms)
+﹣ Windows engine identity accepts native drive and directory casing (0.091583ms) # SKIP
+✔ Python owns initial state and setup event; installed CLI delegates help, errors and gates (9253.973708ms)
+✔ installed engine drift, wrong protocol, missing Python and root injection fail closed (3971.381333ms)
+✔ three-way Git merge covers local-only, remote-only, disjoint, overlap and missing Git (138.9575ms)
+✔ migration validates both versions, adds defaults, is ordered and idempotent (0.24925ms)
+✔ upgrade preserves local Skills, shared rules, OpenSpec and custom files; dry-run and repeat unchanged (7554.838458ms)
+✔ 0.3.0 installation manifest can upgrade to the current release (6783.709334ms)
+✔ 0.3.1 installation manifest can upgrade to the current release (5659.52225ms)
+✔ legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict (3784.425667ms)
+✔ interrupted upgrade retains backup, recovery restores bytes and retry works (5592.384459ms)
+✔ postvalidation failure retains journal and protects concurrent edits during recovery (1710.270708ms)
+✔ doctor engine cannot import project shadow modules; missing inventory entry is rejected (1632.623ms)
+✔ lifecycle writes refuse installer lock and pending recovery, reads still work (1707.112083ms)
+✔ custom runtime upgrade cannot silently claim upstream engine version (1392.304125ms)
+✔ interruption after configuration write restores pre-upgrade config and manifest (2116.822833ms)
+✔ legacy upgrade without navigation policy retains dual-provider requirements (1588.433917ms)
+✔ child PATH wins over parent; missing optional tools allow repository search fallback (1064.994791ms)
+✔ required navigation and version failures prevent paid launch, even with available MCP (2908.355167ms)
+✔ agent shell PATH transformation is probed rather than assumed (194.940875ms)
+✔ MCP configured is not available, disabled wins, required unavailable integration blocks (332.13475ms)
+✔ generic required MCP needs an observed read-only host capability (719.714209ms)
+✔ ignore user config and unsupported environment policies are respected (271.554334ms)
+{"result": "FAIL", "error": "Invalid .harness/navigation.json: use version 1 source with no providers or required with unique codegraph/graphify providers."}
+✔ Copilot probes sanitized supplied environment and does not launch on required failure (884.519875ms)
+✔ incompatible agent capability fails and IDE-only needs no CLI (142.35825ms)
+✔ broken managed tool must not fall back to compatible PATH executable (583.261417ms)
+✔ MCP effective disabled override and unrelated host tools are not treated as available (285.977166ms)
+✔ selected required check executable missing in child environment fails before spawn (1076.710791ms)
+✔ symlinked managed tool directory is rejected instead of passing PATH fallback (618.513083ms)
+✔ empty symlinked managed directory cannot fall through to PATH (586.257542ms)
+✔ application runtime versions are not replaced by Harness runtime pins (915.462584ms)
+✔ unknown engine requirements never downgrade navigation to optional (991.090375ms)
+✔ source and individual required navigation policies reach execution diagnostics (1670.290209ms)
+✔ installed agent rules require a linked decision before final DONE (1.256083ms)
+✔ selection, configuration, paths and shared markers reject invalid inputs (0.734083ms)
+✔ pure plan detects drift, preserves project content, and supports unchanged upgrades (1.2595ms)
+✔ A/B/D/F/G: install preserves existing Codex project and repeats without drift (8468.666041ms)
+✔ C: existing OpenSpec sources and generated skill customization remain intact (3287.217208ms)
+✔ conflict preflight and symlink refusal leave user files untouched (295.862125ms)
+✔ partial write rollback preserves original data; concurrent recovery edits block (97.50475ms)
+✔ E/H: dry run is read-only and noninteractive init never prompts (330.014417ms)
+✔ duplicate skills and missing references produce actionable diagnostics (7492.83675ms)
+✔ real pinned OpenSpec stages Codex skills when explicitly enabled (487.198417ms)
+✔ invalid existing config and legacy OpenSpec layout block before mutation (234.229875ms)
+✔ ownership coverage, executable mode and overriding Codex entry point are diagnosed (6868.931292ms)
+✔ OpenSpec version mismatch and failed generator never mutate the target (364.757375ms)
+✔ YAML and TOML diagnostics reject syntax errors without leaking values (5659.312042ms)
+✔ review regressions: unsupported runtime and stale lock fail closed (3844.516416ms)
+✔ doctor returns JSON diagnostics for symlinked Codex configuration (4548.108083ms)
+✔ a partial low-level write never publishes a torn created file (32.12ms)
+✔ new project with staged tool directory still defaults to source navigation (35.068584ms)
+✔ packaged launchers use portable line endings and include native entry points (0.5965ms)
+﹣ Windows copied environments preserve mixed-case Path discovery (0.049292ms) # SKIP
+﹣ Windows npm shims preserve argument boundaries without cmd interpolation (0.037708ms) # SKIP
+﹣ Windows managed Python is discovered from its runtime pointer (0.032917ms) # SKIP
+✔ portable argument and file operations in spaces and Unicode directories (296.669958ms)
+{"result": "FAIL", "error": "Explicit workflow and plan confirmation required"}
+{"result": "FAIL", "error": "Explicit workflow and plan confirmation required"}
+✔ codex: installed advisor, combined confirmation, compact and JSON reports (10823.756791ms)
+✔ copilot: installed advisor, combined confirmation, compact and JSON reports (8448.061166ms)
+✔ codex: generated instructions keep Adaptive separate from installed OpenSpec (4198.870875ms)
+✔ copilot: generated instructions keep Adaptive separate from installed OpenSpec (5092.099583ms)
+✔ copilot-ide: generated instructions keep Adaptive separate from installed OpenSpec (4490.698125ms)
+✔ codex,copilot: generated instructions keep Adaptive separate from installed OpenSpec (4376.24675ms)
+✔ codex,copilot-ide: generated instructions keep Adaptive separate from installed OpenSpec (4059.517ms)
+ℹ tests 83
+ℹ suites 0
+ℹ pass 79
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 4
+ℹ todo 0
+ℹ duration_ms 53295.928417

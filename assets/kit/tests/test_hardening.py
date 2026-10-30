@@ -8,7 +8,7 @@ import sys
 import unittest
 import test_harness
 import test_onboarding
-from harnesslib import runner, readiness
+from harnesslib import runner, readiness, verification
 from harnesslib.storage import HarnessError, atomic, read, digest
 
 class HardeningTests(unittest.TestCase):
@@ -163,6 +163,51 @@ class HardeningTests(unittest.TestCase):
         p.write_text(p.read_text().replace('DEMO-001','DEMO-999'))
         with self.assertRaises(HarnessError):self.h.approve('DEMO-001','review','fixture',p.relative_to(self.root).as_posix())
 
+    def test_opted_in_review_requires_exact_observations_and_current_pass_check(self):
+        f,t=self.h.task('DEMO-001')
+        t['review_contract_version']=2
+        t['required_checks'].append('harness-validate')
+        self.write_tasks(f)
+        self.fixture.verified()
+        t=self.h.task('DEMO-001')[1]
+        criterion=t['acceptance_criteria'][0]
+        record={'task_id':t['id'],'reviewer':'fixture reviewer',
+                'evidence':t['evidence'][-1],'verdict':'PASS',
+                'summary':'Compared the required fixture document check with the observed content.',
+                'findings':[]}
+        row={'criterion':criterion,'check':'demo-doc',
+             'observed':'The fixture document contains the required checkpoint and resume text.',
+             'assessment':'The successful document check supports this exact acceptance criterion.',
+             'limitation':'This check does not assess unrelated application behavior or external systems.'}
+        def review_text(): return '```harness-review\n'+json.dumps(record)+'\n```\n'
+        with self.assertRaisesRegex(HarnessError,'criterion evidence'):
+            verification.review(self.h,t,review_text())
+        record['criterion_evidence']=[row]
+        self.assertEqual(verification.review(self.h,t,review_text())['verdict'],'PASS')
+        for bad in ([row,row], [{**row,'criterion':'unmapped criterion'}],
+                    [{**row,'check':'harness-validate'}],
+                    [{**row,'observed':'PASS'}],
+                    [{**row,'observed':criterion}]):
+            record['criterion_evidence']=bad
+            with self.assertRaises(HarnessError): verification.review(self.h,t,review_text())
+        record['criterion_evidence']=[row]
+        record['evidence']='.harness/evidence/stale.json'
+        with self.assertRaisesRegex(HarnessError,'latest execution evidence'):
+            verification.review(self.h,t,review_text())
+        record['evidence']=t['evidence'][-1]
+        path=self.root/'specs/harness-demo/reviews/DEMO-001.md'
+        path.parent.mkdir(exist_ok=True)
+        path.write_text(review_text())
+        self.h.approve('DEMO-001','review','fixture reviewer',path.relative_to(self.root).as_posix())
+
+        # Direct runner review validation also rejects a tampered non-PASS check.
+        evidence_path=self.root/t['evidence'][-1]
+        evidence=read(evidence_path)
+        next(item for item in evidence['results'] if item['check']=='demo-doc')['result']='FAIL'
+        atomic(evidence_path,evidence)
+        with self.assertRaisesRegex(HarnessError,'latest PASS check'):
+            verification.review(self.h,t,review_text())
+
     def test_done_invalidated_by_changed_task_definition_and_review(self):
         self.finish()
         f,t=self.h.task('DEMO-001');t['outcome']='New approved outcome';self.write_tasks(f)
@@ -177,7 +222,9 @@ class HardeningTests(unittest.TestCase):
         self.assertEqual(runner.next_action(self.h)['action'],'start')
         self.assertEqual(before,(self.root/'.harness/state.json').read_bytes())
         result=runner.run(self.h,10,60)
-        self.assertEqual(result['action'],'implement');self.assertEqual(result['result'],'BLOCKED')
+        self.assertEqual(result['action'],'implement');self.assertEqual(result['result'],'PASS')
+        self.assertEqual(result['host_role']['role'],'implement')
+        self.assertEqual(self.h.task('DEMO-001')[1]['status'],'IN_PROGRESS')
         self.assertEqual(self.h.task('DEMO-001')[1]['status'],'IN_PROGRESS')
 
     def configure_runner(self, implementation='pass', review_change=False):
@@ -215,6 +262,13 @@ p.write_text('```harness-review\\n'+json.dumps(r)+'\\n```\\n')
         result=runner.run(self.h,10,120)
         self.assertEqual(result['action'],'inspect',result)
         self.assertIn('Reviewer changed',result['reason'])
+        self.assertNotEqual(self.h.task('DEMO-001')[1]['status'],'DONE')
+
+    def test_runner_detects_adapter_lifecycle_state_tampering(self):
+        self.configure_runner("import json; from pathlib import Path; p=Path('.harness/state.json'); state=json.loads(p.read_text()); state['next_action']='forged'; p.write_text(json.dumps(state))")
+        result=runner.run(self.h,10,120)
+        self.assertEqual(result['action'],'inspect',result)
+        self.assertIn('changed Python lifecycle state',result['reason'])
         self.assertNotEqual(self.h.task('DEMO-001')[1]['status'],'DONE')
 
     def test_runner_budgets_persist_across_invocations(self):

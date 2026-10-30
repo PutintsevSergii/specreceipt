@@ -59,6 +59,8 @@ INSTALLER
 
     def test_complete_installs_tools_openspec_and_indexes(self):
         adopt(KIT,self.root,False)
+        # Explicit legacy installation still provisions both providers.
+        (self.root/'.harness/navigation.json').unlink()
         with patch.object(runtime,'prepare',return_value={'result':'PASS'}), \
              patch.object(installation.tool_updates,'probe',return_value=None), \
              patch.object(installation.tool_updates,'install',return_value='fixture') as install, \

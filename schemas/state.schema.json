@@ -81,10 +81,7 @@
           "minLength": 1
         }
       },
-      "required": [
-        "tech_spec",
-        "architecture"
-      ],
+      "required": [],
       "additionalProperties": false
     },
     "git": {

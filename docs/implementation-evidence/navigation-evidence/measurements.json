@@ -1,0 +1,57 @@
+{
+  "source_log": "final-confirmed.log",
+  "SOURCE_MEASUREMENT": {
+    "extra_graph_commands": 0,
+    "indexer_calls": 0,
+    "samples": [
+      {
+        "adoption_seconds": 0.05113429200719111,
+        "lifecycle_excluding_checks_seconds": 0.28229754097992554
+      },
+      {
+        "adoption_seconds": 0.04879724999773316,
+        "lifecycle_excluding_checks_seconds": 0.2824304180103354
+      },
+      {
+        "adoption_seconds": 0.049461916991276667,
+        "lifecycle_excluding_checks_seconds": 0.2844028340186924
+      }
+    ]
+  },
+  "SCOPED_MEASUREMENT": {
+    "global": {
+      "check_runs_including_baseline": [
+        4,
+        4
+      ],
+      "full_scan_seconds": [
+        0.007914042012998834,
+        0.0075981669942848384,
+        0.007852791022742167
+      ],
+      "harness_overhead_excluding_checks_seconds": [
+        0.12884929301799275,
+        0.13107749895425513,
+        0.13488941700779833
+      ],
+      "samples": 3
+    },
+    "scoped": {
+      "check_runs_including_baseline": [
+        1,
+        4
+      ],
+      "full_scan_seconds": [
+        0.007785499998135492,
+        0.007746417017187923,
+        0.007816832978278399
+      ],
+      "harness_overhead_excluding_checks_seconds": [
+        0.1686035000020638,
+        0.173383916990133,
+        0.17620079198968597
+      ],
+      "samples": 3
+    }
+  }
+}

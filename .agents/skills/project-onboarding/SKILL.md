@@ -5,6 +5,11 @@ description: Onboard a new or existing project through developer questions and a
 
 # Project onboarding
 
+## Effective task contract
+For an eligible schema-version-2 compact task, use the canonical task record, concise approved project context, required check/case mapping and referenced evidence. Follow [the compact journey](../../../docs/HARNESS.md#compact-fast-journey). The formal document preparation, full-document prerequisites and repeated resume/status/next procedures below apply to formal records; they do not require compact tasks to create duplicate TECH_SPEC, ARCHITECTURE, spec, plan or verification prose. Stricter project instructions, existing linked requirements and policy floors remain authoritative.
+
+The current IDE host prepares and displays one plan/context/check bundle, records the actual combined decision, then uses `run` and guarded `run --submit REQUEST_ID` role completion. Implementation stays in scope; verification uses approved application checks and current evidence; review is a separate pass identified honestly and writes only the requested review record. Show current results and limits, then obtain separate bound final acceptance. Never fabricate consent or make the developer operate lifecycle commands. Unchanged resume and in-scope repairs need no repeated initial approval. Load only the guidance needed for this role.
+
 ## Purpose and boundary
 Turn developer intent and authorized evidence into a sufficient, reviewed documentation base for the first bounded application slice. This is the coordinator for existing roles, not a replacement for them. Work may include intake, reading permitted sources, documentation, plans and check configuration. Do not scaffold application code, implement features, install dependencies, start services or run migrations during onboarding. Existing source is evidence of current behavior, not approval of desired behavior.
 

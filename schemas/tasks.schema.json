@@ -137,6 +137,10 @@
                 "reference_hash": {
                   "type": "string",
                   "minLength": 1
+                },
+                "result_binding": {
+                  "type": "string",
+                  "minLength": 64
                 }
               },
               "required": [
@@ -281,6 +285,77 @@
                     "minLength": 1
                   },
                   "minItems": 1
+                },
+                "required_cases": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "check": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "cases": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "minItems": 1
+                      },
+                      "review": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "fault_probe": {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "before": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "after": {
+                            "type": "string"
+                          },
+                          "case": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "expected_message": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "fixture_paths": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "minItems": 1
+                          }
+                        },
+                        "required": [
+                          "path",
+                          "before",
+                          "after",
+                          "case",
+                          "expected_message",
+                          "fixture_paths"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "check",
+                      "cases"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "minItems": 1
                 }
               },
               "required": [
@@ -422,12 +497,29 @@
               "deeper_review": {
                 "type": "object",
                 "properties": {
-                  "reference": {"type": "string", "minLength": 1},
-                  "reference_hash": {"type": "string", "minLength": 64},
-                  "material": {"type": "string", "minLength": 64},
-                  "revision": {"type": "integer", "minimum": 1}
+                  "reference": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "reference_hash": {
+                    "type": "string",
+                    "minLength": 64
+                  },
+                  "material": {
+                    "type": "string",
+                    "minLength": 64
+                  },
+                  "revision": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
                 },
-                "required": ["reference", "reference_hash", "material", "revision"],
+                "required": [
+                  "reference",
+                  "reference_hash",
+                  "material",
+                  "revision"
+                ],
                 "additionalProperties": false
               },
               "reasons": {
@@ -475,6 +567,28 @@
           },
           "workflow_required": {
             "type": "boolean"
+          },
+          "review_contract_version": {
+            "type": "integer",
+            "enum": [
+              2
+            ]
+          },
+          "non_goals": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "constraints": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
           }
         },
         "required": [

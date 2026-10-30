@@ -48,7 +48,9 @@ sh install.sh /absolute/path/to/project
 
 Adoption preserves existing files. Identical files are left alone; different files are reported as conflicts, and apply stops before copying when a conflict is found. Merge those conflicts deliberately and rerun. A concurrent filesystem change can leave a partial additive copy; rerunning is safe because target files are created exclusively rather than overwritten. Project tasks, state, journal and evidence are not copied from the kit. A fresh project state is initialized automatically; existing state is preserved.
 
-On `adopt --apply`, the CLI checks for CodeGraph and Graphify and fresh indexes. It prepares missing uv and compatible Node/npm in a user-local runtime, installs missing or incompatible tool versions locally, enables OpenSpec by default, then initializes or synchronizes CodeGraph and updates Graphify locally without Graphify LLM extraction. This creates `.codegraph/` (or `.codegraph-wsl/`) and `graphify-out/` in the target project. In an existing Git repository, adoption adds rules both to Git’s local `info/exclude` and to the target project’s `.gitignore`, preserving existing rules. A tracked `.gitignore` will appear as modified; its rule changes can be committed, while kit files remain ignored. The rules exclude the exact kit files (including skills), `.harness/`, index directories and harness Python caches, while keeping unrelated files in shared directories visible. Without a Git repository, adoption appends these rules to `.gitignore`; a newly created ignore file also excludes itself. Neither mechanism prevents forced `git add -f`. Already tracked kit files block adoption because ignore rules cannot hide tracked files; adoption never removes files from the Git index. New application source files remain visible to Git. If setup fails, adoption reports BLOCKED; files already copied remain in place, so rerun after fixing the dependency. Use `./harness indexes ensure` after a substantial code edit batch. The application task start transition collects bounded graph context before implementation; the IMPLEMENTED transition and verification refresh both indexes. Graph findings guide source inspection, not acceptance proof.
+New `adopt --apply` projects receive `.harness/navigation.json` with `{"schema_version":1,"mode":"source","providers":[]}`. Source search is a first-class navigation mode and requires neither graph CLI nor indexes. Adoption retains runtime preparation and OpenSpec setup. Existing installations without the policy retain both required providers. A reviewed migration may explicitly select source, or `{"schema_version":1,"mode":"required","providers":["codegraph"]}` (or Graphify, or both). Missing/invalid provider capabilities block only when required. Policy changes invalidate active task definitions and evidence and require the existing replan/approval flow. Quality profiles, acceptance checks and final approval are unaffected.
+
+Adoption preserves project-owned files and adds local Git exclusions for installed assets and `.harness/`; tracked kit conflicts block. Setup failures retain partial files for inspection. `indexes ensure` follows navigation policy at application start, IMPLEMENTED and verification. Graph context is a source-navigation lead, never acceptance proof.
 
 The installers prepare Python 3.12 when Python 3.11+ is unavailable. On Windows x64, use `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 C:\path\to\project` and `.\harness.cmd` for commands shown as `./harness` below. Windows PowerShell 5.1 and Command Prompt need no WSL or Bash. The policy flag is process-local. Linux/macOS retain the shell installer. The runtime uses the Python standard library, with native Windows byte-range locking and POSIX flock. Git is optional; without a repository, Git revision fields are empty. Application languages and frameworks are chosen separately in the project specification.
 
@@ -312,6 +314,9 @@ Copy `templates/feature/` to `specs/<feature-id>/`. Complete the spec and plan, 
 # After a real separate review:
 ./harness task approve TASK-001 --kind review --by 'reviewer name' --reference specs/feature-id/reviews/TASK-001.md
 
+# Present this linked result and its approval effect before asking for final DONE:
+./harness approval-package TASK-001 --format markdown
+
 # Only if this task requires developer approval and it has actually been given:
 ./harness task approve TASK-001 --kind developer --by 'developer name' --reference docs/approvals/task-001.md
 ./harness task transition TASK-001 DONE --reason 'Verification and required approvals are current'
@@ -319,6 +324,8 @@ Copy `templates/feature/` to `specs/<feature-id>/`. Complete the spec and plan, 
 ```
 
 `verify` records check results; it does not automatically advance task status. DONE describes engineering completion, not a commit, publication, deployment or applied migration. A delivery handoff must name which actions actually occurred, the verified content/revision, outstanding environment or approval needs, and the next step. Approval commands record an assertion, not an authenticated identity. Review references need one validated `harness-review` JSON block (see the verification template), with the exact task/latest evidence, substantive reviewer/summary, PASS verdict and no OPEN findings. Use a separate `specs/<feature>/reviews/<TASK-ID>.md` per task. Their text is hashed, so editing an approved review requires recording a fresh approval.
+
+`approval-package TASK-ID` is read-only. It produces JSON by default or a linked Markdown/terminal decision summary. It only succeeds for the exact current `VERIFIED` task when passing evidence and the separate review are current and final developer approval is pending. The package links the spec, plan, changed files, evidence and review, and describes limits and the effect of DONE. Show it and briefly describe what the developer would accept before asking; a bare `DONE?` is insufficient. A blocked result means to resolve freshness or review first. This presentation does not authenticate the developer or prove that the links were opened.
 
 | Status | Meaning |
 | --- | --- |
@@ -390,7 +397,7 @@ An interrupted verification command is not automatically rerun. Process IDs can 
 
 The `local-python-ast` provider indexes eligible files, Python definition locations and static import syntax. Test-to-source links are naming heuristics. Relationships carry provenance and confidence. Imports may remain unresolved; there is no reliable call graph, route analysis or persistence-entity analysis. Other languages receive file nodes only. Coverage is explicitly partial.
 
-The external navigation tools are `colbymchenry/codegraph` and Graphify. `./harness indexes status` reports both; `./harness indexes ensure` installs missing CLIs and updates stale indexes. CodeGraph's CLI `init/status/sync/query` is distinct from the unrelated `codegraph-ai/CodeGraph` MCP server. Application tasks require fresh indexes and saved task context before implementation. `./harness codegraph query TERM --limit 10` and `./harness graphify query "question" --budget 800` bound the context returned to an agent. The local graph and targeted source search remain useful for diagnosing an external tool failure, but do not satisfy the application index prerequisite. Neither graph is a verification gate or proof of behavior.
+Navigation is controlled only by `.harness/navigation.json` (version 1). New installations use source mode; legacy absence requires both CodeGraph and Graphify. `./harness indexes ensure` refreshes only explicitly required providers and performs no provider operations in source mode. `indexes status` is an explicit diagnostic of available providers. Optional graph tools remain available through explicit tool-update/query commands. Use bounded queries for selected providers, inspect the cited source, and retain all quality gates.
 
 ### Repository investigation with host MCP tools
 
@@ -455,6 +462,7 @@ The setup does not automatically install dependencies, change model settings, ap
 Design and primary-source rationale: [ADR 001](adr/001-harness-hardening.md).
 
 - Add `acceptance_checks` to each task: an array of `{"criterion": "exact acceptance_criteria string", "checks": ["required-check-name"]}`. Every criterion appears exactly once; every named check must be required. This binds declared coverage to real execution, without proving test semantics.
+- A new task may opt in to review contract version 2 with `"review_contract_version": 2` in its task record. Its separate `harness-review` block must then include `criterion_evidence`: exactly one row per acceptance criterion, with `criterion`, a mapped latest PASS `check`, a concrete `observed` behavior, a separate reviewer `assessment` and a substantive `limitation`. The validator rejects missing, duplicate, unmatched, non-PASS, placeholder or too-short rows. Reviewer judgment remains responsible for whether the observation actually proves the claimed behavior; weak coverage belongs in a finding and REWORK. Historical task reviews without the opt-in field retain their original contract.
 - Scope accepts normalized repository-relative files or explicit `directory/` prefixes, not glob patterns. Start snapshots current inputs, including existing user changes. Later changes outside scope block implementation, verification and completion. Retries of unfinished work preserve the snapshot. Reopening a previously completed task begins a new attempt with a new observed snapshot, so later completed work is not falsely attributed to the old task. For an approved scope/policy change, move to REWORK or BLOCKED, update the approved inputs, then `task replan ID --reference docs/approvals/replan.md`. This records actual reviewed replanning and preserves the original source snapshot. Missing legacy baselines require a reviewed replacement task.
 - `.env*`, binary assets and executable bits participate in verification hashes without recording contents. `.DS_Store` is ignored. Symlinks fail closed. Navigation exclusions do not determine verification inputs. Build/dependency directories listed in `verification.py` remain excluded; declare relevant versions in environment.json. Remote services and mutable installed packages are not automatically fingerprinted.
 - `./harness regression ID` reruns a completed task and its prerequisite checks against current inputs. It does not replace historical completion or authorize deployment. A failed regression is visible as stale/nonpassing evidence and blocks the dispatcher's finished result.
@@ -481,11 +489,13 @@ atomic(p, cfg)
 
 A hash records an assertion; it is not authenticated human identity. The default template is disabled. The harness never chooses a vendor, installs a CLI, passes production credentials or changes host sandbox permissions.
 
+For a Codex CLI adapter, after the developer has reviewed the exact task IDs, CLI permissions and authorization text, `specreceipt codex-runner-preview --task TASK-001 --reference docs/approvals/runner.md --target /absolute/project` emits a complete `runner.json` with exact Node and CLI paths and the Python-compatible authorization hash. Use multiple `--task` arguments only for tasks the reference actually covers. Review the output and save it as `.harness/runner.json`; preview is read-only and does not grant consent or enable a runner by itself. The generic manual configuration route above remains available for other adapters. The packaged `codex-exec` command refuses direct invocation without a matching persisted Python adapter intent and checks Python readiness plus the Codex execution preflight immediately before launch. It starts `codex exec` in `workspace-write` with an ephemeral session and user config ignored; project instructions and host-owned tool access still apply. The Python parent owns the wall-time limit and captures the CLI trace in its check log. Use a `run --max-seconds` budget large enough for the approved agent invocation and required checks.
+
 Adapters receive a JSON context-file path through `{context}` and may use `{task_id}` in argv. `{python}` selects the harness interpreter. Context contains task/feature, action, scope, required checks, acceptance mapping, latest evidence and review output path. The adapter must read repository instructions and canonical documents. Implementation edits only approved scope and exits zero when ready for checks. Review is a separate invocation and writes only the provided review path with the structured review block; it must inspect actual behavior/evidence. Adapters must not call lifecycle/approval commands or mutate task/configuration records. The parent holds the advisory writer lock, validates effects and performs transitions itself.
 
 Intent is persisted before a subprocess starts. Timeouts or interrupted intent produce uncertainty, never automatic replay. Inspect effects/processes and use `recovery acknowledge` only when justified. Failed verification or a substantive review requesting changes routes back to implementation within the remaining budget. A nonzero adapter result stops the invocation and consumes failure budget. A successful subprocess does not imply successful verification. Required developer approvals stop the loop at `approval`; they are never generated by the runner.
 
-The dispatcher uses existing command environment restrictions. Adapter credentials and isolation must be supplied by the authorized host; there is no new sandbox. Review process separation is not independent attestation. No live provider has been validated by this kit's deterministic adapter tests.
+The dispatcher uses existing command environment restrictions. Other adapters must supply their own host isolation; the packaged Codex adapter requests its CLI's workspace-write sandbox. The current repository's files and local approvals remain editable by an authorized process, so protected CI and external identity controls are separate. Review process separation is not independent attestation. Deterministic adapter tests do not prove live provider behavior; record a real isolated consumer run before making that claim.
 
 ## Upgrading existing projects
 
@@ -587,6 +597,8 @@ Known task records are scanned for substantive requirement/outcome/acceptance/fa
 
 For ambiguous or oversized findings, inspect every flagged source and write a JSON review inside `.harness/` with `task_id`, the assessment `material` and `assessment_revision`, and one `items` entry per exact finding. Each item needs `source`, the file raw SHA-256 in `sha256`, up to eight one-based `locations`, a sanitized 40–1000 character `finding`, and `risk` of `HIGH` or `NOT_APPLICABLE`. The `task scope/requirements` finding binds to a stable hash of the substantive task definition rather than the mutable workflow envelope in `tasks.json`. Run `./harness workflow resolve TASK-ID --review .harness/path/to/review.json`, then `./harness workflow confirm TASK-ID --profile STRICT --by NAME --reference FILE`. Confirmation and task guards recheck completeness, source hashes, assessment revision and review content. Missing sources, critical unknowns and absent inspected evidence remain blocked. This review is an agent-authored attestation, not independent proof of the analysis.
 
+For a STRICT task, this exact source review is a pre-implementation gate. Once `task start` captures the approved task definition and source baseline, edits inside its approved scope may continue through implementation, verification and bounded REWORK without rewriting the pre-start review. The original review file and approval reference must remain unchanged; task-definition or policy changes require official REWORK/replan, and unrecognized writes outside scope still block. FAST and STANDARD still detect new sensitive source content during work. Required checks and the separate post-implementation review remain current-result gates.
+
 Optional `.harness/workflow-policy.json` fields are `minimum` (FAST/STANDARD/STRICT), `strict_paths` (glob patterns), `required_checks`, `approval_requirements`, `openspec_required` and `separate_plan_approval`. Policy edits need developer decision review and invalidate existing adaptive confirmation/evidence. New task templates set `workflow_required: true`, so task start requires assessment and explicit confirmation. Legacy tasks without this marker or adaptive metadata retain existing strict gates. A policy change does not retroactively fabricate workflow selections.
 
 The official confirmation record kind is `workflow-plan`; when separate plan confirmation is mandatory, record `plan` through `task approve`. Final consent uses `developer`. Required checks and approvals cannot be removed by choosing FAST. Standard/Strict depth is reflected in the approved task plan and check selection; engine minimums, current evidence and protected transitions remain mandatory. Assessment does not automatically approve DRAFT documents.
@@ -606,7 +618,7 @@ specreceipt doctor --execution --agent copilot --target /absolute/project --json
 
 Use the same environment, working directory and ignore-user-config setting as the launch. The programmatic `executionPreflight` / `checkedAgentLaunch` exports in `dist/doctor.js` accept the exact launch environment; `runCopilot` sanitizes permissions before both probes and spawn. Codex probes its selected login shell (the default is `$SHELL`, then `/bin/sh`); a host with another shell must supply that shell explicitly. Unknown Codex shell environment policies fail closed rather than claiming the outer PATH is authoritative. Probes are bounded, deterministic version/capability checks; they do not install tools, authenticate through a model or rebuild indexes.
 
-Diagnostics separate REQUIRED, OPTIONAL and NOT_APPLICABLE from PASS/WARN/FAIL. Python resolves existing navigation requirements from the selected application task and explicit repository index instructions. Required CodeGraph/Graphify CLI capabilities remain mandatory. Without such a requirement, a missing CodeGraph CLI warns and available repository search is a fallback. `copilot-ide` requires no CLI. A configured MCP server is not necessarily available: an already-connected host can supply a read-only capability probe identifying server `codegraph` and a supported query/search tool, or a generic `mcpInventory` of server names and observed read-only tool names. A required generic server passes preflight only with an observed read-only capability; a task claim still needs investigation evidence. Preflight never activates a server or contacts an endpoint itself. MCP availability never replaces a CLI-only engine contract. Copilot's disabled built-in MCP flag does not disable explicitly configured custom servers.
+Diagnostics separate REQUIRED, OPTIONAL and NOT_APPLICABLE from PASS/WARN/FAIL. Python resolves navigation requirements from the project-owned navigation policy, with dual-provider requirements for legacy policy absence. Required CodeGraph/Graphify CLI capabilities remain mandatory. Without such a requirement, a missing CodeGraph CLI warns and available repository search is a fallback. `copilot-ide` requires no CLI. A configured MCP server is not necessarily available: an already-connected host can supply a read-only capability probe identifying server `codegraph` and a supported query/search tool, or a generic `mcpInventory` of server names and observed read-only tool names. A required generic server passes preflight only with an observed read-only capability; a task claim still needs investigation evidence. Preflight never activates a server or contacts an endpoint itself. MCP availability never replaces a CLI-only engine contract. Copilot's disabled built-in MCP flag does not disable explicitly configured custom servers.
 
 The guard covers the repository's Codex E2E spawn and Copilot transport, including continuation paths. External/direct agent launches and arbitrary runner adapters must use the guard themselves. Version/help and shell probes cannot prove model authentication, account quota, sandbox-specific access restrictions or future filesystem stability. Run preflight immediately at the launch boundary; it does not grant lifecycle or permission approval.
 
@@ -623,3 +635,168 @@ If both task policy inputs and outside source files changed, first approve the r
 Recognition records exact created/modified/deleted paths, inventory identities (including executable mode), raw SHA-256, original baseline, task definition and prior record digest. It grants no write permission. Additional changes require a new explicitly approved manifest; changed recognized content, symlinks, unsafe paths and stale references block progress. Task-policy changes use approved `task replan`; replan preserves the original baseline, archives prior execution, and keeps policy adjustments separate. A changed definition requires fresh recognition approval before restart. Other tasks' lifecycle-only JSON fields use the existing semantic inventory after acceptance; substantive changes remain detected.
 
 Reports label recognized pre-existing files separately from task-scope changes. Full repository test evidence remains content-bound: recognition never makes old tests or reviews current. Run required verification and review again, then obtain separate final developer approval. Recognition is a local authorization record, not authenticated identity or protection against malicious local writers.
+
+
+## Acceptance support and historical receipts
+
+Command-level `results[].result` and legacy `acceptance_results[].result` retain
+their existing execution/mapping semantics. An exit-zero command is not evidence
+that a particular test case ran or that the behavior satisfies a requirement.
+New receipts add `acceptance_support` version 1, with explicit `CHECK_ONLY`,
+`INSUFFICIENT` or `FAILED` criterion support. Terminal, Markdown and JSON task
+reports expose the same distinction. `CHECK_ONLY` claims neither case observation
+nor semantic correctness. Console test counts and code coverage do not establish
+criterion support.
+
+Evidence schema version 1 remains readable. Absent support fields on historical
+receipts are interpreted as check-level evidence in reports, without rewriting
+receipts or completed task records. Unsupported support versions/values are
+rejected. Existing check-only workflows keep their lifecycle gates. Stronger
+case/review/fault evidence requires a separate explicit opt-in contract.
+
+### Opt-in case observations, review attestations and fault probes
+
+For a command check, set `report_format: "junit-v1"` and use the supported
+stdlib runner, for example `argv: ["{python}", "-B", "-m",
+"harnesslib.junit_unittest", "test_access"]`. This runs real unittest tests.
+The approved command runner provides a unique `HARNESS_TEST_REPORT` output path,
+`HARNESS_TEST_INVOCATION`, `HARNESS_OPERATION_ID` and `HARNESS_CHECK_NAME`.
+Do not use fixed report paths or copy old reports.
+
+An acceptance_checks row can add:
+
+```json
+{"criterion":"AC-001: Other viewers are denied", "checks":["access-tests"],
+ "required_cases":[{"check":"access-tests",
+                    "cases":["test_access.Access.test_other"]}]}
+```
+
+All named cases must execute and pass. Command PASS stays PASS when output is
+missing or inadequate, but support becomes INSUFFICIENT and overall verification
+fails. Such a task cannot become VERIFIED/DONE. Build/lint checks remain valid
+check-only checks. Unselected legacy tasks have no new required step.
+
+The version-1 JUnit subset is UTF-8, at most 1 MiB / 1000 cases / 12 nested levels,
+with exact suite case counts, unique classname.name identities and exactly one
+set of harness.operation/check/invocation properties matching the current run.
+DTD/entities, ambiguous outcomes, unsupported structure and stale stamps reject.
+Skipped/expected-failure/unexpected-success/subtest cases cannot satisfy the
+contract. The bundled reporter treats subtests as unsupported, rather than
+inventing stable identities. Other reporters must satisfy this exact contract;
+no broad framework compatibility is asserted. Raw XML is removed after collection;
+bounded redacted normalized observations and the original content hash remain.
+Receipts bind invocation, command, inputs and check. Task definitions bind the
+criterion mapping. Hashes detect changes, not authentic execution by an adversary.
+
+For semantic review, add `review: "specs/<feature>/reviews/semantic.json"` to the
+case rule. After the initial observation, record a bounded JSON artifact with
+`schema_version: 1`, exact `criterion`, `check`, `cases`, current `input_binding`
+(the verification fingerprint), `reviewer`, `reviewer_type` (human or agent),
+concrete `behavior`, `negative_scenario`, `gaps`, and `assertions`. Each assertion
+has `case`, repository-relative Python `path`, one-based `line`, exact line `text`
+and source-byte `sha256`. Every required case needs an assertion inside its named
+module/class/method. The artifact belongs in the feature reviews directory so
+recording it does not itself change source inputs. Rerun verification to validate
+it against fresh observations. REVIEW_ATTESTED is an unauthenticated reviewer
+attestation, including when an agent authored it; it is not independent proof.
+
+An optional rule `fault_probe` contains explicit `fixture_paths` (application/test
+files or prefixes), mutation `path`, unique exact `before` and `after` strings,
+required `case` and a specific `expected_message` (10..1000 characters). It also
+requires the semantic review. Version 1 supports only the exact bundled unittest
+command with one module. It copies at most 100 explicitly selected files / 4 MiB
+and the engine into a disposable directory, runs a passing baseline, introduces
+the one replacement, and requires exactly the target case to fail with
+AssertionError and the specified message. Syntax/import/setup failures do not
+count. It copies no task state or approvals and changes no original source.
+The bounded probe artifact records hashes and classification separately.
+FAULT_DETECTED covers only this mutation; it is not proof of complete correctness.
+These probes run only for explicit opted-in rules, never automatically for FAST.
+
+New receipt extensions require the updated reader. For rollback, retain new
+receipts and use this reader to inspect them; do not strip fields or rewrite them
+so an older strict schema reader accepts stronger evidence it cannot understand.
+
+## Opt-in reviewed check-input contracts
+
+Write authorization remains `task.scope`. Check input contracts never grant write
+permission, recognize outside changes or suppress the global scope inventory.
+Legacy checks retain global freshness and run on every explicit verification.
+
+An explicitly reviewed command check may add `input_contract` version 1:
+
+```json
+{"schema_version":1,
+ "inputs":["src/invoices/","src/shared/","tests/invoices/","package-lock.json"],
+ "independent":["src/catalog/","tests/catalog/"],
+ "rationale":"Reviewed dependency boundary: invoice checks do not import, discover, load or configure catalog code or its fixtures.",
+ "approval_reference":"docs/invoice-input-review.md",
+ "approval_hash":"<digest of the actual review reference>",
+ "reviewed_revision":"<reviewed non-independent input revision>"}
+```
+
+The reference must contain actual developer review, not an agent-invented approval.
+Use the existing task replan/approval flow for this configuration change. The
+Python helpers `harnesslib.storage.digest(reference_text)` and
+`harnesslib.check_inputs.revision(h, check, contract, h.fingerprints())` calculate
+these values; calculation is not consent. Review the full declaration before
+recording its approved revision. No default contract is synthesized from scope.
+
+The revision binds every non-independent inventoried path, the command/test-runner
+configuration, declared environment, a hash of the effective child environment,
+and resolved executable identity/content/executable mode. The checks file is
+excluded from this revision's file map to avoid self-reference, while the selected
+check (without its contract) is included and the existing task definition binds
+the complete checks file. Intake answers/configuration remain inputs; the intake
+approval stamp is excluded from the dependency revision to avoid an approval/hash
+cycle. Readiness still independently requires that approval.
+
+This deliberately conservative completeness rule means any source/test/fixture,
+shared/global/configuration, unknown path, runtime or environment change forces
+GLOBAL execution until the independence declaration is reviewed again. A path
+creation/deletion/rename or executable-bit change remains observable. Even ignored
+independent regions are scanned for unsafe links/junctions. Broad directory roots,
+policy/global configuration paths and overlapping input/independent regions are
+rejected. There is no mtime cache or inferred dependency graph.
+
+Only already-successful, accessible receipts belonging to the same task, worktree,
+branch, definition and reviewed input binding can be reused. Original receipt and
+log integrity remain mandatory. Reuse is recorded as `reused_from` and a
+`check-reused` event, not a new command execution. Builtins, JUnit case/review/probe
+checks and explicit regression runs retain fresh global execution. Full required
+integration/CI checks must keep their global contracts; do not declare a broad
+integration suite independent without a complete, defensible dependency review.
+
+`input_coverage` reports GLOBAL, SCOPED or MIXED. SCOPED never means full-repository
+verification. If every check is scoped and still current, an authorized independent
+change may leave its evidence current; otherwise verification reruns the global
+checks and reuses only eligible individual checks. Required human review/final
+approval remain content-bound independently. Unknown impact chooses full execution.
+
+Downstream verification also re-evaluates the required case/review/probe contracts
+of checked dependency tasks against that invocation's reports. `dependency_support`
+records those results separately. A previously completed prerequisite's skipped
+case cannot be hidden by a new exit-zero dependency command.
+
+Retained reports include normalized case receipts, semantic artifacts and cited
+assertion sources, bounded baseline/mutant fault observations, and the original
+receipts behind reused checks. The existing 8 MiB export limit remains; oversized
+or missing evidence blocks retention. Approval packages expose the same criterion
+support, dependency support, input coverage and reuse distinction as task reports.
+
+## Compact FAST journey
+
+New installations enable version 1 compact eligibility in the existing workflow policy. The engine still assesses risk and enforces policy floors, scope, checks, cases, review and two distinct decisions. Installation is not approval. Legacy installations retain their documentation rules; `workflow migrate` explains the current mode and produces a nonmutating preview. After a real project decision, the host records `workflow migrate --by NAME --reference FILE --expected BINDING`. Existing formal tasks stay formal. Reverting the experience policy to legacy blocks compact tasks; preserve a compatible engine and records until those tasks are resolved. Do not downgrade by deleting evidence or approvals.
+
+The developer describes the change, approves the displayed plan/context/checks once, and accepts the verified result separately. The current IDE agent performs internal operations; no nested paid runner or developer JSON editing is needed. Load only relevant instructions. Full TECH_SPEC/ARCHITECTURE/spec/plan prose is not a compact requirement. STANDARD/STRICT and linked OpenSpec tasks retain their formal requirements.
+
+For reproducibility, these are **host-agent operations**, not instructions for the everyday developer:
+
+1. Write `.harness/request.json` from the actual request and bounded inspection. Run `specreceipt workflow propose --file .harness/request.json --json`. The input has `feature_id`, `task`, `facts`, optional `context` and optional new `checks`. `task` uses the existing requirements/outcome/scope/dependencies/acceptance/failure/risk/check mappings, adding explicit `non_goals` and `constraints`. It contains no status or approvals. `facts` uses the existing assessment schema. A new context records `intent`, `runtime`, `boundaries`, `safety_constraints`, `intent_reference`, `blocking_decisions`, `observed_facts`, `developer_facts`, and `application_checks`. Do not invent product intent. Check definitions contain exact argv, timeout, kind and purpose; the engine owns approval flags. See `tests/test_compact.py` for an executable input fixture.
+2. Show the returned plan card, including exact commands, context, policy and acceptance obligations. After the actual answer, retain its honest local reference and run `specreceipt workflow confirm TASK --profile FAST --by NAME --reference ANSWER_FILE --expected PROPOSAL_BINDING`. The local reference is an attestation, not authenticated identity. A stricter selection requires the appropriate formal inputs.
+3. Run `specreceipt run --json`. Implement the returned `host_role` within scope. Submit with `specreceipt run --submit TOKEN --json`; the engine advances and executes approved checks. A separate review role follows. Write the requested `harness-review` record against the exact evidence; submit using `--reference REVIEW_PATH --by NAME`. Same-host review is a distinct pass, not independent attestation. Failed checks/reviews permit bounded repair; exhausted budgets and uncertain effects require inspection, never replay.
+4. Show the returned current acceptance package, changed files, execution/reuse provenance, case support, review and limitations. After a separate final answer run `specreceipt workflow accept TASK --by NAME --reference ANSWER_FILE --expected ACCEPTANCE_BINDING`. The locked Python transition rechecks freshness, policy, scope, review and the task/attempt binding before DONE.
+
+An unchanged `run` resumes durable work without reassessment or another initial decision. Resubmitting a changed proposal for the same compact task creates one renewal boundary, preserves the original source baseline and requires fresh checks/review. It cannot silently absorb outside-scope work. Progress notes and derived reports do not change substantive plan identity. New commands or changes to scope, acceptance, context, risk or project instructions require renewed review.
+
+`status TASK --format terminal` is a compact card; JSON and retained reports carry full details. Reports live under `.harness/reports` and do not invalidate evidence. CHECK_ONLY remains distinct from observed cases; missing/skipped cases or configured missing review/fault evidence block acceptance. Framework self-tests validate the installed toolkit, not the consumer application; only explicitly required project checks enter the task.

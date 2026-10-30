@@ -1,0 +1,8 @@
+
+> specreceipt@0.4.3 test:package
+> node scripts/test-package.mjs
+
+Packed Copilot CLI/IDE/coexistence initialization, idempotence and upgrade checks passed.
+Packaged CLI smoke passed; complete packaged self-test runs in the designated Node job.
+Packed CLI: actual init, repeat init, OpenSpec and legacy validation passed. Missing navigation dependencies remain reported by doctor.
+Package verified: 159 files, 261855 bytes.

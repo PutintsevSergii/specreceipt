@@ -13,6 +13,8 @@ Compare the complete approved spec against observed behavior, not only the task'
 
 Use PASS, FAIL, NOT_RUN, BLOCKED or NOT_APPLICABLE precisely. This table aids review; it does not waive required CLI checks or mechanically prove semantic coverage.
 
+For a new task whose `tasks.json` record explicitly sets `review_contract_version: 2`, add `criterion_evidence` to the machine-readable review: one row for each exact acceptance criterion. Each row has `criterion`, one mapped latest PASS `check`, a concrete `observed` behavior, a separate reviewer `assessment`, and an honest `limitation`. Missing or weak observations need a review finding and rework. Older tasks without the opt-in field keep their existing review format. These rows are review claims, not automatic proof that tests are semantically sufficient.
+
 ## Runtime and affected surfaces
 Record the actual entry point, safe fixture, significant environment and observable outcome where applicable. A backend check does not by itself verify UI states. Explain inapplicable smoke/visual checks; unavailable required checks remain blocked.
 

@@ -5,7 +5,7 @@ import json
 import re
 from .report_operation import operation as report_operation
 from .storage import HarnessError, digest, now, read, redact, safe_path
-from . import readiness
+from . import compact, readiness
 
 PROFILES = ('FAST', 'STANDARD', 'STRICT')
 # Token families, not substrings: author/productionize are not auth/production.
@@ -115,7 +115,7 @@ def file_signals(ref, text):
 
 
 def task_signals(task):
-    positive, ambiguous = prose_signals('\n'.join([task['outcome'], *task['requirements'], *task.get('acceptance_criteria', []), *task.get('failure_scenarios', [])]))
+    positive, ambiguous = prose_signals('\n'.join([task['outcome'], *task['requirements'], *task.get('acceptance_criteria', []), *task.get('failure_scenarios', []), *task.get('constraints', []), *task.get('non_goals', [])]))
     for ref in task['scope']:
         if words(ref) & SENSITIVE_WORDS:
             if ref.endswith(('.md', '.txt', '.rst')): ambiguous = True
@@ -127,6 +127,11 @@ def evidence_signals(h, task, refs):
     p, a = task_signals(task)
     positive = ['task scope/requirements'] if p else []
     ambiguous = ['task scope/requirements'] if a else []
+    if task.get('non_goals') and compact.context(h)['schema_version']==2:
+        c=compact.context(h)
+        cp,ca=prose_signals('\n'.join(c[k] for k in ('intent','boundaries','safety_constraints')))
+        if cp: positive.append('compact project context')
+        if ca: ambiguous.append('compact project context')
     size = 0
     for ref in sorted(set(refs) | {x for x in task['scope'] if not x.endswith('/')}):
         path = safe_path(h.root, ref)
@@ -145,7 +150,7 @@ def evidence_signals(h, task, refs):
 def policy(h):
     path = safe_path(h.root, '.harness/workflow-policy.json')
     value = read(path) if path.exists() else {}
-    allowed = {'minimum', 'strict_paths', 'required_checks', 'approval_requirements', 'openspec_required', 'separate_plan_approval'}
+    allowed = {'minimum', 'strict_paths', 'required_checks', 'approval_requirements', 'openspec_required', 'separate_plan_approval', 'experience'}
     if not isinstance(value, dict) or set(value) - allowed:
         raise HarnessError('Invalid workflow policy fields')
     if value.get('minimum', 'FAST') not in PROFILES:
@@ -155,15 +160,29 @@ def policy(h):
             raise HarnessError('Invalid workflow policy '+key)
     for key in ('openspec_required', 'separate_plan_approval'):
         if not isinstance(value.get(key, False), bool): raise HarnessError('Invalid workflow policy '+key)
+    if 'experience' in value:
+        experience=value['experience']
+        if not isinstance(experience,dict) or set(experience)!={'version','mode'} or type(experience['version']) is not int or experience['version']!=1 or experience['mode'] not in ('compact','legacy'):
+            raise HarnessError('Unsupported experience policy version/mode')
     return value
 
 
 def material(h, feature, task):
+    from . import compact
+    if compact.is_compact(feature):
+        from .index_context import policy as navigation_policy
+        return digest({'task':compact.substantive(task),'context':compact.material_context(h),'checks':compact.check_definitions(h),
+                       'environment':read(h.root/'.harness/environment.json'),'policy':policy(h),'navigation':navigation_policy(h.root),'risk_classifier':RISK_CLASSIFIER_VERSION,'instructions':compact.instructions(h,task)})
     # No repository inventory, index build, Skill loading or model calls.
     fields = ('requirements', 'outcome', 'scope', 'dependencies', 'acceptance_criteria', 'failure_scenarios', 'risk', 'required_checks', 'approval_requirements')
     paths = ['docs/TECH_SPEC.md', 'docs/ARCHITECTURE.md', 'docs/DECISION_QUEUE.md', '.harness/checks.json',
              f"specs/{feature['feature_id']}/spec.md", f"specs/{feature['feature_id']}/plan.md"]
-    return digest({'risk_classifier':RISK_CLASSIFIER_VERSION, 'task':{k:task[k] for k in fields}, 'revisions':feature['revisions'], 'policy':policy(h),
+    navigation = safe_path(h.root, '.harness/navigation.json')
+    from .index_context import policy as navigation_policy
+    navigation_inputs = {'navigation_policy': navigation_policy(h.root)} if navigation.exists() else {}
+    if any(r.get('required_cases') for r in task.get('acceptance_checks', [])):
+        navigation_inputs['case_contract'] = task['acceptance_checks']
+    return digest({**navigation_inputs, 'risk_classifier':RISK_CLASSIFIER_VERSION, 'task':{k:task[k] for k in fields}, 'revisions':feature['revisions'], 'policy':policy(h),
                    'source':feature.get('spec_source'), 'inputs':{p:digest(safe_path(h.root,p).read_text(encoding='utf-8')) for p in paths}})
 
 
@@ -222,7 +241,7 @@ def assess(h, task_id, facts_ref):
               'complexity':'HIGH' if complex_change else 'MEDIUM' if moderate else 'LOW', 'uncertainty':'HIGH' if deeper else ('MEDIUM' if facts['unknowns'] else 'LOW'),
               'execution_cost':{'FAST':'targeted','STANDARD':'structured','STRICT':'full'}[recommendation],
               'deeper_required':deeper, 'reasons':reasons, 'selected':None, 'at':now(),
-              'plan':safe_path(h.root,f"specs/{feature['feature_id']}/plan.md").read_text(encoding='utf-8')}
+              'plan':compact.brief(task) if feature['schema_version']==2 else safe_path(h.root,f"specs/{feature['feature_id']}/plan.md").read_text(encoding='utf-8')}
     if len(record['plan'].encode()) > 16384: raise HarnessError('Brief assessment plan must fit 16 KiB; link deeper planning artifacts')
     # Identical facts and material keep the existing confirmation stable.
     if old and all(old.get(k) == record[k] for k in ('material','facts','inspected','sensitive_evidence','minimum','deeper_required','reasons')): return old
@@ -311,6 +330,25 @@ def check_deeper_review(h, feature, task, ambiguous):
     return {'sources': sorted(sources), 'reference': record['reference']}
 
 
+def check_started_deeper_review(h, feature, task):
+    """Keep the exact pre-start review bound while approved scope is implemented."""
+    w = task['workflow']
+    record = w.get('deeper_review')
+    if not record or record['material'] != w['material'] or record['revision'] != w['revision']:
+        raise HarnessError('Current bounded deeper review required before STRICT continuation')
+    path = safe_path(h.root, record['reference'])
+    if not path.is_file() or path.stat().st_size > 32768 or digest(path.read_text(encoding='utf-8')) != record['reference_hash']:
+        raise HarnessError('Deeper review reference changed or exceeds 32 KiB')
+    review = read(path)
+    if not isinstance(review, dict) or review.get('task_id') != task['id'] or review.get('material') != w['material'] or review.get('assessment_revision') != w['revision']:
+        raise HarnessError('Deeper review does not match the assessed task')
+    # At task start check_deeper_review already validated every raw source hash.
+    # Later scoped implementation edits are checked against that start baseline,
+    # not treated as a new pre-implementation assessment or approval.
+    from . import verification
+    verification.scope_changes(h, task)
+
+
 def resolve(h, task_id, review_ref):
     feature, task = h.task(task_id)
     w = task.get('workflow')
@@ -342,14 +380,22 @@ def guard(h, feature, task):
         if task.get('workflow_required'): raise HarnessError('Workflow assessment and explicit confirmation required before implementation')
         return  # Existing records retain all legacy gates.
     if w['material'] != material(h,feature,task): raise HarnessError('Workflow reassessment required: material task inputs changed')
-    sensitive, ambiguous = evidence_signals(h, task, w['inspected'])
-    if ambiguous:
-        if w.get('selected') != 'STRICT': raise HarnessError('Deeper targeted assessment requires STRICT: ' + ', '.join(ambiguous))
-        check_deeper_review(h,feature,task,ambiguous)
+    continuation = task['status'] in {'IN_PROGRESS','IMPLEMENTED','VERIFIED'} or (
+        task['status'] in {'REWORK','BLOCKED'} and task.get('execution', {}).get('definition') == h.definition(task)
+    )
+    started_strict = bool(task.get('execution')) and continuation and w.get('selected') == 'STRICT'
+    if started_strict:
+        check_started_deeper_review(h, feature, task)
+        sensitive, ambiguous = w['sensitive_evidence'], []
+    else:
+        sensitive, ambiguous = evidence_signals(h, task, w['inspected'])
+        if ambiguous:
+            if w.get('selected') != 'STRICT': raise HarnessError('Deeper targeted assessment requires STRICT: ' + ', '.join(ambiguous))
+            check_deeper_review(h,feature,task,ambiguous)
     if w.get('selected') in {'FAST','STANDARD'} and sensitive:
         raise HarnessError('Workflow reassessment required: sensitive implementation scope ' + ', '.join(sensitive))
     minimum, _ = floor(h,task,{**w['facts'], 'critical_risk':w['facts']['critical_risk'] or bool(sensitive) or bool(w['sensitive_evidence'])})
-    if w['facts']['critical_unknowns'] or not w['inspected'] or (w['deeper_required'] and not ambiguous): raise HarnessError('Deeper targeted assessment required before workflow confirmation')
+    if w['facts']['critical_unknowns'] or not w['inspected'] or (w['deeper_required'] and not (ambiguous or started_strict)): raise HarnessError('Deeper targeted assessment required before workflow confirmation')
     if w.get('selected') not in PROFILES: raise HarnessError('Explicit workflow and plan confirmation required')
     if PROFILES.index(w['selected']) < PROFILES.index(minimum): raise HarnessError('Selected workflow is below policy minimum '+minimum)
     binding = decision_binding(h,feature,task)

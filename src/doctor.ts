@@ -473,6 +473,7 @@ function executionDiagnostics(options: ExecutionOptions, installation = false) {
   const installed = fs.existsSync(path.join(root, "harnesslib/cli.py"));
   // A failed requirement lookup is not permission to treat dependencies as optional.
   let navigation = installed || !!options.taskId || fs.existsSync(path.join(root, ".harness/product.json"));
+  let navigationProviders = new Set(["codegraph", "graphify"]);
   let openspecRequired = navigation;
   if (installed) {
     const python = pythonCommand(toolEnv);
@@ -483,8 +484,10 @@ function executionDiagnostics(options: ExecutionOptions, installation = false) {
       const result = request(root, ["doctor", "--execution-requirements", ...(options.taskId ? ["--task", options.taskId] : [])], root, toolEnv);
       if (result.exitCode || result.data?.result !== "PASS") throw Error();
       navigation = result.data.navigation_cli_required;
+      navigationProviders = new Set(result.data.navigation_providers ?? (navigation ? ["codegraph", "graphify"] : []));
       openspecRequired = result.data.openspec_required;
       add("execution-requirements", "REQUIRED", true, result.data.reason);
+      add("developer-experience", "OPTIONAL", true, result.data.experience_next_action ?? "Existing engine: legacy workflow rules apply.");
       for (const dependency of result.data.executables ?? []) {
         const name = dependency.executable as string;
         const file = path.isAbsolute(name) ? name : name.includes("/") ? path.resolve(root, name) : executable(name, toolEnv);
@@ -504,8 +507,8 @@ function executionDiagnostics(options: ExecutionOptions, installation = false) {
     add("execution-requirements", "REQUIRED", false, "Selected Harness engine is missing.", "Restore the installed engine before launching.");
   }
   for (const [name, rel, args, expected, required] of [
-    ["codegraph", ".harness/tools/codegraph/node_modules/.bin/codegraph", ["version"], "1.6.2", navigation],
-    ["graphify", ".harness/tools/graphify/bin/graphify", ["--version"], "graphify 0.9.27", navigation],
+    ["codegraph", ".harness/tools/codegraph/node_modules/.bin/codegraph", ["version"], "1.6.2", navigation && navigationProviders.has("codegraph")],
+    ["graphify", ".harness/tools/graphify/bin/graphify", ["--version"], "graphify 0.9.27", navigation && navigationProviders.has("graphify")],
     ["openspec", ".harness/tools/openspec/node_modules/.bin/openspec", ["--version"], OPENSPEC_VERSION, openspecRequired],
   ] as const) {
     const nativeRel = process.platform === "win32" ? (name === "graphify" ? ".harness/tools/graphify/Scripts/graphify.exe" : rel + ".cmd") : rel;

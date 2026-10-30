@@ -67,6 +67,14 @@ def acceptance(task):
     for row in mapping:
         if not row['checks'] or len(row['checks']) != len(set(row['checks'])) or not set(row['checks']) <= set(task['required_checks']):
             raise HarnessError('Acceptance checks must name distinct required task checks')
+        rules = row.get('required_cases', [])
+        if rules:
+            if len({r['check'] for r in rules}) != len(rules): raise HarnessError('Duplicate required-case check')
+            for rule in rules:
+                if rule['check'] not in row['checks'] or not rule['cases'] or len(set(rule['cases'])) != len(rule['cases']):
+                    raise HarnessError('Required cases must be unique and name a mapped check')
+                if rule.get('fault_probe') and not rule.get('review'):
+                    raise HarnessError('Fault probe requires a semantic assertion mapping')
     return mapping
 
 def review(h, task, content, require_pass=True):
@@ -84,6 +92,23 @@ def review(h, task, content, require_pass=True):
     from .readiness import substantive
     if not all(substantive(record[k]) for k in ['reviewer','summary']):
         raise HarnessError('Review needs substantive reviewer and summary')
+    rows = record.get('criterion_evidence')
+    if task.get('review_contract_version') == 2 and rows is None:
+        raise HarnessError('Review needs criterion evidence for the opted-in task')
+    if rows is not None:
+        mapping = {item['criterion']: set(item['checks']) for item in acceptance(task)}
+        if len(rows) != len(mapping) or {row['criterion'] for row in rows} != set(mapping):
+            raise HarnessError('Review must cover every exact acceptance criterion once')
+        passed = {item['check'] for item in h.evidence(task['evidence'][-1])['results']
+                  if item['result'] == 'PASS' and item['exit_code'] == 0}
+        for row in rows:
+            if row['check'] not in mapping[row['criterion']] or row['check'] not in passed:
+                raise HarnessError('Criterion evidence must cite its mapped latest PASS check')
+            fields = [row[key].strip() for key in ('observed','assessment','limitation')]
+            if any(len(value) < 30 or len(value) > 1000 or not substantive(value) for value in fields):
+                raise HarnessError('Criterion evidence needs substantive observation, assessment and limitation')
+            if len(set(fields + [row['criterion'].strip()])) != 4:
+                raise HarnessError('Criterion observation, assessment and limitation must be distinct from each other and the criterion')
     for finding in record['findings']:
         fields = ['location','behavior','requirement','reproduction'] + (['resolution'] if finding['status'] == 'RESOLVED' else [])
         if not all(substantive(finding[k]) for k in fields):

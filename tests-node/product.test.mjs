@@ -24,8 +24,15 @@ import {
 } from "../dist/filesystem.js";
 import { prepare, install } from "../dist/install.js";
 import { doctor } from "../dist/doctor.js";
-import { stageOpenSpec, probeOpenSpec } from "../dist/integrations.js";
+import { stageOpenSpec, probeOpenSpec, codexBlock, copilotBlock } from "../dist/integrations.js";
 const cli = path.resolve("dist/cli.js");
+test("installed agent rules require a linked decision before final DONE", () => {
+  for (const block of [codexBlock, copilotBlock]) {
+    assert.match(block, /approval-package TASK-ID --format markdown/);
+    assert.match(block, /linked spec, plan, changed files, current evidence and review/);
+    assert.match(block, /if the command blocks, do not ask for DONE/);
+  }
+});
 function fixture(t) {
   const base = fs.realpathSync(
     fs.mkdtempSync(path.join(os.tmpdir(), "harness-test-")),
@@ -461,4 +468,14 @@ test("a partial low-level write never publishes a torn created file", async (t) 
   assert.equal(read(root, "new"), null);
   recover(root);
   assert.equal(read(root, ".harness/installation-pending.json"), null);
+});
+
+test('new project with staged tool directory still defaults to source navigation', t => {
+  const base=fixture(t); fakeTools(t,base);
+  const root=path.join(base,'new-project');
+  fs.mkdirSync(path.join(root,'.harness/tools/cache'),{recursive:true});
+  const changes=prepare(root,{},true);
+  const policy=changes.find(c=>c.path==='.harness/navigation.json');
+  assert.ok(policy);
+  assert.equal(JSON.parse(policy.content).mode,'source');
 });

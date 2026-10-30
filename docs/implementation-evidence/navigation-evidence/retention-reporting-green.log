@@ -1,0 +1,15 @@
+test_approval_package_blocks_missing_review_stale_evidence_and_wrong_phase (test_reporting.ReportingTests.test_approval_package_blocks_missing_review_stale_evidence_and_wrong_phase) ... ok
+test_approval_package_links_exact_current_result_without_writes (test_reporting.ReportingTests.test_approval_package_links_exact_current_result_without_writes) ... ok
+test_bounded_assessment_invalidates_cache_without_full_inventory (test_reporting.ReportingTests.test_bounded_assessment_invalidates_cache_without_full_inventory) ... ok
+test_done_regression_uses_latest_evidence_without_undoing_completion (test_reporting.ReportingTests.test_done_regression_uses_latest_evidence_without_undoing_completion) ... ok
+test_exact_authorized_maintenance_paths_only (test_reporting.ReportingTests.test_exact_authorized_maintenance_paths_only) ... ok
+test_final_approval_remains_missing_and_review_can_be_invalid (test_reporting.ReportingTests.test_final_approval_remains_missing_and_review_can_be_invalid) ... ok
+test_interrupted_operation_refreshes_recovery_action (test_reporting.ReportingTests.test_interrupted_operation_refreshes_recovery_action) ... ok
+test_refresh_failure_does_not_reverse_committed_transition (test_reporting.ReportingTests.test_refresh_failure_does_not_reverse_committed_transition) ... ok
+test_stale_verified_report_agrees_with_core (test_reporting.ReportingTests.test_stale_verified_report_agrees_with_core) ... ok
+test_verified_done_refresh_preserves_historical_snapshot (test_reporting.ReportingTests.test_verified_done_refresh_preserves_historical_snapshot) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 4.387s
+
+OK

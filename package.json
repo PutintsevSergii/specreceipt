@@ -1,6 +1,6 @@
 {
   "name": "specreceipt",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Repository-local engineering workflow and evidence toolkit for coding agents",
   "license": "Unlicense",
   "publishConfig": {

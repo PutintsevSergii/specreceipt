@@ -47,6 +47,65 @@
           "purpose": {
             "type": "string",
             "minLength": 1
+          },
+          "report_format": {
+            "type": "string",
+            "enum": [
+              "junit-v1"
+            ]
+          },
+          "input_contract": {
+            "type": "object",
+            "properties": {
+              "schema_version": {
+                "type": "integer",
+                "enum": [
+                  1
+                ]
+              },
+              "inputs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1
+              },
+              "independent": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1
+              },
+              "rationale": {
+                "type": "string",
+                "minLength": 1
+              },
+              "approval_reference": {
+                "type": "string",
+                "minLength": 1
+              },
+              "approval_hash": {
+                "type": "string",
+                "minLength": 1
+              },
+              "reviewed_revision": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "schema_version",
+              "inputs",
+              "independent",
+              "rationale",
+              "approval_reference",
+              "approval_hash",
+              "reviewed_revision"
+            ],
+            "additionalProperties": false
           }
         },
         "required": [

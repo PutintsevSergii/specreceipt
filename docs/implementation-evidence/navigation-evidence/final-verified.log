@@ -1,0 +1,1052 @@
+{
+  "profile": "full",
+  "coverage": "FULL",
+  "full": true,
+  "changed_paths": [],
+  "checks": {
+    "py:test_acceptance_support": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_adopt_bootstrap": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_assessment": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_case_receipts": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_codegraph_tool": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_graphify_tool": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_hardening": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_harness": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_installation": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_investigation": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_native_windows": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_navigation_policy": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_onboarding": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_openspec": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_performance": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_protocol": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_reconciliation": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_reporting": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_scoped_inputs": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_test_selection": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_tool_updates": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_windows_setup": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_workflow": [
+      "Explicit complete regression profile"
+    ],
+    "py:test_worktree_isolation": [
+      "Explicit complete regression profile"
+    ],
+    "node:tests-node/codex-runner.test.mjs": [
+      "Explicit complete regression profile"
+    ],
+    "node:tests-node/copilot-fixture.test.mjs": [
+      "Explicit complete regression profile"
+    ],
+    "node:tests-node/copilot.test.mjs": [
+      "Explicit complete regression profile"
+    ],
+    "node:tests-node/engine-upgrade.test.mjs": [
+      "Explicit complete regression profile"
+    ],
+    "node:tests-node/preflight.test.mjs": [
+      "Explicit complete regression profile"
+    ],
+    "node:tests-node/product.test.mjs": [
+      "Explicit complete regression profile"
+    ],
+    "node:tests-node/windows.test.mjs": [
+      "Explicit complete regression profile"
+    ],
+    "node:tests-node/workflow.test.mjs": [
+      "Explicit complete regression profile"
+    ],
+    "typecheck": [
+      "Explicit complete regression profile"
+    ],
+    "package": [
+      "Explicit complete regression profile"
+    ],
+    "wizard": [
+      "Explicit complete regression profile"
+    ],
+    "validate": [
+      "Explicit complete regression profile"
+    ]
+  },
+  "commands": [
+    {
+      "id": "python",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-B",
+        "-X",
+        "utf8",
+        "/Users/perfrico/projects/anigravity-projects/harness/harness",
+        "self-test"
+      ]
+    },
+    {
+      "id": "validate",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-B",
+        "-X",
+        "utf8",
+        "/Users/perfrico/projects/anigravity-projects/harness/harness",
+        "validate"
+      ]
+    },
+    {
+      "id": "version-sync",
+      "argv": [
+        "node",
+        "scripts/release.mjs",
+        "sync"
+      ]
+    },
+    {
+      "id": "typecheck",
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ]
+    },
+    {
+      "id": "build-types",
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc"
+      ]
+    },
+    {
+      "id": "build-assets",
+      "argv": [
+        "node",
+        "scripts/build-assets.mjs"
+      ]
+    },
+    {
+      "id": "node",
+      "argv": [
+        "node",
+        "--test",
+        "tests-node/codex-runner.test.mjs",
+        "tests-node/copilot-fixture.test.mjs",
+        "tests-node/copilot.test.mjs",
+        "tests-node/engine-upgrade.test.mjs",
+        "tests-node/preflight.test.mjs",
+        "tests-node/product.test.mjs",
+        "tests-node/windows.test.mjs",
+        "tests-node/workflow.test.mjs"
+      ]
+    },
+    {
+      "id": "package",
+      "argv": [
+        "node",
+        "scripts/test-package.mjs"
+      ]
+    },
+    {
+      "id": "wizard",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-B",
+        "scripts/test-wizard.py"
+      ]
+    }
+  ],
+  "language": "all",
+  "not_applicable": [],
+  "limitations": [
+    "Conservative maintained impact map, not complete dynamic coverage.",
+    "Scoped PASS is not final acceptance. Read runner summaries for skips and actual test counts.",
+    "Windows Node and wizard selection preserves the existing platform applicability."
+  ]
+}
+RUN python: ["/opt/homebrew/opt/python@3.14/bin/python3.14", "-B", "-X", "utf8", "/Users/perfrico/projects/anigravity-projects/harness/harness", "self-test"]
+test_exit_zero_is_check_only_in_receipt_and_reports (test_acceptance_support.AcceptanceSupportTests.test_exit_zero_is_check_only_in_receipt_and_reports) ... ok
+test_legacy_receipt_read_does_not_rewrite_or_strengthen (test_acceptance_support.AcceptanceSupportTests.test_legacy_receipt_read_does_not_rewrite_or_strengthen) ... ok
+test_unsupported_support_schema_or_claim_is_rejected (test_acceptance_support.AcceptanceSupportTests.test_unsupported_support_schema_or_claim_is_rejected) ... ok
+test_conflict_prevents_partial_install (test_adopt_bootstrap.AdoptBootstrapTests.test_conflict_prevents_partial_install) ... ok
+test_corporate_instructions_preserved_and_routed (test_adopt_bootstrap.AdoptBootstrapTests.test_corporate_instructions_preserved_and_routed) ... ok
+test_each_ignore_layer_covers_bridges (test_adopt_bootstrap.AdoptBootstrapTests.test_each_ignore_layer_covers_bridges) ... ok
+test_preview_no_writes_then_initialized_idempotently (test_adopt_bootstrap.AdoptBootstrapTests.test_preview_no_writes_then_initialized_idempotently) ... ok
+test_real_adopt_cli_initializes_without_manual_prompt (test_adopt_bootstrap.AdoptBootstrapTests.test_real_adopt_cli_initializes_without_manual_prompt) ... ok
+test_agent_failure_keeps_assessment_pending (test_assessment.AssessmentTests.test_agent_failure_keeps_assessment_pending) ... ok
+test_agent_source_mutation_is_detected (test_assessment.AssessmentTests.test_agent_source_mutation_is_detected) ... ok
+test_colliding_corporate_role_is_preserved (test_assessment.AssessmentTests.test_colliding_corporate_role_is_preserved) ... ok
+test_explicit_agent_subprocess_and_cli_integration (test_assessment.AssessmentTests.test_explicit_agent_subprocess_and_cli_integration) ... ok
+test_import_activates_supplement_and_change_invalidates (test_assessment.AssessmentTests.test_import_activates_supplement_and_change_invalidates) ... ok
+test_installation_runs_explicit_assessor_before_index_failure (test_assessment.AssessmentTests.test_installation_runs_explicit_assessor_before_index_failure) ... ok
+test_inventory_preserves_instructions_and_does_not_execute (test_assessment.AssessmentTests.test_inventory_preserves_instructions_and_does_not_execute) ... ok
+test_repeat_adoption_keeps_current_assessment (test_assessment.AssessmentTests.test_repeat_adoption_keeps_current_assessment) ... ok
+test_symlink_skills_are_not_discovered (test_assessment.AssessmentTests.test_symlink_skills_are_not_discovered) ... ok
+test_unobserved_skill_and_stale_response_are_rejected (test_assessment.AssessmentTests.test_unobserved_skill_and_stale_response_are_rejected) ... ok
+test_dependency_case_contract_is_rechecked_in_downstream_verification (test_case_receipts.CaseConsumerTests.test_dependency_case_contract_is_rechecked_in_downstream_verification) ... ok
+test_exit_zero_without_required_case_is_insufficient (test_case_receipts.CaseConsumerTests.test_exit_zero_without_required_case_is_insufficient) ... ok
+test_real_runner_current_case_missing_case_and_tampering (test_case_receipts.CaseConsumerTests.test_real_runner_current_case_missing_case_and_tampering) ... ok
+test_semantic_attestation_and_behavioral_fault_are_distinct (test_case_receipts.CaseConsumerTests.test_semantic_attestation_and_behavioral_fault_are_distinct) ... ok
+test_skipped_and_xfail_never_support_required_case (test_case_receipts.CaseConsumerTests.test_skipped_and_xfail_never_support_required_case) ... ok
+test_observed_case_and_skip_are_distinct (test_case_receipts.CaseReceiptTests.test_observed_case_and_skip_are_distinct) ... ok
+test_stale_duplicate_malformed_and_oversized_reports_reject (test_case_receipts.CaseReceiptTests.test_stale_duplicate_malformed_and_oversized_reports_reject) ... ok
+test_init_sync_and_query_use_bounded_cli (test_codegraph_tool.CodeGraphToolTests.test_init_sync_and_query_use_bounded_cli) ... ok
+test_task_context_is_saved_before_implementation_with_redaction (test_codegraph_tool.CodeGraphToolTests.test_task_context_is_saved_before_implementation_with_redaction) ... ok
+test_empty_project_then_source_added (test_graphify_tool.GraphifyToolTests.test_empty_project_then_source_added) ... ok
+test_index_refresh_and_bounded_query (test_graphify_tool.GraphifyToolTests.test_index_refresh_and_bounded_query) ... ok
+test_acceptance_missing_unknown_and_duplicate_checks_block_start (test_hardening.HardeningTests.test_acceptance_missing_unknown_and_duplicate_checks_block_start) ... ok
+test_changed_dependency_definition_invalidates_completion (test_hardening.HardeningTests.test_changed_dependency_definition_invalidates_completion) ... ok
+test_completed_review_edit_is_not_accepted_historically (test_hardening.HardeningTests.test_completed_review_edit_is_not_accepted_historically) ... ok
+test_configured_runner_completes_real_lifecycle (test_hardening.HardeningTests.test_configured_runner_completes_real_lifecycle) ... ok
+test_control_config_symlink_is_rejected (test_hardening.HardeningTests.test_control_config_symlink_is_rejected) ... ok
+test_dependency_chain_survives_downstream_edits_and_rechecks_prerequisite (test_hardening.HardeningTests.test_dependency_chain_survives_downstream_edits_and_rechecks_prerequisite) ... ok
+test_done_invalidated_by_changed_task_definition_and_review (test_hardening.HardeningTests.test_done_invalidated_by_changed_task_definition_and_review) ... ok
+test_downstream_cannot_hide_broken_prerequisite_check (test_hardening.HardeningTests.test_downstream_cannot_hide_broken_prerequisite_check) ... ok
+test_env_and_executable_bit_invalidate_evidence_without_exposing_values (test_hardening.HardeningTests.test_env_and_executable_bit_invalidate_evidence_without_exposing_values) ... ok
+test_environment_config_is_subject_to_scope (test_hardening.HardeningTests.test_environment_config_is_subject_to_scope) ... ok
+test_exact_product_maintenance_paths_start_without_broadening_scope (test_hardening.HardeningTests.test_exact_product_maintenance_paths_start_without_broadening_scope) ... ok
+test_excluded_directory_cannot_be_claimed_as_verified_scope (test_hardening.HardeningTests.test_excluded_directory_cannot_be_claimed_as_verified_scope) ... ok
+test_legacy_missing_scope_snapshot_requires_reviewed_replacement (test_hardening.HardeningTests.test_legacy_missing_scope_snapshot_requires_reviewed_replacement) ... ok
+test_missing_legacy_coverage_invalidates_completion_without_crash (test_hardening.HardeningTests.test_missing_legacy_coverage_invalidates_completion_without_crash) ... ok
+test_new_attempt_after_done_does_not_absorb_unfinished_retry (test_hardening.HardeningTests.test_new_attempt_after_done_does_not_absorb_unfinished_retry) ... ok
+test_next_and_unconfigured_run_stop_at_real_work (test_hardening.HardeningTests.test_next_and_unconfigured_run_stop_at_real_work) ... ok
+test_opted_in_review_requires_exact_observations_and_current_pass_check (test_hardening.HardeningTests.test_opted_in_review_requires_exact_observations_and_current_pass_check) ... ok
+test_outside_scope_add_delete_and_modify_are_blocked (test_hardening.HardeningTests.test_outside_scope_add_delete_and_modify_are_blocked) ... ok
+test_preexisting_edits_are_baselined_not_reverted (test_hardening.HardeningTests.test_preexisting_edits_are_baselined_not_reverted) ... ok
+test_product_maintenance_scope_rejects_symlink_file_and_directory (test_hardening.HardeningTests.test_product_maintenance_scope_rejects_symlink_file_and_directory) ... ok
+test_product_maintenance_scope_rejects_unrelated_paths_and_aliases (test_hardening.HardeningTests.test_product_maintenance_scope_rejects_unrelated_paths_and_aliases) ... ok
+test_regression_failure_does_not_rewrite_historical_completion (test_hardening.HardeningTests.test_regression_failure_does_not_rewrite_historical_completion) ... ok
+test_replan_preserves_source_boundary_and_accepts_reviewed_scope (test_hardening.HardeningTests.test_replan_preserves_source_boundary_and_accepts_reviewed_scope) ... ok
+test_restart_does_not_launder_outside_scope_changes (test_hardening.HardeningTests.test_restart_does_not_launder_outside_scope_changes) ... ok
+test_review_must_reference_latest_task_evidence (test_hardening.HardeningTests.test_review_must_reference_latest_task_evidence) ... ok
+test_review_rejects_legacy_empty_and_open_findings (test_hardening.HardeningTests.test_review_rejects_legacy_empty_and_open_findings) ... ok
+test_runner_budgets_persist_across_invocations (test_hardening.HardeningTests.test_runner_budgets_persist_across_invocations) ... ok
+test_runner_check_failure_never_completes (test_hardening.HardeningTests.test_runner_check_failure_never_completes) ... ok
+test_runner_configuration_change_revokes_authorization (test_hardening.HardeningTests.test_runner_configuration_change_revokes_authorization) ... ok
+test_runner_detects_adapter_lifecycle_state_tampering (test_hardening.HardeningTests.test_runner_detects_adapter_lifecycle_state_tampering) ... ok
+test_runner_does_not_invent_developer_approval (test_hardening.HardeningTests.test_runner_does_not_invent_developer_approval) ... ok
+test_runner_enforces_task_allowlist (test_hardening.HardeningTests.test_runner_enforces_task_allowlist) ... ok
+test_runner_failure_budget_survives_restart (test_hardening.HardeningTests.test_runner_failure_budget_survives_restart) ... ok
+test_runner_refuses_check_bundle_exceeding_time_budget (test_hardening.HardeningTests.test_runner_refuses_check_bundle_exceeding_time_budget) ... ok
+test_runner_repairs_failed_check_within_bounded_run (test_hardening.HardeningTests.test_runner_repairs_failed_check_within_bounded_run) ... ok
+test_runner_repairs_review_feedback_without_fabricating_approval (test_hardening.HardeningTests.test_runner_repairs_review_feedback_without_fabricating_approval) ... ok
+test_runner_reviewer_cannot_change_implementation (test_hardening.HardeningTests.test_runner_reviewer_cannot_change_implementation) ... ok
+test_runner_stale_authorization_and_unlisted_task_block (test_hardening.HardeningTests.test_runner_stale_authorization_and_unlisted_task_block) ... ok
+test_runner_timeout_records_uncertainty_and_never_replays (test_hardening.HardeningTests.test_runner_timeout_records_uncertainty_and_never_replays) ... ok
+test_success_status_cannot_hide_failing_results_or_missing_coverage (test_hardening.HardeningTests.test_success_status_cannot_hide_failing_results_or_missing_coverage) ... ok
+test_symlinks_fail_closed_and_os_metadata_is_ignored (test_hardening.HardeningTests.test_symlinks_fail_closed_and_os_metadata_is_ignored) ... ok
+test_scoped_decision_blocks_dependents (test_hardening.ScopedDecisionTests.test_scoped_decision_blocks_dependents) ... ok
+test_scoped_decision_does_not_block_independent_task (test_hardening.ScopedDecisionTests.test_scoped_decision_does_not_block_independent_task) ... ok
+test_unknown_selector_fails_closed (test_hardening.ScopedDecisionTests.test_unknown_selector_fails_closed) ... ok
+test_adoption_before_git_init_stays_invisible (test_harness.HarnessTests.test_adoption_before_git_init_stays_invisible) ... ok
+test_adoption_blocks_tracked_harness_files_without_untracking (test_harness.HarnessTests.test_adoption_blocks_tracked_harness_files_without_untracking) ... ok
+test_adoption_is_invisible_to_git_and_preserves_user_files (test_harness.HarnessTests.test_adoption_is_invisible_to_git_and_preserves_user_files) ... ok
+test_adoption_merges_ignores_without_replacing_project_rules (test_harness.HarnessTests.test_adoption_merges_ignores_without_replacing_project_rules) ... ok
+test_application_blocked_by_draft (test_harness.HarnessTests.test_application_blocked_by_draft) ... ok
+test_changed_review_invalidates_approval (test_harness.HarnessTests.test_changed_review_invalidates_approval) ... ok
+test_command_approval_respected_for_builtins (test_harness.HarnessTests.test_command_approval_respected_for_builtins) ... ok
+test_done_requires_separate_review (test_harness.HarnessTests.test_done_requires_separate_review) ... ok
+test_each_ignore_layer_protects_kit_independently (test_harness.HarnessTests.test_each_ignore_layer_protects_kit_independently) ... ok
+test_empty_self_test_fails (test_harness.HarnessTests.test_empty_self_test_fails) ... ok
+test_empty_skill_rejected (test_harness.HarnessTests.test_empty_skill_rejected) ... ok
+test_environment_and_configuration_stale_evidence (test_harness.HarnessTests.test_environment_and_configuration_stale_evidence) ... ok
+test_fresh_session_recovers_task (test_harness.HarnessTests.test_fresh_session_recovers_task) ... ok
+test_graph_failure_allows_source_search_and_checks (test_harness.HarnessTests.test_graph_failure_allows_source_search_and_checks) ... ok
+test_graph_incremental_changes_deletions_and_rename (test_harness.HarnessTests.test_graph_incremental_changes_deletions_and_rename) ... ok
+test_interrupted_operation_reconciles_without_replay (test_harness.HarnessTests.test_interrupted_operation_reconciles_without_replay) ... ok
+test_invalid_state_rejected (test_harness.HarnessTests.test_invalid_state_rejected) ... ok
+test_logs_redact_test_secrets (test_harness.HarnessTests.test_logs_redact_test_secrets) ... ok
+test_meaningful_change_checkpoints (test_harness.HarnessTests.test_meaningful_change_checkpoints) ... ok
+test_missing_evidence_prevents_verified (test_harness.HarnessTests.test_missing_evidence_prevents_verified) ... ok
+test_missing_skill_inventory_blocked (test_harness.HarnessTests.test_missing_skill_inventory_blocked) ... ok
+test_nested_worktree_adoption_uses_git_resolved_exclude (test_harness.HarnessTests.test_nested_worktree_adoption_uses_git_resolved_exclude) ... ok
+test_no_change_checkpoint_preserves_bytes_and_mtime (test_harness.HarnessTests.test_no_change_checkpoint_preserves_bytes_and_mtime) ... ok
+test_not_run_never_passes (test_harness.HarnessTests.test_not_run_never_passes) ... ok
+test_partial_graph_and_parse_failure_visible (test_harness.HarnessTests.test_partial_graph_and_parse_failure_visible) ... ok
+test_project_negation_cannot_silently_expose_skills (test_harness.HarnessTests.test_project_negation_cannot_silently_expose_skills) ... ok
+test_required_failure_exits_nonzero (test_harness.HarnessTests.test_required_failure_exits_nonzero) ... ok
+test_required_unapproved_check_fails_verification (test_harness.HarnessTests.test_required_unapproved_check_fails_verification) ... ok
+test_setup_idempotent_and_conflict_preserved (test_harness.HarnessTests.test_setup_idempotent_and_conflict_preserved) ... ok
+test_skill_access_before_init_is_read_only (test_harness.HarnessTests.test_skill_access_before_init_is_read_only) ... ok
+test_skill_links_resolve (test_harness.HarnessTests.test_skill_links_resolve) ... ok
+test_source_changes_stale_verification (test_harness.HarnessTests.test_source_changes_stale_verification) ... ok
+test_symlink_skill_rejected (test_harness.HarnessTests.test_symlink_skill_rejected) ... ok
+test_timeout_and_missing_command_blocked (test_harness.HarnessTests.test_timeout_and_missing_command_blocked) ... ok
+test_torn_append_recovered (test_harness.HarnessTests.test_torn_append_recovered) ... ok
+test_transaction_replay_deduplicates_event (test_harness.HarnessTests.test_transaction_replay_deduplicates_event) ... ok
+test_unknown_or_traversing_skill_rejected (test_harness.HarnessTests.test_unknown_or_traversing_skill_rejected) ... ok
+test_unsupported_transition_rejected (test_harness.HarnessTests.test_unsupported_transition_rejected) ... ok
+test_agent_detection_ignores_own_generated_bridges (test_installation.InstallationTests.test_agent_detection_ignores_own_generated_bridges) ... ok
+test_compatible_node_never_downloads (test_installation.InstallationTests.test_compatible_node_never_downloads) ... ok
+test_complete_installs_tools_openspec_and_indexes (test_installation.InstallationTests.test_complete_installs_tools_openspec_and_indexes) ... ok
+test_failure_stops_and_records_exact_stage (test_installation.InstallationTests.test_failure_stops_and_records_exact_stage) ... ok
+test_no_download_for_readonly_without_python (test_installation.InstallationTests.test_no_download_for_readonly_without_python) ... ok
+test_node_checksum_and_archive_paths (test_installation.InstallationTests.test_node_checksum_and_archive_paths) ... ok
+test_shell_bootstraps_when_python_and_uv_are_missing (test_installation.InstallationTests.test_shell_bootstraps_when_python_and_uv_are_missing) ... ok
+test_configured_only_and_secret_candidate_preserve_previous_report (test_investigation.InvestigationTests.test_configured_only_and_secret_candidate_preserve_previous_report) ... ok
+test_denied_and_conflict_block_required_claim (test_investigation.InvestigationTests.test_denied_and_conflict_block_required_claim) ... ok
+test_irrelevant_tool_is_not_mcp_confirmation (test_investigation.InvestigationTests.test_irrelevant_tool_is_not_mcp_confirmation) ... ok
+test_optional_no_mcp_is_explicit_and_code_changes_stale_report (test_investigation.InvestigationTests.test_optional_no_mcp_is_explicit_and_code_changes_stale_report) ... ok
+test_optional_success_also_needs_current_revision (test_investigation.InvestigationTests.test_optional_success_also_needs_current_revision) ... ok
+test_policy_or_question_change_stales_report (test_investigation.InvestigationTests.test_policy_or_question_change_stales_report) ... ok
+test_required_source_gap_reaches_readiness (test_investigation.InvestigationTests.test_required_source_gap_reaches_readiness) ... ok
+test_required_source_must_be_current_and_agree (test_investigation.InvestigationTests.test_required_source_must_be_current_and_agree) ... ok
+test_stale_host_observation_cannot_confirm_required_source (test_investigation.InvestigationTests.test_stale_host_observation_cannot_confirm_required_source) ... ok
+test_atomic_replace_failure_preserves_previous_json (test_native_windows.NativePlatformTests.test_atomic_replace_failure_preserves_previous_json) ... ok
+test_bounded_tool_run_cleans_up_descendants_on_timeout (test_native_windows.NativePlatformTests.test_bounded_tool_run_cleans_up_descendants_on_timeout) ... ok
+test_explicit_empty_child_environment_does_not_inherit_parent_values (test_native_windows.NativePlatformTests.test_explicit_empty_child_environment_does_not_inherit_parent_values) ... ok
+test_junction_does_not_expose_external_navigation_or_verification_inputs (test_native_windows.NativePlatformTests.test_junction_does_not_expose_external_navigation_or_verification_inputs) ... skipped 'Windows junction boundary'
+test_npm_entry_preserves_arguments_without_cmd (test_native_windows.NativePlatformTests.test_npm_entry_preserves_arguments_without_cmd) ... skipped 'Windows package command boundary'
+test_powershell_launcher_propagates_exit_code (test_native_windows.NativePlatformTests.test_powershell_launcher_propagates_exit_code) ... skipped 'Windows native launcher'
+test_readonly_launcher_does_not_download_missing_python (test_native_windows.NativePlatformTests.test_readonly_launcher_does_not_download_missing_python) ... skipped 'Windows missing-runtime boundary'
+test_timeout_cleanup_stops_descendant (test_native_windows.NativePlatformTests.test_timeout_cleanup_stops_descendant) ... ok
+test_windows_aliases_cannot_bypass_repository_path_boundary (test_native_windows.NativePlatformTests.test_windows_aliases_cannot_bypass_repository_path_boundary) ... skipped 'Windows path aliases'
+test_windows_node_zip_checksum_and_paths (test_native_windows.NativePlatformTests.test_windows_node_zip_checksum_and_paths) ... ok
+test_writer_exclusion_across_processes_and_release (test_native_windows.NativePlatformTests.test_writer_exclusion_across_processes_and_release) ... ok
+test_existing_adoption_never_adds_source_policy (test_navigation_policy.NavigationPolicyTests.test_existing_adoption_never_adds_source_policy) ... ok
+test_invalid_policy_blocks (test_navigation_policy.NavigationPolicyTests.test_invalid_policy_blocks) ... ok
+test_legacy_requires_both (test_navigation_policy.NavigationPolicyTests.test_legacy_requires_both) ... ok
+test_measure_source_lifecycle_without_graph_setup (test_navigation_policy.NavigationPolicyTests.test_measure_source_lifecycle_without_graph_setup) ... ok
+test_real_adoption_and_application_lifecycle_without_graph_tools (test_navigation_policy.NavigationPolicyTests.test_real_adoption_and_application_lifecycle_without_graph_tools) ... ok
+test_required_missing_blocks (test_navigation_policy.NavigationPolicyTests.test_required_missing_blocks) ... ok
+test_required_provider_is_individual (test_navigation_policy.NavigationPolicyTests.test_required_provider_is_individual) ... ok
+test_source_never_invokes_providers (test_navigation_policy.NavigationPolicyTests.test_source_never_invokes_providers) ... ok
+test_tool_bootstrap_directory_is_not_a_legacy_engine (test_navigation_policy.NavigationPolicyTests.test_tool_bootstrap_directory_is_not_a_legacy_engine) ... ok
+test_adoption_does_not_inherit_intake_answers_or_approval (test_onboarding.OnboardingTests.test_adoption_does_not_inherit_intake_answers_or_approval) ... ok
+test_application_checks_cannot_be_only_harness_checks (test_onboarding.OnboardingTests.test_application_checks_cannot_be_only_harness_checks) ... ok
+test_approval_record_is_journaled (test_onboarding.OnboardingTests.test_approval_record_is_journaled) ... ok
+test_approval_survives_new_session (test_onboarding.OnboardingTests.test_approval_survives_new_session) ... ok
+test_approved_baseline_cannot_be_omitted_from_task (test_onboarding.OnboardingTests.test_approved_baseline_cannot_be_omitted_from_task) ... ok
+test_blank_sections_block_even_with_approved_header (test_onboarding.OnboardingTests.test_blank_sections_block_even_with_approved_header) ... ok
+test_blocking_decision_including_deferred_blocks_approval (test_onboarding.OnboardingTests.test_blocking_decision_including_deferred_blocks_approval) ... ok
+test_code_edits_do_not_revoke_documentation_approval (test_onboarding.OnboardingTests.test_code_edits_do_not_revoke_documentation_approval) ... ok
+test_document_edit_revokes_readiness_without_revision_bump (test_onboarding.OnboardingTests.test_document_edit_revokes_readiness_without_revision_bump) ... ok
+test_each_documentation_topic_must_be_resolved (test_onboarding.OnboardingTests.test_each_documentation_topic_must_be_resolved) ... ok
+test_fresh_kit_blocks_application_with_actionable_gaps (test_onboarding.OnboardingTests.test_fresh_kit_blocks_application_with_actionable_gaps) ... ok
+test_headers_and_no_placeholders_are_not_enough (test_onboarding.OnboardingTests.test_headers_and_no_placeholders_are_not_enough) ... ok
+test_malformed_intake_fails_closed (test_onboarding.OnboardingTests.test_malformed_intake_fails_closed) ... ok
+test_missing_decision_table_is_not_silently_accepted (test_onboarding.OnboardingTests.test_missing_decision_table_is_not_silently_accepted) ... ok
+test_missing_onboarding_record_blocks_legacy_project (test_onboarding.OnboardingTests.test_missing_onboarding_record_blocks_legacy_project) ... ok
+test_missing_repository_source_blocks (test_onboarding.OnboardingTests.test_missing_repository_source_blocks) ... ok
+test_new_project_can_use_human_answers_without_existing_application (test_onboarding.OnboardingTests.test_new_project_can_use_human_answers_without_existing_application) ... ok
+test_project_approval_does_not_approve_draft_feature (test_onboarding.OnboardingTests.test_project_approval_does_not_approve_draft_feature) ... ok
+test_readiness_cli_is_read_only_and_exits_nonzero_when_blocked (test_onboarding.OnboardingTests.test_readiness_cli_is_read_only_and_exits_nonzero_when_blocked) ... ok
+test_ready_application_lifecycle_uses_real_check (test_onboarding.OnboardingTests.test_ready_application_lifecycle_uses_real_check) ... ok
+test_reference_edit_revokes_approval (test_onboarding.OnboardingTests.test_reference_edit_revokes_approval) ... ok
+test_source_removal_after_approval_does_not_revoke_documentation (test_onboarding.OnboardingTests.test_source_removal_after_approval_does_not_revoke_documentation) ... ok
+test_sources_must_include_human_and_resolve_topic_references (test_onboarding.OnboardingTests.test_sources_must_include_human_and_resolve_topic_references) ... ok
+test_task_placeholders_block_start (test_onboarding.OnboardingTests.test_task_placeholders_block_start) ... ok
+test_task_report_handles_invalid_intake_and_check_shapes (test_onboarding.OnboardingTests.test_task_report_handles_invalid_intake_and_check_shapes) ... ok
+test_unapproved_baseline_command_blocks_approval (test_onboarding.OnboardingTests.test_unapproved_baseline_command_blocks_approval) ... ok
+test_unconfigured_environment_blocks_approval (test_onboarding.OnboardingTests.test_unconfigured_environment_blocks_approval) ... ok
+test_verify_rechecks_documentation_gate (test_onboarding.OnboardingTests.test_verify_rechecks_documentation_gate) ... ok
+test_checkboxes_are_progress_not_acceptance_evidence (test_openspec.OpenSpecTests.test_checkboxes_are_progress_not_acceptance_evidence) ... ok
+test_existing_config_is_preserved (test_openspec.OpenSpecTests.test_existing_config_is_preserved) ... ok
+test_generated_files_are_ignored_in_both_layers (test_openspec.OpenSpecTests.test_generated_files_are_ignored_in_both_layers) ... ok
+test_import_keeps_single_source_and_draft_gates (test_openspec.OpenSpecTests.test_import_keeps_single_source_and_draft_gates) ... ok
+test_real_execution_and_review_completion (test_openspec.OpenSpecTests.test_real_execution_and_review_completion) ... ok
+test_source_change_blocks_until_refresh_and_new_approval (test_openspec.OpenSpecTests.test_source_change_blocks_until_refresh_and_new_approval) ... ok
+test_validation_check_cannot_be_removed_or_replaced (test_openspec.OpenSpecTests.test_validation_check_cannot_be_removed_or_replaced) ... ok
+test_validation_failure_and_unsafe_paths (test_openspec.OpenSpecTests.test_validation_failure_and_unsafe_paths) ... ok
+test_active_test_is_published_even_inside_throttle_interval (test_performance.ProgressTests.test_active_test_is_published_even_inside_throttle_interval) ... ok
+test_interrupted_progress_cannot_claim_pass (test_performance.ProgressTests.test_interrupted_progress_cannot_claim_pass) ... ok
+test_progress_is_bounded_redacted_and_preserves_failure_result (test_performance.ProgressTests.test_progress_is_bounded_redacted_and_preserves_failure_result) ... ok
+test_running_progress_is_observation_not_passing_evidence (test_performance.ProgressTests.test_running_progress_is_observation_not_passing_evidence) ... ok
+test_check_source_mutation_still_fails_stable_inputs (test_performance.ReportingPerformanceTests.test_check_source_mutation_still_fails_stable_inputs) ... ok
+test_multi_task_report_and_status_each_inventory_once (test_performance.ReportingPerformanceTests.test_multi_task_report_and_status_each_inventory_once) ... ok
+test_outer_operation_batches_nested_library_calls_but_state_is_durable (test_performance.ReportingPerformanceTests.test_outer_operation_batches_nested_library_calls_but_state_is_durable) ... ok
+test_process_exit_after_commit_leaves_stale_derived_report (test_performance.ReportingPerformanceTests.test_process_exit_after_commit_leaves_stale_derived_report) ... ok
+test_same_timestamp_edit_invalidates_next_report_and_real_gate (test_performance.ReportingPerformanceTests.test_same_timestamp_edit_invalidates_next_report_and_real_gate) ... ok
+test_transition_refreshes_once_and_keeps_fresh_gate_scans (test_performance.ReportingPerformanceTests.test_transition_refreshes_once_and_keeps_fresh_gate_scans) ... ok
+test_contract_and_legacy_command_registry (test_protocol.ProtocolTests.test_contract_and_legacy_command_registry) ... ok
+test_help_and_argparse_errors_have_envelopes (test_protocol.ProtocolTests.test_help_and_argparse_errors_have_envelopes) ... ok
+test_wrong_protocol_and_invalid_input_are_structured (test_protocol.ProtocolTests.test_wrong_protocol_and_invalid_input_are_structured) ... ok
+test_accept_revalidates_before_commit (test_reconciliation.ReconciliationTests.test_accept_revalidates_before_commit) ... ok
+test_created_modified_deleted_modes_and_extra_files (test_reconciliation.ReconciliationTests.test_created_modified_deleted_modes_and_extra_files) ... ok
+test_definition_replan_preserves_original_and_requires_new_consent (test_reconciliation.ReconciliationTests.test_definition_replan_preserves_original_and_requires_new_consent) ... ok
+test_invalid_manifests_and_symlinks (test_reconciliation.ReconciliationTests.test_invalid_manifests_and_symlinks) ... ok
+test_policy_and_in_scope_cannot_be_recognized (test_reconciliation.ReconciliationTests.test_policy_and_in_scope_cannot_be_recognized) ... ok
+test_policy_replan_can_precede_exact_outside_source_recognition (test_reconciliation.ReconciliationTests.test_policy_replan_can_precede_exact_outside_source_recognition) ... ok
+test_risk_scheduling_release_and_other_feature_not_writable (test_reconciliation.ReconciliationTests.test_risk_scheduling_release_and_other_feature_not_writable) ... ok
+test_stale_manifest_reference_replay_and_hash (test_reconciliation.ReconciliationTests.test_stale_manifest_reference_replay_and_hash) ... ok
+test_two_task_concurrency_preserves_history_and_lifecycle_projection (test_reconciliation.ReconciliationTests.test_two_task_concurrency_preserves_history_and_lifecycle_projection) ... ok
+test_approval_package_blocks_missing_review_stale_evidence_and_wrong_phase (test_reporting.ReportingTests.test_approval_package_blocks_missing_review_stale_evidence_and_wrong_phase) ... ok
+test_approval_package_links_exact_current_result_without_writes (test_reporting.ReportingTests.test_approval_package_links_exact_current_result_without_writes) ... ok
+test_bounded_assessment_invalidates_cache_without_full_inventory (test_reporting.ReportingTests.test_bounded_assessment_invalidates_cache_without_full_inventory) ... ok
+test_done_regression_uses_latest_evidence_without_undoing_completion (test_reporting.ReportingTests.test_done_regression_uses_latest_evidence_without_undoing_completion) ... ok
+test_exact_authorized_maintenance_paths_only (test_reporting.ReportingTests.test_exact_authorized_maintenance_paths_only) ... ok
+test_final_approval_remains_missing_and_review_can_be_invalid (test_reporting.ReportingTests.test_final_approval_remains_missing_and_review_can_be_invalid) ... ok
+test_interrupted_operation_refreshes_recovery_action (test_reporting.ReportingTests.test_interrupted_operation_refreshes_recovery_action) ... ok
+test_refresh_failure_does_not_reverse_committed_transition (test_reporting.ReportingTests.test_refresh_failure_does_not_reverse_committed_transition) ... ok
+test_stale_verified_report_agrees_with_core (test_reporting.ReportingTests.test_stale_verified_report_agrees_with_core) ... ok
+test_verified_done_refresh_preserves_historical_snapshot (test_reporting.ReportingTests.test_verified_done_refresh_preserves_historical_snapshot) ... ok
+test_all_scoped_evidence_stays_current_only_for_authorized_independent_change (test_scoped_inputs.ScopedInputTests.test_all_scoped_evidence_stays_current_only_for_authorized_independent_change) ... ok
+test_branch_identity_and_missing_original_receipt_reject_reuse (test_scoped_inputs.ScopedInputTests.test_branch_identity_and_missing_original_receipt_reject_reuse) ... ok
+test_independent_inputs_never_authorize_outside_scope (test_scoped_inputs.ScopedInputTests.test_independent_inputs_never_authorize_outside_scope) ... ok
+test_invalid_contract_fails_before_operation_start (test_scoped_inputs.ScopedInputTests.test_invalid_contract_fails_before_operation_start) ... ok
+test_inventory_changes_and_contract_edits_invalidate (test_scoped_inputs.ScopedInputTests.test_inventory_changes_and_contract_edits_invalidate) ... ok
+test_known_independent_change_reuses_only_opted_check (test_scoped_inputs.ScopedInputTests.test_known_independent_change_reuses_only_opted_check) ... ok
+test_measured_independent_reruns (test_scoped_inputs.ScopedInputTests.test_measured_independent_reruns) ... ok
+test_unknown_creation_and_environment_changes_fall_back_to_global (test_scoped_inputs.ScopedInputTests.test_unknown_creation_and_environment_changes_fall_back_to_global) ... ok
+test_all_skipped_python_suite_is_not_executed_coverage (test_test_selection.SelectionTests.test_all_skipped_python_suite_is_not_executed_coverage) ... ok
+test_bad_test_syntax_blocks_selection (test_test_selection.SelectionTests.test_bad_test_syntax_blocks_selection) ... ok
+test_changed_test_also_selects_consumers (test_test_selection.SelectionTests.test_changed_test_also_selects_consumers) ... ok
+test_ci_plan_invalid_paths_or_profile_fail_closed (test_test_selection.SelectionTests.test_ci_plan_invalid_paths_or_profile_fail_closed) ... ok
+test_ci_plan_recomputes_commands_instead_of_trusting_artifact (test_test_selection.SelectionTests.test_ci_plan_recomputes_commands_instead_of_trusting_artifact) ... ok
+test_command_failure_propagates_and_stops_following_commands (test_test_selection.SelectionTests.test_command_failure_propagates_and_stops_following_commands) ... ok
+test_dry_run_does_not_execute_and_writes_json_plan (test_test_selection.SelectionTests.test_dry_run_does_not_execute_and_writes_json_plan) ... ok
+test_empty_execution_does_not_claim_runtime_pass (test_test_selection.SelectionTests.test_empty_execution_does_not_claim_runtime_pass) ... ok
+test_empty_python_suite_does_not_return_pass (test_test_selection.SelectionTests.test_empty_python_suite_does_not_return_pass) ... ok
+test_execution_passes_arrays_and_explicit_python_paths (test_test_selection.SelectionTests.test_execution_passes_arrays_and_explicit_python_paths) ... ok
+test_foundation_expands_to_package_and_all_modules (test_test_selection.SelectionTests.test_foundation_expands_to_package_and_all_modules) ... ok
+test_full_does_not_silently_drop_explicit_archive_check (test_test_selection.SelectionTests.test_full_does_not_silently_drop_explicit_archive_check) ... ok
+test_full_python_commands_force_utf8_on_system_locale_runners (test_test_selection.SelectionTests.test_full_python_commands_force_utf8_on_system_locale_runners) ... ok
+test_git_base_includes_committed_changes (test_test_selection.SelectionTests.test_git_base_includes_committed_changes) ... ok
+test_git_collects_staged_unstaged_untracked_unicode_spaces (test_test_selection.SelectionTests.test_git_collects_staged_unstaged_untracked_unicode_spaces) ... ok
+test_git_rename_and_deletion_include_old_paths (test_test_selection.SelectionTests.test_git_rename_and_deletion_include_old_paths) ... ok
+test_git_uses_merge_base_not_target_branch_tip (test_test_selection.SelectionTests.test_git_uses_merge_base_not_target_branch_tip) ... ok
+test_language_filter_keeps_python_checks_out_of_node_job (test_test_selection.SelectionTests.test_language_filter_keeps_python_checks_out_of_node_job) ... ok
+test_malformed_manifest_and_unknown_rule_check_fail (test_test_selection.SelectionTests.test_malformed_manifest_and_unknown_rule_check_fail) ... ok
+test_manual_cli_does_not_require_git (test_test_selection.SelectionTests.test_manual_cli_does_not_require_git) ... ok
+test_manual_exact_selection_does_not_expand_fixture_consumers (test_test_selection.SelectionTests.test_manual_exact_selection_does_not_expand_fixture_consumers) ... ok
+test_manual_is_labelled_and_invalid_suite_rejected (test_test_selection.SelectionTests.test_manual_is_labelled_and_invalid_suite_rejected) ... ok
+test_missing_base_option_injection_and_missing_repo_fail (test_test_selection.SelectionTests.test_missing_base_option_injection_and_missing_repo_fail) ... ok
+test_missing_class_or_method_fails_before_execution (test_test_selection.SelectionTests.test_missing_class_or_method_fails_before_execution) ... ok
+test_narrow_selection_and_transitive_fixture_consumers (test_test_selection.SelectionTests.test_narrow_selection_and_transitive_fixture_consumers) ... ok
+test_new_unmapped_test_is_not_silently_ignored (test_test_selection.SelectionTests.test_new_unmapped_test_is_not_silently_ignored) ... ok
+test_no_profile_fails_without_running_tests (test_test_selection.SelectionTests.test_no_profile_fails_without_running_tests) ... ok
+test_prose_and_empty_diff_have_distinct_non_pass_labels (test_test_selection.SelectionTests.test_prose_and_empty_diff_have_distinct_non_pass_labels) ... ok
+test_real_manifest_maps_every_current_production_boundary (test_test_selection.SelectionTests.test_real_manifest_maps_every_current_production_boundary) ... ok
+test_scoped_python_command_uses_exact_modules (test_test_selection.SelectionTests.test_scoped_python_command_uses_exact_modules) ... ok
+test_smoke_does_not_expand_to_unrelated_integration (test_test_selection.SelectionTests.test_smoke_does_not_expand_to_unrelated_integration) ... ok
+test_two_boundaries_take_union (test_test_selection.SelectionTests.test_two_boundaries_take_union) ... ok
+test_unknown_path_expands_and_preserves_reason (test_test_selection.SelectionTests.test_unknown_path_expands_and_preserves_reason) ... ok
+test_upgrade_prerequisites_are_explicit_blocker (test_test_selection.SelectionTests.test_upgrade_prerequisites_are_explicit_blocker) ... ok
+test_valid_manifest_and_missing_test_fail_closed (test_test_selection.SelectionTests.test_valid_manifest_and_missing_test_fail_closed) ... ok
+test_missing_index_tools_never_install_globally (test_tool_updates.MissingNavigationDependencyTests.test_missing_index_tools_never_install_globally) ... ok
+test_changed_index_is_refreshed (test_tool_updates.ToolUpdatesTests.test_changed_index_is_refreshed) ... ok
+test_failed_post_check_is_not_success (test_tool_updates.ToolUpdatesTests.test_failed_post_check_is_not_success) ... ok
+test_install_local_pinned_and_version_verified (test_tool_updates.ToolUpdatesTests.test_install_local_pinned_and_version_verified) ... ok
+test_interrupted_update_cannot_replay (test_tool_updates.ToolUpdatesTests.test_interrupted_update_cannot_replay) ... ok
+test_latest_does_not_replace_supported_target (test_tool_updates.ToolUpdatesTests.test_latest_does_not_replace_supported_target) ... ok
+test_local_executable_and_escape_rejected (test_tool_updates.ToolUpdatesTests.test_local_executable_and_escape_rejected) ... ok
+test_newer_version_blocks_downgrade (test_tool_updates.ToolUpdatesTests.test_newer_version_blocks_downgrade) ... ok
+test_partial_failure_keeps_other_updates_and_checks (test_tool_updates.ToolUpdatesTests.test_partial_failure_keeps_other_updates_and_checks) ... ok
+test_plan_missing_optional_and_no_writes (test_tool_updates.ToolUpdatesTests.test_plan_missing_optional_and_no_writes) ... ok
+test_post_install_mismatch_fails (test_tool_updates.ToolUpdatesTests.test_post_install_mismatch_fails) ... ok
+test_child_environment_keeps_windows_primitives_without_inheriting_secrets (test_windows_setup.LinkCapabilityTests.test_child_environment_keeps_windows_primitives_without_inheriting_secrets) ... ok
+test_only_privilege_failure_can_skip_and_strict_mode_fails (test_windows_setup.LinkCapabilityTests.test_only_privilege_failure_can_skip_and_strict_mode_fails) ... skipped 'Windows privilege contract'
+test_no_python_launcher_bootstraps_without_user_bin_or_registry_registration (test_windows_setup.WindowsSetupTests.test_no_python_launcher_bootstraps_without_user_bin_or_registry_registration) ... skipped 'Windows PowerShell bootstrap'
+test_uv_fallback_verifies_archive_before_publishing (test_windows_setup.WindowsSetupTests.test_uv_fallback_verifies_archive_before_publishing) ... skipped 'Windows PowerShell bootstrap'
+test_fast_application_keeps_onboarding_and_required_checks (test_workflow.ApplicationWorkflowTests.test_fast_application_keeps_onboarding_and_required_checks) ... ok
+test_log_tampering_invalidates_evidence (test_workflow.ApplicationWorkflowTests.test_log_tampering_invalidates_evidence) ... ok
+test_material_sensitive_implementation_blocks_fast (test_workflow.ApplicationWorkflowTests.test_material_sensitive_implementation_blocks_fast) ... ok
+test_policy_openspec_required_even_for_fast (test_workflow.ApplicationWorkflowTests.test_policy_openspec_required_even_for_fast) ... ok
+test_policy_separate_plan_approval (test_workflow.ApplicationWorkflowTests.test_policy_separate_plan_approval) ... ok
+test_report_missing_evidence_file_stays_readable (test_workflow.ApplicationWorkflowTests.test_report_missing_evidence_file_stays_readable) ... ok
+test_sensitive_inspected_content_sets_floor_independently (test_workflow.ApplicationWorkflowTests.test_sensitive_inspected_content_sets_floor_independently) ... ok
+test_strict_application_requires_openspec (test_workflow.ApplicationWorkflowTests.test_strict_application_requires_openspec) ... ok
+test_arbitrary_json_cannot_hide_sensitive_content_as_generated_metadata (test_workflow.WorkflowTests.test_arbitrary_json_cannot_hide_sensitive_content_as_generated_metadata) ... ok
+test_broad_directory_scope_cannot_avoid_strict_glob (test_workflow.WorkflowTests.test_broad_directory_scope_cannot_avoid_strict_glob) ... ok
+test_classifier_revision_invalidates_old_decisions (test_workflow.WorkflowTests.test_classifier_revision_invalidates_old_decisions) ... ok
+test_confirmation_rechecks_evidence_without_recording_ambiguous_consent (test_workflow.WorkflowTests.test_confirmation_rechecks_evidence_without_recording_ambiguous_consent) ... ok
+test_confirmation_rechecks_new_positive_source_and_scope_before_selection (test_workflow.WorkflowTests.test_confirmation_rechecks_new_positive_source_and_scope_before_selection) ... ok
+test_confirmation_required_and_combines_plan (test_workflow.WorkflowTests.test_confirmation_required_and_combines_plan) ... ok
+test_contextual_positive_negative_mixed_and_ambiguous_narrative (test_workflow.WorkflowTests.test_contextual_positive_negative_mixed_and_ambiguous_narrative) ... ok
+test_deeper_review_rejects_partial_or_tampered_record (test_workflow.WorkflowTests.test_deeper_review_rejects_partial_or_tampered_record) ... ok
+test_external_review_snapshot_survives_source_deletion (test_workflow.WorkflowTests.test_external_review_snapshot_survives_source_deletion) ... ok
+test_fast_keeps_tests_review_and_final_approval (test_workflow.WorkflowTests.test_fast_keeps_tests_review_and_final_approval) ... ok
+test_final_consent_requires_prior_review (test_workflow.WorkflowTests.test_final_consent_requires_prior_review) ... ok
+test_floor_and_stricter_or_simpler_selection (test_workflow.WorkflowTests.test_floor_and_stricter_or_simpler_selection) ... ok
+test_guards_allow_negatives_but_block_new_ambiguity_and_sensitive_code (test_workflow.WorkflowTests.test_guards_allow_negatives_but_block_new_ambiguity_and_sensitive_code) ... ok
+test_identical_assessment_preserves_confirmation (test_workflow.WorkflowTests.test_identical_assessment_preserves_confirmation) ... ok
+test_known_metadata_and_previous_advisor_conclusions_do_not_reinforce_risk (test_workflow.WorkflowTests.test_known_metadata_and_previous_advisor_conclusions_do_not_reinforce_risk) ... ok
+test_material_changes_invalidate_but_implementation_does_not (test_workflow.WorkflowTests.test_material_changes_invalidate_but_implementation_does_not) ... ok
+test_missing_inspection_blocks_low_risk_confirmation (test_workflow.WorkflowTests.test_missing_inspection_blocks_low_risk_confirmation) ... ok
+test_negative_text_never_overrides_structured_or_project_strict_floors (test_workflow.WorkflowTests.test_negative_text_never_overrides_structured_or_project_strict_floors) ... ok
+test_new_template_requires_assessment_before_start (test_workflow.WorkflowTests.test_new_template_requires_assessment_before_start) ... ok
+test_oversize_guard_evidence_requires_investigation_instead_of_skipping (test_workflow.WorkflowTests.test_oversize_guard_evidence_requires_investigation_instead_of_skipping) ... ok
+test_policy_change_invalidates_and_project_checks_cannot_be_omitted (test_workflow.WorkflowTests.test_policy_change_invalidates_and_project_checks_cannot_be_omitted) ... ok
+test_profile_recommendations_and_bounded_assessment (test_workflow.WorkflowTests.test_profile_recommendations_and_bounded_assessment) ... ok
+test_public_exposure_and_medium_risk_are_distinct_from_security_floor (test_workflow.WorkflowTests.test_public_exposure_and_medium_risk_are_distinct_from_security_floor) ... ok
+test_reference_edit_invalidates_combined_consent (test_workflow.WorkflowTests.test_reference_edit_invalidates_combined_consent) ... ok
+test_report_distinguishes_optional_approvals_and_legacy_plan (test_workflow.WorkflowTests.test_report_distinguishes_optional_approvals_and_legacy_plan) ... ok
+test_reports_real_files_paths_and_missing_evidence (test_workflow.WorkflowTests.test_reports_real_files_paths_and_missing_evidence) ... ok
+test_sensitive_task_metadata_cannot_claim_fast (test_workflow.WorkflowTests.test_sensitive_task_metadata_cannot_claim_fast) ... ok
+test_sensitive_task_outcome_uses_same_narrative_classifier (test_workflow.WorkflowTests.test_sensitive_task_outcome_uses_same_narrative_classifier) ... ok
+test_source_identifiers_override_negative_comments_and_match_boundaries (test_workflow.WorkflowTests.test_source_identifiers_override_negative_comments_and_match_boundaries) ... ok
+test_strict_deeper_review_resolves_exact_ambiguous_sources (test_workflow.WorkflowTests.test_strict_deeper_review_resolves_exact_ambiguous_sources) ... ok
+test_strict_scoped_rework_reuses_approved_start_without_new_consent (test_workflow.WorkflowTests.test_strict_scoped_rework_reuses_approved_start_without_new_consent) ... ok
+test_strict_start_keeps_review_and_allows_only_scoped_implementation (test_workflow.WorkflowTests.test_strict_start_keeps_review_and_allows_only_scoped_implementation) ... ok
+test_strict_started_task_rejects_changed_review_and_policy (test_workflow.WorkflowTests.test_strict_started_task_rejects_changed_review_and_policy) ... ok
+test_task_metadata_review_survives_its_own_workflow_write (test_workflow.WorkflowTests.test_task_metadata_review_survives_its_own_workflow_write) ... ok
+test_unknowns_require_targeted_inspection_not_automatic_strict (test_workflow.WorkflowTests.test_unknowns_require_targeted_inspection_not_automatic_strict) ... ok
+test_independent_state_scope_guard_and_integration (test_worktree_isolation.WorktreeIsolationTests.test_independent_state_scope_guard_and_integration) ... ok
+
+----------------------------------------------------------------------
+Ran 317 tests in 81.256s
+
+OK (skipped=8)
+Slowest self-tests (seconds):
+  2.4454  test_scoped_inputs.ScopedInputTests.test_measured_independent_reruns
+  2.4180  test_native_windows.NativePlatformTests.test_bounded_tool_run_cleans_up_descendants_on_timeout
+  1.6459  test_hardening.HardeningTests.test_runner_repairs_review_feedback_without_fabricating_approval
+  1.5318  test_hardening.HardeningTests.test_dependency_chain_survives_downstream_edits_and_rechecks_prerequisite
+  1.4356  test_hardening.HardeningTests.test_runner_repairs_failed_check_within_bounded_run
+SOURCE_MEASUREMENT {"extra_graph_commands": 0, "indexer_calls": 0, "samples": [{"adoption_seconds": 0.06098329200176522, "lifecycle_excluding_checks_seconds": 0.2904870010097511}, {"adoption_seconds": 0.05047762498725206, "lifecycle_excluding_checks_seconds": 0.2903718749876134}, {"adoption_seconds": 0.05066258300212212, "lifecycle_excluding_checks_seconds": 0.28877937499783}]}
+SCOPED_MEASUREMENT {"global": {"check_runs_including_baseline": [4, 4], "full_scan_seconds": [0.007900833006715402, 0.007822750019840896, 0.00804054198670201], "harness_overhead_excluding_checks_seconds": [0.13178449901170097, 0.13382274899049662, 0.13855454299482517], "samples": 3}, "scoped": {"check_runs_including_baseline": [1, 4], "full_scan_seconds": [0.00787345800199546, 0.008012667007278651, 0.008476000017253682], "harness_overhead_excluding_checks_seconds": [0.17419474897906184, 0.1780480419693049, 0.18240050101303495], "samples": 3}}
+RUN validate: ["/opt/homebrew/opt/python@3.14/bin/python3.14", "-B", "-X", "utf8", "/Users/perfrico/projects/anigravity-projects/harness/harness", "validate"]
+{
+  "application_ready": false,
+  "graph": {
+    "coverage": "partial",
+    "freshness": "stale",
+    "limitations": [
+      "Partial coverage: Python AST definitions and static import syntax only; other languages have file nodes only.",
+      "No call graph, runtime import resolution, routes, persistence analysis, or LLM inference.",
+      "Test relationships are naming heuristics; imports may remain external or unresolved.",
+      "Secret-like files, symlinks, binaries, generated/dependency directories and oversized files are excluded."
+    ],
+    "parse_limitations": {},
+    "provider": "local-python-ast"
+  },
+  "limitations": [
+    "Semantic requirement/architecture conformance requires review."
+  ],
+  "result": "PASS",
+  "tasks": 17
+}
+RUN version-sync: ["node", "scripts/release.mjs", "sync"]
+{"version":"0.4.3","changed":[]}
+RUN typecheck: ["node", "node_modules/typescript/bin/tsc", "--noEmit"]
+RUN build-types: ["node", "node_modules/typescript/bin/tsc"]
+RUN build-assets: ["node", "scripts/build-assets.mjs"]
+RUN node: ["node", "--test", "tests-node/codex-runner.test.mjs", "tests-node/copilot-fixture.test.mjs", "tests-node/copilot.test.mjs", "tests-node/engine-upgrade.test.mjs", "tests-node/preflight.test.mjs", "tests-node/product.test.mjs", "tests-node/windows.test.mjs", "tests-node/workflow.test.mjs"]
+TAP version 13
+# Subtest: Codex runner preview binds exact commands and Unicode approval to Python hash
+ok 1 - Codex runner preview binds exact commands and Unicode approval to Python hash
+  ---
+  duration_ms: 220.667375
+  ...
+# Subtest: Codex adapter refuses a direct launch without active Python intent
+ok 2 - Codex adapter refuses a direct launch without active Python intent
+  ---
+  duration_ms: 133.021666
+  ...
+# Subtest: E2E planning executables delegate and reject approval, installs and outside targets
+ok 3 - E2E planning executables delegate and reject approval, installs and outside targets
+  ---
+  duration_ms: 702.210333
+  ...
+# Subtest: all supported agents preserve configuration contract
+ok 4 - all supported agents preserve configuration contract
+  ---
+  duration_ms: 0.730083
+  ...
+# Subtest: adapter accepts structured result and propagates nonzero or provider failure
+ok 5 - adapter accepts structured result and propagates nonzero or provider failure
+  ---
+  duration_ms: 865.269833
+  ...
+# Subtest: missing authentication and account restrictions use structured errors
+ok 6 - missing authentication and account restrictions use structured errors
+  ---
+  duration_ms: 636.194542
+  ...
+# Subtest: timeout, cancellation, missing process and unsupported capability fail closed
+ok 7 - timeout, cancellation, missing process and unsupported capability fail closed
+  ---
+  duration_ms: 346.976084
+  ...
+# Subtest: no unrestricted permissions or inherited allow-all environment
+ok 8 - no unrestricted permissions or inherited allow-all environment
+  ---
+  duration_ms: 162.271375
+  ...
+# Subtest: Python dispatch refuses untrusted context and missing readiness
+ok 9 - Python dispatch refuses untrusted context and missing readiness
+  ---
+  duration_ms: 1.543083
+  ...
+# Subtest: missing optional CLI is detected without execution
+ok 10 - missing optional CLI is detected without execution
+  ---
+  duration_ms: 0.281083
+  ...
+# Subtest: official OpenSpec: Copilot and coexistence preserve instructions, repeat and upgrade
+ok 11 - official OpenSpec: Copilot and coexistence preserve instructions, repeat and upgrade
+  ---
+  duration_ms: 14680.434375
+  ...
+# Subtest: HTTP authentication and policy errors stay blocked
+ok 12 - HTTP authentication and policy errors stay blocked
+  ---
+  duration_ms: 458.689417
+  ...
+# Subtest: cancellation terminates a descendant that ignores SIGTERM
+ok 13 - cancellation terminates a descendant that ignores SIGTERM
+  ---
+  duration_ms: 1285.141917
+  ...
+# {"result": "FAIL", "error": "Task must exist and have a unique ID: ABSENT"}
+# {"result": "FAIL", "error": "docs/TECH_SPEC.md: missing Status: metadata"}
+# {"result": "FAIL", "error": "Another harness writer or installer is active; inspect stale locks before retrying."}
+# {"result": "FAIL", "error": "Installation or upgrade recovery required before lifecycle writes."}
+# Subtest: release: one configuration value synchronizes consumers and lock metadata idempotently
+ok 14 - release: one configuration value synchronizes consumers and lock metadata idempotently
+  ---
+  duration_ms: 5.810458
+  ...
+# Subtest: release: malformed markers and lock identity fail before any writes
+ok 15 - release: malformed markers and lock identity fail before any writes
+  ---
+  duration_ms: 1.687417
+  ...
+# Subtest: release: stable version and compatible npm validation rejects invalid inputs
+ok 16 - release: stable version and compatible npm validation rejects invalid inputs
+  ---
+  duration_ms: 0.116167
+  ...
+# Subtest: release: publication requires own push/main and an exact current verified SHA
+ok 17 - release: publication requires own push/main and an exact current verified SHA
+  ---
+  duration_ms: 0.102042
+  ...
+# Subtest: release: existing version skips while a greater new version requests publication
+ok 18 - release: existing version skips while a greater new version requests publication
+  ---
+  duration_ms: 2.0395
+  ...
+# Subtest: release: registry denial, absence, outages and network errors never request publication
+ok 19 - release: registry denial, absence, outages and network errors never request publication
+  ---
+  duration_ms: 1.627042
+  ...
+# Subtest: release: invalid metadata, downgrade and mismatched package identity fail closed
+ok 20 - release: invalid metadata, downgrade and mismatched package identity fail closed
+  ---
+  duration_ms: 1.484542
+  ...
+# Subtest: release: workflow connects the verified SHA gate to job-scoped OIDC publication
+ok 21 - release: workflow connects the verified SHA gate to job-scoped OIDC publication
+  ---
+  duration_ms: 14.778916
+  ...
+# Subtest: Windows engine identity accepts native drive and directory casing
+ok 22 - Windows engine identity accepts native drive and directory casing # SKIP
+  ---
+  duration_ms: 0.151417
+  ...
+# Subtest: Python owns initial state and setup event; installed CLI delegates help, errors and gates
+ok 23 - Python owns initial state and setup event; installed CLI delegates help, errors and gates
+  ---
+  duration_ms: 3863.864125
+  ...
+# Subtest: installed engine drift, wrong protocol, missing Python and root injection fail closed
+ok 24 - installed engine drift, wrong protocol, missing Python and root injection fail closed
+  ---
+  duration_ms: 1576.078459
+  ...
+# Subtest: three-way Git merge covers local-only, remote-only, disjoint, overlap and missing Git
+ok 25 - three-way Git merge covers local-only, remote-only, disjoint, overlap and missing Git
+  ---
+  duration_ms: 17.165959
+  ...
+# Subtest: migration validates both versions, adds defaults, is ordered and idempotent
+ok 26 - migration validates both versions, adds defaults, is ordered and idempotent
+  ---
+  duration_ms: 0.29675
+  ...
+# Subtest: upgrade preserves local Skills, shared rules, OpenSpec and custom files; dry-run and repeat unchanged
+ok 27 - upgrade preserves local Skills, shared rules, OpenSpec and custom files; dry-run and repeat unchanged
+  ---
+  duration_ms: 2974.486875
+  ...
+# Subtest: 0.3.0 installation manifest can upgrade to the current release
+ok 28 - 0.3.0 installation manifest can upgrade to the current release
+  ---
+  duration_ms: 2248.293708
+  ...
+# Subtest: 0.3.1 installation manifest can upgrade to the current release
+ok 29 - 0.3.1 installation manifest can upgrade to the current release
+  ---
+  duration_ms: 1646.36125
+  ...
+# Subtest: legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict
+ok 30 - legacy missing baseline, local deletion, removed ownership and collisions explicitly conflict
+  ---
+  duration_ms: 1634.24875
+  ...
+# Subtest: interrupted upgrade retains backup, recovery restores bytes and retry works
+ok 31 - interrupted upgrade retains backup, recovery restores bytes and retry works
+  ---
+  duration_ms: 2724.666917
+  ...
+# Subtest: postvalidation failure retains journal and protects concurrent edits during recovery
+ok 32 - postvalidation failure retains journal and protects concurrent edits during recovery
+  ---
+  duration_ms: 1716.398833
+  ...
+# Subtest: doctor engine cannot import project shadow modules; missing inventory entry is rejected
+ok 33 - doctor engine cannot import project shadow modules; missing inventory entry is rejected
+  ---
+  duration_ms: 1346.541416
+  ...
+# Subtest: lifecycle writes refuse installer lock and pending recovery, reads still work
+ok 34 - lifecycle writes refuse installer lock and pending recovery, reads still work
+  ---
+  duration_ms: 1748.289834
+  ...
+# Subtest: custom runtime upgrade cannot silently claim upstream engine version
+ok 35 - custom runtime upgrade cannot silently claim upstream engine version
+  ---
+  duration_ms: 1108.567958
+  ...
+# Subtest: interruption after configuration write restores pre-upgrade config and manifest
+ok 36 - interruption after configuration write restores pre-upgrade config and manifest
+  ---
+  duration_ms: 1670.074667
+  ...
+# Subtest: child PATH wins over parent; missing optional tools allow repository search fallback
+ok 37 - child PATH wins over parent; missing optional tools allow repository search fallback
+  ---
+  duration_ms: 547.943541
+  ...
+# Subtest: required navigation and version failures prevent paid launch, even with available MCP
+ok 38 - required navigation and version failures prevent paid launch, even with available MCP
+  ---
+  duration_ms: 1264.316792
+  ...
+# Subtest: agent shell PATH transformation is probed rather than assumed
+ok 39 - agent shell PATH transformation is probed rather than assumed
+  ---
+  duration_ms: 239.870959
+  ...
+# Subtest: MCP configured is not available, disabled wins, required unavailable integration blocks
+ok 40 - MCP configured is not available, disabled wins, required unavailable integration blocks
+  ---
+  duration_ms: 259.232167
+  ...
+# Subtest: generic required MCP needs an observed read-only host capability
+ok 41 - generic required MCP needs an observed read-only host capability
+  ---
+  duration_ms: 394.034875
+  ...
+# Subtest: ignore user config and unsupported environment policies are respected
+ok 42 - ignore user config and unsupported environment policies are respected
+  ---
+  duration_ms: 144.001875
+  ...
+# {"result": "FAIL", "error": "Invalid .harness/navigation.json: use version 1 source with no providers or required with unique codegraph/graphify providers."}
+# Subtest: Copilot probes sanitized supplied environment and does not launch on required failure
+ok 43 - Copilot probes sanitized supplied environment and does not launch on required failure
+  ---
+  duration_ms: 400.114125
+  ...
+# Subtest: incompatible agent capability fails and IDE-only needs no CLI
+ok 44 - incompatible agent capability fails and IDE-only needs no CLI
+  ---
+  duration_ms: 86.181209
+  ...
+# Subtest: broken managed tool must not fall back to compatible PATH executable
+ok 45 - broken managed tool must not fall back to compatible PATH executable
+  ---
+  duration_ms: 247.82275
+  ...
+# Subtest: MCP effective disabled override and unrelated host tools are not treated as available
+ok 46 - MCP effective disabled override and unrelated host tools are not treated as available
+  ---
+  duration_ms: 176.265083
+  ...
+# Subtest: selected required check executable missing in child environment fails before spawn
+ok 47 - selected required check executable missing in child environment fails before spawn
+  ---
+  duration_ms: 505.150041
+  ...
+# Subtest: symlinked managed tool directory is rejected instead of passing PATH fallback
+ok 48 - symlinked managed tool directory is rejected instead of passing PATH fallback
+  ---
+  duration_ms: 375.105375
+  ...
+# Subtest: empty symlinked managed directory cannot fall through to PATH
+ok 49 - empty symlinked managed directory cannot fall through to PATH
+  ---
+  duration_ms: 310.794459
+  ...
+# Subtest: application runtime versions are not replaced by Harness runtime pins
+ok 50 - application runtime versions are not replaced by Harness runtime pins
+  ---
+  duration_ms: 381.969125
+  ...
+# Subtest: unknown engine requirements never downgrade navigation to optional
+ok 51 - unknown engine requirements never downgrade navigation to optional
+  ---
+  duration_ms: 213.88575
+  ...
+# Subtest: source and individual required navigation policies reach execution diagnostics
+ok 52 - source and individual required navigation policies reach execution diagnostics
+  ---
+  duration_ms: 888.812958
+  ...
+# Subtest: installed agent rules require a linked decision before final DONE
+ok 53 - installed agent rules require a linked decision before final DONE
+  ---
+  duration_ms: 1.352959
+  ...
+# Subtest: selection, configuration, paths and shared markers reject invalid inputs
+ok 54 - selection, configuration, paths and shared markers reject invalid inputs
+  ---
+  duration_ms: 12.389708
+  ...
+# Subtest: pure plan detects drift, preserves project content, and supports unchanged upgrades
+ok 55 - pure plan detects drift, preserves project content, and supports unchanged upgrades
+  ---
+  duration_ms: 1.914666
+  ...
+# Subtest: A/B/D/F/G: install preserves existing Codex project and repeats without drift
+ok 56 - A/B/D/F/G: install preserves existing Codex project and repeats without drift
+  ---
+  duration_ms: 3418.450958
+  ...
+# Subtest: C: existing OpenSpec sources and generated skill customization remain intact
+ok 57 - C: existing OpenSpec sources and generated skill customization remain intact
+  ---
+  duration_ms: 1456.440458
+  ...
+# Subtest: conflict preflight and symlink refusal leave user files untouched
+ok 58 - conflict preflight and symlink refusal leave user files untouched
+  ---
+  duration_ms: 181.47675
+  ...
+# Subtest: partial write rollback preserves original data; concurrent recovery edits block
+ok 59 - partial write rollback preserves original data; concurrent recovery edits block
+  ---
+  duration_ms: 41.858541
+  ...
+# Subtest: E/H: dry run is read-only and noninteractive init never prompts
+ok 60 - E/H: dry run is read-only and noninteractive init never prompts
+  ---
+  duration_ms: 245.354083
+  ...
+# Subtest: duplicate skills and missing references produce actionable diagnostics
+ok 61 - duplicate skills and missing references produce actionable diagnostics
+  ---
+  duration_ms: 3141.866875
+  ...
+# Subtest: real pinned OpenSpec stages Codex skills when explicitly enabled
+ok 62 - real pinned OpenSpec stages Codex skills when explicitly enabled
+  ---
+  duration_ms: 295.991583
+  ...
+# Subtest: invalid existing config and legacy OpenSpec layout block before mutation
+ok 63 - invalid existing config and legacy OpenSpec layout block before mutation
+  ---
+  duration_ms: 128.095917
+  ...
+# Subtest: ownership coverage, executable mode and overriding Codex entry point are diagnosed
+ok 64 - ownership coverage, executable mode and overriding Codex entry point are diagnosed
+  ---
+  duration_ms: 3307.656
+  ...
+# Subtest: OpenSpec version mismatch and failed generator never mutate the target
+ok 65 - OpenSpec version mismatch and failed generator never mutate the target
+  ---
+  duration_ms: 125.007208
+  ...
+# Subtest: YAML and TOML diagnostics reject syntax errors without leaking values
+ok 66 - YAML and TOML diagnostics reject syntax errors without leaking values
+  ---
+  duration_ms: 2523.634167
+  ...
+# Subtest: review regressions: unsupported runtime and stale lock fail closed
+ok 67 - review regressions: unsupported runtime and stale lock fail closed
+  ---
+  duration_ms: 1308.018542
+  ...
+# Subtest: doctor returns JSON diagnostics for symlinked Codex configuration
+ok 68 - doctor returns JSON diagnostics for symlinked Codex configuration
+  ---
+  duration_ms: 1784.8565
+  ...
+# Subtest: a partial low-level write never publishes a torn created file
+ok 69 - a partial low-level write never publishes a torn created file
+  ---
+  duration_ms: 5.9715
+  ...
+# Subtest: new project with staged tool directory still defaults to source navigation
+ok 70 - new project with staged tool directory still defaults to source navigation
+  ---
+  duration_ms: 16.799208
+  ...
+# Subtest: packaged launchers use portable line endings and include native entry points
+ok 71 - packaged launchers use portable line endings and include native entry points
+  ---
+  duration_ms: 0.853959
+  ...
+# Subtest: Windows copied environments preserve mixed-case Path discovery
+ok 72 - Windows copied environments preserve mixed-case Path discovery # SKIP
+  ---
+  duration_ms: 0.047375
+  ...
+# Subtest: Windows npm shims preserve argument boundaries without cmd interpolation
+ok 73 - Windows npm shims preserve argument boundaries without cmd interpolation # SKIP
+  ---
+  duration_ms: 0.040208
+  ...
+# Subtest: Windows managed Python is discovered from its runtime pointer
+ok 74 - Windows managed Python is discovered from its runtime pointer # SKIP
+  ---
+  duration_ms: 0.037042
+  ...
+# Subtest: portable argument and file operations in spaces and Unicode directories
+ok 75 - portable argument and file operations in spaces and Unicode directories
+  ---
+  duration_ms: 162.603042
+  ...
+# {"result": "FAIL", "error": "Explicit workflow and plan confirmation required"}
+# {"result": "FAIL", "error": "Explicit workflow and plan confirmation required"}
+# Subtest: codex: installed advisor, combined confirmation, compact and JSON reports
+ok 76 - codex: installed advisor, combined confirmation, compact and JSON reports
+  ---
+  duration_ms: 4386.806458
+  ...
+# Subtest: copilot: installed advisor, combined confirmation, compact and JSON reports
+ok 77 - copilot: installed advisor, combined confirmation, compact and JSON reports
+  ---
+  duration_ms: 3713.047125
+  ...
+# Subtest: codex: generated instructions keep Adaptive separate from installed OpenSpec
+ok 78 - codex: generated instructions keep Adaptive separate from installed OpenSpec
+  ---
+  duration_ms: 1574.941458
+  ...
+# Subtest: copilot: generated instructions keep Adaptive separate from installed OpenSpec
+ok 79 - copilot: generated instructions keep Adaptive separate from installed OpenSpec
+  ---
+  duration_ms: 1952.57075
+  ...
+# Subtest: copilot-ide: generated instructions keep Adaptive separate from installed OpenSpec
+ok 80 - copilot-ide: generated instructions keep Adaptive separate from installed OpenSpec
+  ---
+  duration_ms: 1448.874625
+  ...
+# Subtest: codex,copilot: generated instructions keep Adaptive separate from installed OpenSpec
+ok 81 - codex,copilot: generated instructions keep Adaptive separate from installed OpenSpec
+  ---
+  duration_ms: 2352.578792
+  ...
+# Subtest: codex,copilot-ide: generated instructions keep Adaptive separate from installed OpenSpec
+ok 82 - codex,copilot-ide: generated instructions keep Adaptive separate from installed OpenSpec
+  ---
+  duration_ms: 1510.523333
+  ...
+1..82
+# tests 82
+# suites 0
+# pass 78
+# fail 0
+# cancelled 0
+# skipped 4
+# todo 0
+# duration_ms 24437.811291
+RUN package: ["node", "scripts/test-package.mjs"]
+Packed Copilot CLI/IDE/coexistence initialization, idempotence and upgrade checks passed.
+Running the complete packaged CLI self-test (30-minute budget).
+Packed CLI: actual init, repeat init, OpenSpec and legacy validation passed. Missing navigation dependencies remain reported by doctor.
+Package verified: 159 files, 260785 bytes.
+RUN wizard: ["/opt/homebrew/opt/python@3.14/bin/python3.14", "-B", "scripts/test-wizard.py"]
+Interactive PTY wizard: selections, target confirmation and actual installation PASS.
+{
+  "result": "PASS",
+  "results": [
+    {
+      "check": "python",
+      "exit_code": 0,
+      "seconds": 81.42
+    },
+    {
+      "check": "validate",
+      "exit_code": 0,
+      "seconds": 0.508
+    },
+    {
+      "check": "version-sync",
+      "exit_code": 0,
+      "seconds": 0.089
+    },
+    {
+      "check": "typecheck",
+      "exit_code": 0,
+      "seconds": 0.53
+    },
+    {
+      "check": "build-types",
+      "exit_code": 0,
+      "seconds": 0.548
+    },
+    {
+      "check": "build-assets",
+      "exit_code": 0,
+      "seconds": 0.068
+    },
+    {
+      "check": "node",
+      "exit_code": 0,
+      "seconds": 24.464
+    },
+    {
+      "check": "package",
+      "exit_code": 0,
+      "seconds": 101.704
+    },
+    {
+      "check": "wizard",
+      "exit_code": 0,
+      "seconds": 1.378
+    }
+  ],
+  "seconds": 210.711,
+  "coverage": "FULL",
+  "language": "all"
+}

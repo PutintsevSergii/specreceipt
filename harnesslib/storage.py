@@ -194,7 +194,7 @@ def finish_transaction(root):
             stream.flush()
             os.fsync(stream.fileno())
     for rel, data in txn['writes'].items():
-        if not (rel in {'.harness/state.json','.harness/onboarding.json','.harness/runner-state.json'} or re.fullmatch(r'specs/[a-z0-9-]+/tasks.json', rel) or rel.startswith('.harness/evidence/')):
+        if not (rel in {'.harness/state.json','.harness/onboarding.json','.harness/runner-state.json','.harness/checks.json','.harness/workflow-policy.json','.harness/dispatch/host.json'} or re.fullmatch(r'\.harness/proposals/[A-Z][A-Z0-9]*-[0-9]+-facts.json',rel) or re.fullmatch(r'specs/[a-z0-9-]+/tasks.json', rel) or rel.startswith('.harness/evidence/')):
             raise HarnessError(f'Unexpected transaction target {rel}')
         atomic(safe_path(root, rel), data)
     if event['id'] not in {e['id'] for e in events(root)}:

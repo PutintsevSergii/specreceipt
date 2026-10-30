@@ -51,7 +51,7 @@ for (const agent of ['codex', 'copilot', 'copilot-ide', 'codex,copilot', 'codex,
     assert.match(instructions, /STRICT retains required OpenSpec sources and all quality gates/);
     assert.match(instructions, /separate final developer approval after VERIFIED and before DONE/);
     assert.doesNotMatch(instructions, /Use OpenSpec as the feature requirements source/);
-    assert.equal(fs.existsSync(path.join(root, '.harness/workflow-policy.json')), false);
+    assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root, '.harness/workflow-policy.json'))), {experience:{version:1,mode:'compact'}});
     const task = JSON.parse(fs.readFileSync(path.join(root, 'templates/feature/tasks.json'))).tasks[0];
     assert.equal(task.workflow_required, true);
     if (agent.includes('copilot')) {

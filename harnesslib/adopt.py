@@ -3,6 +3,7 @@ from pathlib import Path
 import shutil
 import subprocess
 from .storage import is_link, HarnessError
+from .index_context import POLICY_PATH
 
 KIT_PATHS = ['harness.cmd','install.ps1','scripts/python.ps1','scripts/uv.ps1','install.sh','scripts/python.sh','scripts/update-tools.py','harness','harnesslib','schemas','templates','.agents/skills','tests','docs/HARNESS.md','docs/V02.md','docs/TECH_SPEC.md',
              'docs/ARCHITECTURE.md','docs/DECISION_QUEUE.md','docs/adr','AGENTS.md','.harness/checks.json',
@@ -70,6 +71,16 @@ def adopt(source, destination, dry_run=True):
             if target.exists():
                 if not target.is_file() or target.read_bytes() != candidate.read_bytes(): conflicts.append(relative.as_posix())
             else: files.append(relative.as_posix())
+    # Only genuinely new projects receive the source default. Existing installs
+    # without a policy retain the legacy requirement, including partial setup.
+    target = destination / POLICY_PATH
+    installed = any((destination / p).exists() for p in ('harnesslib', 'harness', '.harness/state.json', '.harness/checks.json', '.harness/product.json', '.harness/install.json', '.harness/installation-manifest.json', '.harness/installation-pending.json'))
+    if not installed and not target.exists():
+        sources[POLICY_PATH] = source / 'templates/navigation.json'
+        files.append(POLICY_PATH)
+    if not installed and not (destination/'.harness/workflow-policy.json').exists():
+        sources['.harness/workflow-policy.json'] = source/'templates/workflow-policy.json'
+        files.append('.harness/workflow-policy.json')
     # Preflight generated host bridges together with the kit; never overwrite corporate files.
     for rel, template in ENTRYPOINTS.items():
         candidate = source / 'templates/agent-entrypoints' / template

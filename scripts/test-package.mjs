@@ -39,10 +39,13 @@ function assertAdaptiveInstallation(project, agent) {
   assert.match(instructions, /FAST\/STANDARD.*without a task OpenSpec change unless linked requirements or project policy require it/);
   assert.match(instructions, /STRICT retains required OpenSpec sources and all quality gates/);
   assert.match(instructions, /separate final developer approval after VERIFIED and before DONE/);
+  assert.match(instructions, /approval-package TASK-ID --format markdown/);
+  assert.match(run("python3", ["-B", "harness", "approval-package", "--help"], project), /--format/);
   assert.doesNotMatch(instructions, /Use OpenSpec as the feature requirements source/);
-  assert.equal(fs.existsSync(path.join(project, ".harness/workflow-policy.json")), false);
+  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(project, ".harness/workflow-policy.json"))), {experience:{version:1,mode:"compact"}});
   const template = JSON.parse(fs.readFileSync(path.join(project, "templates/feature/tasks.json")));
   assert.equal(template.tasks[0].workflow_required, true);
+  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(project, ".harness/navigation.json"))), {schema_version:1,mode:"source",providers:[]});
   const product = JSON.parse(fs.readFileSync(path.join(project, ".harness/product.json")));
   assert.equal(product.workflow, "openspec");
   assert.equal(product.quality, "strict");
@@ -108,6 +111,8 @@ try {
   );
   const cli = path.join(consumer, "node_modules/specreceipt/dist/cli.js");
   assert.equal(run(process.execPath, [cli, "--version"], consumer).trim(), packageVersion);
+  assert.match(run(process.execPath, [cli, "--help"], consumer), /codex-runner-preview --task ID/);
+  assert.match(run(process.execPath, [cli, "--help"], consumer), /codex-exec --context FILE/);
   const { executionPreflight, checkedAgentLaunch } = await import(pathToFileURL(path.join(consumer, "node_modules/specreceipt/dist/doctor.js")));
   const { executable } = await import(pathToFileURL(path.join(consumer, "node_modules/specreceipt/dist/integrations.js")));
   function assertPackagedPreflight(project, agent) {
@@ -123,7 +128,9 @@ try {
     const result = executionPreflight(options);
     if (mode === "copilot-ide") assert.equal(result.status,"PASS");
     else {
-      assert.equal(result.checks.find(c=>c.id === "codegraph-cli").requirement,"REQUIRED");
+      assert.equal(result.checks.find(c=>c.id === "codegraph-cli").requirement,"OPTIONAL");
+      assert.equal(result.checks.find(c=>c.id === "graphify-cli").requirement,"OPTIONAL");
+      // OpenSpec remains independently required even in source navigation.
       assert.equal(result.status,"FAIL");
       let launches=0;
       assert.throws(()=>checkedAgentLaunch(options,()=>launches++),/preflight failed/);
@@ -293,6 +300,7 @@ try {
       console.log("Packaged CLI smoke passed; complete packaged self-test runs in the designated Node job.");
     }
 
+    console.log(run("python3", ["-B", path.join(target,"tests/compact_journey.py"), "--project", target, "--node", process.execPath, "--cli", cli], target, env));
     console.log(
       "Packed CLI: actual init, repeat init, OpenSpec and legacy validation passed. Missing navigation dependencies remain reported by doctor.",
     );

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.4
+
+- Add compact FAST task proposals, combined plan approval, guarded IDE-host progression, concise acceptance reporting, and explicit legacy migration.
+- Add source-first navigation and scoped, case-aware evidence while preserving formal workflow gates.
+
 ## 0.4.3
 
 - Allow reviewed task-policy replans to precede exact recognition of intervening source changes, while keeping task start and verification blocked until the approved manifest is accepted.

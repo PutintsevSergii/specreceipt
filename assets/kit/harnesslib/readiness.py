@@ -87,6 +87,13 @@ def fingerprint(h, record):
 
 
 def project(h, require_approval=True, selected=None):
+    from . import compact
+    try:
+        compact_report = compact.project(h,require_approval,selected) if compact.context(h)['schema_version']==2 else None
+        if compact_report is not None: return compact_report
+    except (HarnessError,OSError,ValueError) as exc:
+        return {'result':'BLOCKED','application_ready':False,'blockers':[str(exc)],'application_checks':[],
+                'next_action':'Resolve invalid project context','limitations':['No readiness asserted.']}
     blockers = []
     baseline = []
     documents(h, blockers)
@@ -165,22 +172,29 @@ def task_gaps(h, feature, task):
             result = investigation.check(h, task['id'])
             gaps.extend('Investigation: ' + gap for gap in result['gaps'])
     except (HarnessError, OSError) as exc: gaps.append('Investigation: ' + str(exc))
-    if feature['revisions'] != h.revisions(): gaps.append('Feature revision pins are stale.')
-    for filename in ['spec.md','plan.md']:
-        rel = f'specs/{feature["feature_id"]}/{filename}'
-        try:
-            content = safe_path(h.root,rel).read_text(encoding='utf-8')
-            if h.metadata(rel)['status'] != 'APPROVED' or not substantive(content):
-                gaps.append(f'{rel}: approved, completed inputs required.')
-            for key,label in [('tech_spec','Tech-Spec-Revision'),('architecture','Architecture-Revision')]:
-                if f'{label}: {feature["revisions"][key]}\n' not in content:
-                    gaps.append(f'{rel}: missing/mismatched revision pin.')
-        except (HarnessError,OSError) as exc: gaps.append(str(exc))
+    from . import compact
+    if compact.is_compact(feature):
+        try: compact.eligible(h,feature,task)
+        except HarnessError as exc: gaps.append(str(exc))
+    else:
+        if feature['revisions'] != h.revisions(): gaps.append('Feature revision pins are stale.')
+        for filename in ['spec.md','plan.md']:
+            rel = f'specs/{feature["feature_id"]}/{filename}'
+            try:
+                content = safe_path(h.root,rel).read_text(encoding='utf-8')
+                if h.metadata(rel)['status'] != 'APPROVED' or not substantive(content):
+                    gaps.append(f'{rel}: approved, completed inputs required.')
+                for key,label in [('tech_spec','Tech-Spec-Revision'),('architecture','Architecture-Revision')]:
+                    if f'{label}: {feature["revisions"][key]}\n' not in content:
+                        gaps.append(f'{rel}: missing/mismatched revision pin.')
+            except (HarnessError,OSError) as exc: gaps.append(str(exc))
     for key in ['outcome','scope','requirements','acceptance_criteria','failure_scenarios']:
         values = task[key] if isinstance(task[key],list) else [task[key]]
         if not values or any(not substantive(value) for value in values): gaps.append(f'{task["id"]}: incomplete {key}.')
-    spec = safe_path(h.root, f'specs/{feature["feature_id"]}/spec.md').read_text(encoding='utf-8')
-    reqs = spec + safe_path(h.root,'docs/TECH_SPEC.md').read_text(encoding='utf-8')
+    if compact.is_compact(feature): reqs = '\n'.join(task['requirements'])
+    else:
+        spec = safe_path(h.root, f'specs/{feature["feature_id"]}/spec.md').read_text(encoding='utf-8')
+        reqs = spec + safe_path(h.root,'docs/TECH_SPEC.md').read_text(encoding='utf-8')
     if feature.get('spec_source'):
         try: reqs = '\n'.join(openspec_tool.feature_source(h.root,feature).values())
         except (HarnessError,OSError) as exc: gaps.append(str(exc)); reqs = ''

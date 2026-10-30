@@ -1,0 +1,12 @@
+test_dependency_case_contract_is_rechecked_in_downstream_verification (test_case_receipts.CaseConsumerTests.test_dependency_case_contract_is_rechecked_in_downstream_verification) ... ok
+test_exit_zero_without_required_case_is_insufficient (test_case_receipts.CaseConsumerTests.test_exit_zero_without_required_case_is_insufficient) ... ok
+test_real_runner_current_case_missing_case_and_tampering (test_case_receipts.CaseConsumerTests.test_real_runner_current_case_missing_case_and_tampering) ... ok
+test_semantic_attestation_and_behavioral_fault_are_distinct (test_case_receipts.CaseConsumerTests.test_semantic_attestation_and_behavioral_fault_are_distinct) ... ok
+test_skipped_and_xfail_never_support_required_case (test_case_receipts.CaseConsumerTests.test_skipped_and_xfail_never_support_required_case) ... ok
+test_observed_case_and_skip_are_distinct (test_case_receipts.CaseReceiptTests.test_observed_case_and_skip_are_distinct) ... ok
+test_stale_duplicate_malformed_and_oversized_reports_reject (test_case_receipts.CaseReceiptTests.test_stale_duplicate_malformed_and_oversized_reports_reject) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 3.660s
+
+OK

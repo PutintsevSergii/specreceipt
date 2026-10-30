@@ -10,7 +10,7 @@ import os
 from dataclasses import dataclass
 from types import MappingProxyType
 from .storage import is_link, HarnessError, atomic, safe_path, uid, now, digest
-from . import workflow, verification
+from . import compact, acceptance_evidence, check_inputs, workflow, verification
 
 
 @dataclass(frozen=True)
@@ -38,7 +38,7 @@ def report_evidence_current(h, task, snapshot):
     if not task['evidence']: return False
     refs = task['evidence'] + task.get('regression_evidence', [])
     ev = max((h.evidence(ref) for ref in refs), key=lambda e: e['created_at'])
-    return h.successful_evidence(task, ev) and ev['fingerprint'] == snapshot.binding
+    return h.successful_evidence(task, ev) and check_inputs.current(h, task, ev, snapshot.files)
 
 
 def task_report(h, task_id, snapshot=None):
@@ -73,7 +73,7 @@ def task_report(h, task_id, snapshot=None):
     if task['evidence']:
         try: evidence = max((h.evidence(r) for r in task['evidence'] + task.get('regression_evidence',[])), key=lambda e:e['created_at'])
         except (HarnessError,OSError,ValueError) as exc: warnings.append('Latest evidence unreadable: '+str(exc))
-    checks = [{k:r.get(k) for k in ('check','result','exit_code','command','summary','log')} for r in (evidence or {}).get('results',[])]
+    checks = [{k:r.get(k) for k in ('check','result','exit_code','command','summary','log','input_binding','reused_from')} for r in (evidence or {}).get('results',[])]
     test_counts = {}
     for check in checks:
         text = check.get('summary') or ''
@@ -121,7 +121,7 @@ def task_report(h, task_id, snapshot=None):
     if temporary: warnings.append('Temporary project: files may be deleted. Retain review artifacts before cleanup.')
     next_action = next_step(h, task, effective, current, approvals, blocked)
     git = h.git()
-    return {'task_id':task_id,'title':task['outcome'],'agent':task.get('workflow',{}).get('facts',{}).get('agent','unknown'),
+    return {'documentation':'compact' if compact.is_compact(feature) else 'formal','git':git,'task_id':task_id,'title':task['outcome'],'agent':task.get('workflow',{}).get('facts',{}).get('agent','unknown'),
             'workflow':selected or ('UNCONFIRMED' if task.get('workflow') else 'STRICT (legacy)'),
             'status':status,'effective_status':effective,'recorded_at':snapshot.observed_at,
             'regression_required':effective == 'DONE' and not current,
@@ -131,6 +131,9 @@ def task_report(h, task_id, snapshot=None):
                      'evidence':str(h.root/next(r for r in task['evidence'] + task.get('regression_evidence',[]) if h.evidence(r)['id'] == evidence['id'])) if evidence else None,
                      'review':approvals['review']['reference'],'review_package':None},
             'changed_files':files,'verification':{'status':'PASS' if current else 'FAIL' if evidence and evidence.get('result') != 'PASS' else 'STALE' if evidence else 'MISSING','checks':checks,'check_counts':counts,
+                                               'input_coverage':check_inputs.coverage((evidence or {}).get('results',[])),
+                                               'dependency_support':(evidence or {}).get('dependency_support',[]),
+                                               'acceptance_support':acceptance_evidence.reported(task, evidence, h),
                                                'test_counts':test_counts or None,'test_counts_note':'Recognized TAP counts are reported per check; otherwise individual test counts remain unknown.'},
             'approvals':approvals,'warnings':warnings,'next_action':next_action,
             'inspect_command':f'git -C {shlex.quote(str(h.root))} diff -- .; git -C {shlex.quote(str(h.root))} status --short' if git.get('head') else None,
@@ -147,6 +150,9 @@ def render(data, markdown=False):
     if not data['tasks']:
         lines += ['Project: '+data.get('project','unknown'),'Next action: Complete project readiness and define an approved task.','./harness readiness']
     for t in data['tasks']:
+        if t.get('documentation')=='compact':
+            lines += compact_card(t)
+            continue
         lines += ['',f"{t['task_id']} — {t['title']}",f"Status: {t['status']} | Effective: {t['effective_status']} | Workflow: {t['workflow']} | Agent: {t['agent']}",
                   'Project: '+t['paths']['project'],'Engine: '+t['paths']['engine_source'],
                   f"Files changed: {len(t['changed_files'])}"]
@@ -159,7 +165,20 @@ def render(data, markdown=False):
         lines += ['Verification: '+t['verification']['status']+' | checks '+json.dumps(t['verification']['check_counts']),
                   'Tests: '+(json.dumps(t['verification']['test_counts']) if t['verification']['test_counts'] else 'individual counts unavailable; see evidence logs.'),
                   'Approvals: '+', '.join(k+'='+v['status']+(' (combined)' if v.get('combined_with') else '') for k,v in t['approvals'].items())]
+        for support in t['verification'].get('acceptance_support', {}).get('criteria', []):
+            lines.append('Criterion support: '+support['criterion']+' | '+support['level']+' | '+support['limitation'])
+            for observation in support.get('observations', []):
+                lines.append('Observed required cases ('+observation['check']+'): '+', '.join(observation['cases'])+' | '+observation['reference'])
+            for review in support.get('reviews', []):
+                lines.append('Semantic attestation: '+review['reviewer']+' ('+review['reviewer_type']+') | '+review['reference'])
+            for probe in support.get('probes', []):
+                lines.append('Targeted fault detected: '+probe['check']+' | '+probe['reference'])
+        for dependency in t['verification'].get('dependency_support', []):
+            for support in dependency['support']['criteria']:
+                lines.append('Dependency criterion support: '+dependency['task_id']+' | '+support['criterion']+' | '+support['level'])
+        lines.append('Evidence input coverage: '+t['verification'].get('input_coverage','GLOBAL')+'; scoped evidence is not full-repository verification.')
         for check in t['verification']['checks']:
+            if check.get('reused_from'): lines.append('Reused current check receipt: '+check['reused_from'])
             lines.append('Check: '+check['check']+' '+check['result']+' | '+shlex.join(check['command'] or []))
             if check.get('log'): lines.append('Log: '+str(Path(t['paths']['project'])/check['log']))
         for key in ('evidence','review','review_package'):
@@ -170,6 +189,36 @@ def render(data, markdown=False):
         lines += ['Next action: '+t['next_action']['message']]
         if t['next_action']['command']: lines.append(t['next_action']['command'])
     return '\n'.join(lines)+'\n'
+
+
+def evidence_artifacts(h, reference):
+    """Retain the bounded observation/review/reuse chain, not just its hashes."""
+    from .storage import read
+    pending=[reference]; seen=set(); refs=set()
+    while pending:
+        ref=pending.pop()
+        if ref in seen: continue
+        seen.add(ref)
+        if len(seen)>128: raise HarnessError('Evidence retention chain exceeds 128 receipts')
+        ev=h.evidence(ref); refs.add(ref)
+        for result in ev['results']:
+            if result.get('log'): refs.add(result['log'])
+            if result.get('case_observation'): refs.add(result['case_observation']['reference'])
+            if result.get('reused_from'): pending.append(result['reused_from'])
+        sections=[ev.get('acceptance_support',{}), *[d['support'] for d in ev.get('dependency_support',[])]]
+        for section in sections:
+            for row in section.get('criteria',[]):
+                for key in ('observations','reviews','probes'):
+                    for artifact in row.get(key,[]): refs.add(artifact['reference'])
+                for review in row.get('reviews',[]):
+                    path=safe_path(h.root,review['reference'])
+                    if path.stat().st_size>32768: raise HarnessError('Semantic retention artifact exceeds limit')
+                    data=read(path)
+                    if not isinstance(data,dict) or not isinstance(data.get('assertions'),list): raise HarnessError('Invalid semantic retention artifact')
+                    for assertion in data['assertions']:
+                        if not isinstance(assertion,dict) or not isinstance(assertion.get('path'),str): raise HarnessError('Invalid retained assertion path')
+                        refs.add(assertion['path'])
+    return refs
 
 
 def report(h, task_id=None, format='json', retain=False, retain_dir=None):
@@ -191,8 +240,10 @@ def report(h, task_id=None, format='json', retain=False, retain_dir=None):
             refs = [f['path'] for f in task['changed_files'] if f['change'] != 'deleted']
             refs += [str(Path(p).relative_to(h.root)) for k,p in task['paths'].items() if k in {'evidence','review'} and p]
             refs += [c['log'] for c in task['verification']['checks'] if c.get('log')]
+            if task['paths']['evidence']:
+                refs += list(evidence_artifacts(h,str(Path(task['paths']['evidence']).relative_to(h.root))))
             total = 0
-            for ref in refs:
+            for ref in sorted(set(refs)):
                 source = safe_path(h.root,ref)
                 total += source.stat().st_size
                 if total > 8*1024*1024: raise HarnessError('Review retention exceeds 8 MiB; select artifacts manually')
@@ -206,6 +257,83 @@ def report(h, task_id=None, format='json', retain=False, retain_dir=None):
             snapshot = {**data,'tasks':[task]}
             atomic(dest/'report.json',snapshot); atomic_text(dest/'report.md',render(snapshot,True))
     return data if format == 'json' else {'text':render(data,format=='markdown')}
+
+
+def approval_package(h, task_id, format='json', snapshot=None):
+    """Read-only, current decision material; never records or implies approval."""
+    def brief(value, limit=360):
+        normalized = ' '.join(value.split())
+        return normalized if len(normalized) <= limit else normalized[:limit-1].rstrip()+'… (full text in linked review)'
+    snapshot = snapshot or ReportSnapshot.capture(h)
+    feature, task = h.task(task_id)
+    report = task_report(h, task_id, snapshot)
+    if task['status'] != 'VERIFIED' or report['effective_status'] != 'VERIFIED':
+        return {'result':'BLOCKED','task_id':task_id,'reason':'Task is not currently VERIFIED with fresh passing evidence.'}
+    if report['verification']['status'] != 'PASS' or report['approvals']['review']['status'] != 'CURRENT':
+        return {'result':'BLOCKED','task_id':task_id,'reason':'Current PASS evidence and a valid current review are required.'}
+    if report['approvals']['developer']['status'] != 'NOT_RECORDED':
+        return {'result':'BLOCKED','task_id':task_id,'reason':'Final developer approval is not pending; inspect task status.'}
+    if not report['approvals']['developer']['required']:
+        return {'result':'BLOCKED','task_id':task_id,'reason':'This task does not require final developer approval.'}
+    if any(a['required'] and kind not in {'developer'} and a['status'] != 'CURRENT'
+           for kind,a in report['approvals'].items()):
+        return {'result':'BLOCKED','task_id':task_id,'reason':'Other required approvals are missing or stale.'}
+    if report['next_action']['action'] != 'approval':
+        return {'result':'BLOCKED','task_id':task_id,'reason':'Task is not at the final developer decision step.'}
+    review_path = Path(report['paths']['review'])
+    review = verification.review(h, task, review_path.read_text(encoding='utf-8'))
+    limitations = [brief(row['limitation']) for row in review.get('criterion_evidence', [])]
+    package = {
+        'result':'PASS', 'task_id':task_id, 'outcome':task['outcome'],
+        'acceptance_binding':compact.result_binding(h,task),
+        'state':'Ready for your acceptance — not yet DONE',
+        'review_summary':brief(review['summary']), 'review_verdict':review['verdict'],
+        'recorded_at':snapshot.observed_at,
+        'paths':{'spec':str(h.root/f"specs/{feature['feature_id']}/spec.md"),
+                 'plan':str(h.root/f"specs/{feature['feature_id']}/plan.md"),
+                 'evidence':report['paths']['evidence'], 'review':str(review_path)},
+        'changed_files':report['changed_files'],
+        'checks':[{k:c.get(k) for k in ('check','result','summary','log','input_binding','reused_from')} for c in report['verification']['checks']],
+        'acceptance_support':report['verification']['acceptance_support'],
+        'dependency_support':report['verification']['dependency_support'],
+        'input_coverage':report['verification']['input_coverage'],
+        'limitations':limitations or ['The review has no structured criterion limitations; inspect the linked review and evidence.'],
+        'approval_effect':f'DONE accepts only the verified result of {task_id}. It does not approve a commit, push, publication, deployment or any other task.',
+        'approval_command':f'./harness task approve {task_id} --kind developer --by NAME --reference FILE',
+    }
+    if compact.is_compact(feature):
+        package['paths']['spec'] = package['paths']['plan'] = str(h.root/f"specs/{feature['feature_id']}/tasks.json")
+        package['approval_command'] = f'./harness workflow accept {task_id} --by NAME --reference FILE --expected '+package['acceptance_binding']
+    return package if format == 'json' else {'result':'PASS','text':render_approval_package(package)}
+
+
+def render_approval_package(package, markdown=True):
+    def link(label, path):
+        if not markdown: return f'{label}: {path}'
+        escaped = str(path).replace('>', '%3E')
+        return f'[{label}](<{escaped}>)'
+    lines = [f"# Decision on {package['task_id']}" if markdown else f"Decision on {package['task_id']}",
+             '', 'Result: '+package['outcome'], 'Review: '+package['review_summary'],
+             'Verification: '+str(len(package['checks']))+' current checks; '+', '.join(c['check']+' '+c['result'] for c in package['checks']),
+             '', 'Inspect:']
+    lines.insert(-1,'Evidence input coverage: '+package.get('input_coverage','GLOBAL')+'; scoped evidence is not full-repository verification.')
+    for support in package.get('acceptance_support',{}).get('criteria',[]):
+        lines.insert(-1,'Criterion support: '+support['criterion']+' | '+support['level']+' | '+support['limitation'])
+    for dependency in package.get('dependency_support',[]):
+        for support in dependency['support']['criteria']:
+            lines.insert(-1,'Dependency support: '+dependency['task_id']+' | '+support['criterion']+' | '+support['level'])
+    for check in package['checks']:
+        if check.get('reused_from'): lines.insert(-1,'Reused check: '+check['check']+' | '+check['reused_from'])
+    lines.extend('- '+link(k.title(),v) for k,v in package['paths'].items())
+    lines += ['', 'Changed files:']
+    for item in package['changed_files']:
+        label = item['path']+' ('+item['change']+', '+item['attribution'].replace('_',' ')+')'
+        lines.append('- '+(label+' [deleted; inspect diff]' if item['change']=='deleted' else link(label,item['absolute_path'])))
+    if not package['changed_files']: lines.append('- No changed files in the execution baseline.')
+    lines += ['', 'Limits:'] + ['- '+x for x in package['limitations']]
+    lines += ['', 'What approval means: '+package['approval_effect'],
+              'If you accept this exact result, record a separate final developer approval before DONE.']
+    return '\n'.join(lines)+'\n'
 
 
 def next_step(h, task, effective, current, approvals, blocked=None):
@@ -229,6 +357,9 @@ def next_step(h, task, effective, current, approvals, blocked=None):
         missing = next((k for k in order if approvals[k]['status'] != 'CURRENT'),None)
         if missing:
             action = 'review' if missing == 'review' else 'approval'
+            if missing == 'developer':
+                return result('approval','Present the current linked decision package and explain the exact result before asking for final developer approval.',
+                              f'{cmd} approval-package {tid} --format markdown')
             sub = f'review {tid}' if action == 'review' else f'task approve {tid} --kind {missing}'
             return result(action,f'Inspect changed files and provide {missing} approval.',f'{cmd} {sub} --by NAME --reference FILE')
         # Approval hashes and structured review were checked above against the
@@ -279,3 +410,19 @@ def invalidate_current(h, reason):
         atomic_text(safe_path(h.root,'.harness/reports/current.md'),'# Stale derived report\n\n'+reason+'\nRun ./harness status --format terminal for live state.\n')
     except Exception as exc:
         print('WARNING: current report cache invalidation failed ('+type(exc).__name__+'); use live status.',file=sys.stderr)
+
+
+def compact_card(t):
+    v=t['verification']; review=t['approvals']['review']
+    phase=('Ready for your acceptance — not yet DONE' if t['next_action']['action']=='approval' else
+           'Historically DONE; current regression '+v['status'] if t['effective_status']=='DONE' else t['effective_status'])
+    checks=[c['check']+': '+c['result']+(' (reused from '+str(c['reused_from'])+')' if c.get('reused_from') else ' (executed)') for c in v['checks']]
+    return ['',t['task_id']+' — '+t['title'],
+            'Project: '+t['paths']['project']+' | Branch: '+str(t['git'].get('branch')),
+            'Profile: '+t['workflow']+' | '+phase,
+            'Changed: '+(', '.join(f['path'] for f in t['changed_files']) or 'No changes recorded'),
+            'Checks: '+('; '.join(checks) or 'Not run'),
+            'Acceptance support: '+'; '.join(row['criterion']+': '+row['level'] for row in v['acceptance_support']['criteria']),
+            'Review: '+review['status']+'; inspect linked record for reviewer identity and limitations',
+            'Limitations: '+('; '.join(t['warnings']) or 'Only the declared checks and recorded review are established; no release/platform claim'),
+            'Next: '+t['next_action']['message']]

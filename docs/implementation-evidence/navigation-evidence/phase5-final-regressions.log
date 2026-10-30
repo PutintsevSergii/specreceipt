@@ -1,0 +1,14 @@
+test_all_scoped_evidence_stays_current_only_for_authorized_independent_change (test_scoped_inputs.ScopedInputTests.test_all_scoped_evidence_stays_current_only_for_authorized_independent_change) ... ok
+test_branch_identity_and_missing_original_receipt_reject_reuse (test_scoped_inputs.ScopedInputTests.test_branch_identity_and_missing_original_receipt_reject_reuse) ... ok
+test_independent_inputs_never_authorize_outside_scope (test_scoped_inputs.ScopedInputTests.test_independent_inputs_never_authorize_outside_scope) ... ok
+test_invalid_contract_fails_before_operation_start (test_scoped_inputs.ScopedInputTests.test_invalid_contract_fails_before_operation_start) ... ok
+test_inventory_changes_and_contract_edits_invalidate (test_scoped_inputs.ScopedInputTests.test_inventory_changes_and_contract_edits_invalidate) ... ok
+test_known_independent_change_reuses_only_opted_check (test_scoped_inputs.ScopedInputTests.test_known_independent_change_reuses_only_opted_check) ... ok
+test_measured_independent_reruns (test_scoped_inputs.ScopedInputTests.test_measured_independent_reruns) ... ok
+test_unknown_creation_and_environment_changes_fall_back_to_global (test_scoped_inputs.ScopedInputTests.test_unknown_creation_and_environment_changes_fall_back_to_global) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 9.065s
+
+OK
+SCOPED_MEASUREMENT {"global": {"check_runs_including_baseline": [4, 4], "full_scan_seconds": [0.010149250010726973, 0.007966583012603223, 0.008040999993681908], "harness_overhead_excluding_checks_seconds": [0.16828362602973357, 0.16667679202510044, 0.1442289160040673], "samples": 3}, "scoped": {"check_runs_including_baseline": [1, 4], "full_scan_seconds": [0.008214292000047863, 0.007982707989867777, 0.00848354201298207], "harness_overhead_excluding_checks_seconds": [0.19950945800519548, 0.19141341600334272, 0.19983195900567807], "samples": 3}}

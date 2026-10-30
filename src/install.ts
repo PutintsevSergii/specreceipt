@@ -81,6 +81,18 @@ export function prepare(
       "AGENTS.override.md takes precedence. Merge its rules into AGENTS.md and move the override explicitly before using this Codex integration.",
     );
   const assets: Asset[] = kitAssets();
+  // Never migrate a legacy or partially initialized workspace implicitly.
+  const existingEngine = ["harnesslib", "harness", ".harness/state.json", ".harness/checks.json", ".harness/product.json", ".harness/install.json", ".harness/installation-manifest.json", ".harness/installation-pending.json"].some(rel => fs.existsSync(path.join(root, rel)));
+  if (!existingEngine && read(root, ".harness/navigation.json") === null) assets.push({
+    path: ".harness/navigation.json",
+    content: fs.readFileSync(path.join(KIT, "templates/navigation.json"), "utf8"),
+    owner: "project",
+  });
+  if (!existingEngine && read(root, ".harness/workflow-policy.json") === null) assets.push({
+    path: ".harness/workflow-policy.json",
+    content: fs.readFileSync(path.join(KIT, "templates/workflow-policy.json"), "utf8"),
+    owner: "project",
+  });
   assets.push({
     path: ".harness/onboarding.json",
     content: fs.readFileSync(

@@ -10,7 +10,7 @@ SpecReceipt is a repository-local engineering workflow toolkit for coding agents
 - Python 3.11 or newer.
 - Windows x64 (Windows PowerShell 5.1 or Command Prompt), macOS, or Linux. WSL and Bash are not required on Windows.
 - Git for merging user changes during upgrades.
-- OpenSpec 1.14.3 for `init`; CodeGraph and Graphify are installed separately when navigation is needed.
+- OpenSpec 1.14.3 for `init`; new projects use source navigation without CodeGraph or Graphify. Explicitly required providers remain mandatory.
 
 ## Native Windows setup
 
@@ -65,7 +65,9 @@ After installation, the CLI exposes the Python operations, including `resume`, `
 
 ## Workflow and limits
 
-A developer approves a current specification and plan before implementation. Task readiness, configured verification, evidence, review and a separate final developer approval govern completion. `doctor` checks installation health; it does not prove application readiness, external agent authentication, protected CI, or a safe public release. Local files and scripts are editable by their owners.
+A developer approves a current specification and plan before implementation. Task readiness, configured verification, evidence, review and a separate final developer approval govern completion. Before asking for final `DONE`, run `specreceipt approval-package TASK-ID --format markdown` and present its linked files, result, limits and exact approval effect. A blocked package means the decision is not ready. `doctor` checks installation health; it does not prove application readiness, external agent authentication, protected CI, or a safe public release. Local files and scripts are editable by their owners.
+
+For an approved task, an optional Codex CLI adapter can let the bounded Python runner perform implementation and a separate review, then stop at the final developer decision. After reviewing the exact task IDs, local tool access and a substantive approval reference, run `specreceipt codex-runner-preview --task TASK-001 --reference docs/approvals/runner.md --target /path/to/project`. Review the emitted configuration and save it as `<project>/.harness/runner.json`; the preview does not enable execution. Run `specreceipt run --max-steps 20 --max-seconds 3600 --target /path/to/project` only in the approved project. The adapter requires the local Codex CLI, performs an execution preflight, uses a workspace-write sandbox and cannot grant its own approvals. See [bounded continuation](docs/HARNESS.md#bounded-continuation-and-command-adapters).
 
 The project keeps its own instructions and OpenSpec material. The package uses a managed section in `AGENTS.md` and includes 18 optional role Skills. The section's legacy `my-ai-harness` comment markers remain for safe upgrades; the command is `specreceipt`. See the [operating guide](assets/kit/docs/HARNESS.md) and [v0.3 contract](assets/kit/docs/V03.md).
 

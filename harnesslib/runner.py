@@ -6,7 +6,7 @@ A persisted intent without a result is never automatically replayed.
 import time
 from .report_operation import operation as report_operation
 from .storage import HarnessError, atomic, digest, read, safe_path, now, uid
-from . import assessment, openspec_tool, readiness, verification
+from . import compact, assessment, openspec_tool, readiness, verification
 
 
 def next_action(h):
@@ -18,9 +18,13 @@ def next_action(h):
     if not tasks: return {'result':'BLOCKED','action':'onboard','reasons':['No approved tasks are defined']}
     active = next((t for t in tasks if t['id'] == state['active_task'] and t['status'] not in {'DONE','BLOCKED'}),None)
     candidates = [active] if active else sorted((t for t in tasks if t['status'] not in {'DONE','BLOCKED'}),key=lambda t:t['id'])
+    if not active and len(candidates)>1 and any(compact.is_compact(h.task(t['id'])[0]) for t in candidates):
+        return {'result':'BLOCKED','action':'select-task','reasons':['Multiple pending tasks: explicitly start the intended approved task']}
     blocked = []
     for task in candidates:
         feature,_ = h.task(task['id'])
+        if compact.is_compact(feature) and not task.get('workflow',{}).get('selected'):
+            return compact.plan_card(h,task['id'])
         try:
             h.ready(feature,task)
             verification.acceptance(task)
@@ -37,9 +41,10 @@ def next_action(h):
                     content = safe_path(h.root,approval['reference']).read_text(encoding='utf-8')
                     if approval['fingerprint'] == h.binding() and approval['reference_hash'] == digest(content):
                         verification.review(h,task,content); action='approval'
-        from .reporting import task_report
+        from .reporting import task_report, approval_package
         presentation = task_report(h,task['id'])['next_action']
-        return {'result':'PASS','action':action,'next_action':presentation,'task_id':task['id'],'feature_id':feature['feature_id'],
+        decision = approval_package(h,task['id']) if action == 'approval' and presentation['action'] == 'approval' and presentation['command'] and 'approval-package' in presentation['command'] else None
+        return {'result':'PASS','action':action,'next_action':presentation,'approval_package':decision,'task_id':task['id'],'feature_id':feature['feature_id'],
                 'scope':task['scope'],'required_checks':sorted({n for t in h.check_closure(task) for n in t['required_checks']}),
                 'acceptance_checks':task['acceptance_checks']}
     if all(h.completed(t) for t in tasks):
@@ -81,14 +86,14 @@ def run(h, max_steps, max_seconds, new_run=False):
         h.save(h.state(), h.event('runner',summary), extra={'.harness/runner-state.json':record})
     persist('Bounded run initialized or resumed; budgets persist across invocations.')
     while record['steps'] < max_steps and record['elapsed_seconds'] < max_seconds:
-        if record['failures'] >= (cfg['max_failures'] if cfg else 1):
+        if record['failures'] >= (cfg['max_failures'] if cfg else 3):
             return {'result':'BLOCKED','action':'failure-budget','run':record}
         action = next_action(h)
-        if action['result'] != 'PASS' or action['action'] in {'finished','approval'}:
+        if action['result'] != 'PASS' or action['action'] in {'finished','approval','plan-decision'}:
             return {**action,'run':record}
         phase = action['action']; task_id = action.get('task_id')
         if phase in {'implement','review'} and cfg is None:
-            return {**action,'result':'BLOCKED','reason':'Configure an authorized adapter or perform this role in the current agent session','run':record}
+            return host_action(h,action,record,max_steps,max_seconds)
         if cfg and task_id not in cfg['task_ids']:
             return {**action,'result':'BLOCKED','reason':'Task is outside runner authorization','run':record}
         start = time.monotonic()
@@ -133,6 +138,7 @@ def run(h, max_steps, max_seconds, new_run=False):
                 workflow_before = digest(h.features())
                 state = h.state(); state['active_operation']={'id':uid(),'kind':'adapter','task':task_id,'phase':phase,'started_at':now()}
                 h.save(state,h.event('adapter-start','Persisted adapter intent before execution.',task_id))
+                intent_state = digest(h.state())
                 check={'kind':'command','approved':True,'approval_reference':cfg['approval_reference'],'argv':argv,
                        'timeout_seconds':min(cfg['timeout_seconds'],max_seconds-record['elapsed_seconds'])}
                 result = h.run_check('adapter-'+phase,check)
@@ -140,6 +146,8 @@ def run(h, max_steps, max_seconds, new_run=False):
                     record['failures'] += 1
                     h.reconcile()  # uncertain effects stay blocked; never auto-retry
                     return {'result':'BLOCKED','action':'recover','run':record}
+                if digest(h.state()) != intent_state:
+                    raise HarnessError('Adapter changed Python lifecycle state')
                 state=h.state(); state['active_operation']=None
                 h.save(state,h.event('adapter-finished','Adapter process returned; validating effects. '+result['summary'],task_id,result=result['result'],commands=[{'argv':result['command'],'exit_code':result['exit_code']}]))
                 if digest(h.features()) != workflow_before: raise HarnessError('Adapter changed task workflow records')
@@ -167,3 +175,56 @@ def run(h, max_steps, max_seconds, new_run=False):
             record['elapsed_seconds'] += time.monotonic()-start
             persist('Run step ended; budget consumption persisted.')
     return {'result':'BLOCKED','action':'budget-exhausted','run':record}
+
+
+def host_action(h, action, record, max_steps, max_seconds):
+    """Release the CLI lock before the current IDE host performs a role."""
+    task=h.task(action['task_id'])[1]
+    path='.harness/dispatch/host.json'
+    review_path=f"specs/{action['feature_id']}/reviews/{task['id']}.md"
+    signature=digest({'task':task['id'],'status':task['status'],'history':task['history'],'evidence':task['evidence'],'approvals':task['approvals'],'definition':h.definition(task),'phase':action['action'],'project':str(h.root)})
+    old=read(h.root/path) if (h.root/path).exists() else None
+    if old and old['signature']==signature and old['run_id']==record['id']:
+        ticket=old
+    else:
+        inventory=verification.inventory(h.root); inventory.pop(review_path,None)
+        ticket={'id':uid(),'task_id':task['id'],'phase':action['action'],'signature':signature,
+                'binding':h.binding(),'inventory':inventory,'review_path':review_path,'run_id':record['id'],'max_steps':max_steps,'max_seconds':max_seconds}
+        h.save(h.state(),h.event('host-role','Current host role requested; no subprocess launched',task['id']),extra={path:ticket})
+    return {**action,'result':'PASS','host_role':{'request_id':ticket['id'],'role':ticket['phase'],'review_path':review_path,
+            'review_kind':'Current-host separate pass; not independent attestation',
+            'instructions':'Implement only approved scope. For review, inspect the diff and evidence in a separate pass and write only review_path using the existing harness-review contract. Submit request_id through run --submit; do not edit lifecycle records.'},'run':record}
+
+
+def submit(h, token, by, reference=None):
+    """Guard host completion just like adapter completion; exit/prose is not evidence."""
+    path='.harness/dispatch/host.json'
+    ticket=read(safe_path(h.root,path)); task_id=ticket['task_id']
+    if token!=ticket['id']: raise HarnessError('Wrong or stale host role token')
+    h.reconcile()
+    task=h.task(task_id)[1]
+    signature=digest({'task':task['id'],'status':task['status'],'history':task['history'],'evidence':task['evidence'],'approvals':task['approvals'],'definition':h.definition(task),'phase':ticket['phase'],'project':str(h.root)})
+    if ticket['signature']!=signature: raise HarnessError('Host role inputs changed; inspect current task')
+    state=h.state()
+    if state['active_task']!=task_id or state['uncertain_outcome'] or state['blockers']: raise HarnessError('Host task is inactive or blocked')
+    record=read(h.root/'.harness/runner-state.json')
+    if record['id']!=ticket['run_id']: raise HarnessError('Host role belongs to another run')
+    # Submission consumes one durable step; repeated requests do not reset budget.
+    if record['steps']>=ticket['max_steps'] or record['elapsed_seconds']>=ticket['max_seconds'] or record['failures']>=3:
+        raise HarnessError('Host run budget exhausted; inspect before explicitly starting a new run')
+    verification.scope_changes(h,task)
+    record['steps']+=1
+    h.save(h.state(),h.event('host-reserved','Reserved guarded host submission before mutation',task_id),extra={'.harness/runner-state.json':record})
+    if ticket['phase']=='implement':
+        h.transition(task_id,'IMPLEMENTED','Current IDE host completed implementation; verification pending')
+    else:
+        inventory=verification.inventory(h.root); inventory.pop(ticket['review_path'],None)
+        if inventory!=ticket['inventory'] or h.binding()!=ticket['binding']: raise HarnessError('Review changed implementation inputs')
+        if reference!=ticket['review_path']: raise HarnessError('Review must use the requested review path')
+        review=verification.review(h,task,safe_path(h.root,reference).read_text(),require_pass=False)
+        if review['verdict']!='PASS' or any(f['status']=='OPEN' for f in review['findings']):
+            h.transition(task_id,'REWORK','Current-host review requests bounded repair: '+reference)
+            record['failures']+=1
+        else: h.approve(task_id,'review',by+' (current-host separate pass)',reference)
+    h.save(h.state(),h.event('host-result','Guarded current-host result received',task_id),extra={'.harness/runner-state.json':record,path:{**ticket,'signature':'consumed'}})
+    return {'result':'PASS','task_id':task_id}

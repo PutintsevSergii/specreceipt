@@ -151,3 +151,16 @@ test('unknown engine requirements never downgrade navigation to optional',t=>{
   assert.equal(check(r,'graphify-cli').requirement,'REQUIRED');
   let spawns=0;assert.throws(()=>checkedAgentLaunch(o,()=>spawns++));assert.equal(spawns,0);
 });
+
+test('source and individual required navigation policies reach execution diagnostics', t => {
+  const o=fixture(t); installed(o);
+  fs.mkdirSync(path.join(o.cwd,'.harness'),{recursive:true});
+  for (const providers of [[],['codegraph'],['graphify']]) {
+    fs.writeFileSync(path.join(o.cwd,'.harness/navigation.json'),JSON.stringify({schema_version:1,mode:providers.length?'required':'source',providers}));
+    const r=executionPreflight(o);
+    for (const name of ['codegraph','graphify'])
+      assert.equal(check(r,name+'-cli').requirement,providers.includes(name)?'REQUIRED':'OPTIONAL');
+  }
+  fs.writeFileSync(path.join(o.cwd,'.harness/navigation.json'),'{}');
+  assert.equal(check(executionPreflight(o),'execution-requirements').status,'FAIL');
+});

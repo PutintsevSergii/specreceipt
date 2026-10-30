@@ -1,0 +1,91 @@
+TAP version 13
+# Subtest: child PATH wins over parent; missing optional tools allow repository search fallback
+ok 1 - child PATH wins over parent; missing optional tools allow repository search fallback
+  ---
+  duration_ms: 414.046792
+  ...
+# Subtest: required navigation and version failures prevent paid launch, even with available MCP
+ok 2 - required navigation and version failures prevent paid launch, even with available MCP
+  ---
+  duration_ms: 888.287917
+  ...
+# Subtest: agent shell PATH transformation is probed rather than assumed
+ok 3 - agent shell PATH transformation is probed rather than assumed
+  ---
+  duration_ms: 107.350333
+  ...
+# Subtest: MCP configured is not available, disabled wins, required unavailable integration blocks
+ok 4 - MCP configured is not available, disabled wins, required unavailable integration blocks
+  ---
+  duration_ms: 190.920833
+  ...
+# Subtest: generic required MCP needs an observed read-only host capability
+ok 5 - generic required MCP needs an observed read-only host capability
+  ---
+  duration_ms: 311.644625
+  ...
+# Subtest: ignore user config and unsupported environment policies are respected
+ok 6 - ignore user config and unsupported environment policies are respected
+  ---
+  duration_ms: 124.674875
+  ...
+# {"result": "FAIL", "error": "Invalid .harness/navigation.json: use version 1 source with no providers or required with unique codegraph/graphify providers."}
+# Subtest: Copilot probes sanitized supplied environment and does not launch on required failure
+ok 7 - Copilot probes sanitized supplied environment and does not launch on required failure
+  ---
+  duration_ms: 336.890709
+  ...
+# Subtest: incompatible agent capability fails and IDE-only needs no CLI
+ok 8 - incompatible agent capability fails and IDE-only needs no CLI
+  ---
+  duration_ms: 63.124125
+  ...
+# Subtest: broken managed tool must not fall back to compatible PATH executable
+ok 9 - broken managed tool must not fall back to compatible PATH executable
+  ---
+  duration_ms: 202.355708
+  ...
+# Subtest: MCP effective disabled override and unrelated host tools are not treated as available
+ok 10 - MCP effective disabled override and unrelated host tools are not treated as available
+  ---
+  duration_ms: 125.61575
+  ...
+# Subtest: selected required check executable missing in child environment fails before spawn
+ok 11 - selected required check executable missing in child environment fails before spawn
+  ---
+  duration_ms: 378.185125
+  ...
+# Subtest: symlinked managed tool directory is rejected instead of passing PATH fallback
+ok 12 - symlinked managed tool directory is rejected instead of passing PATH fallback
+  ---
+  duration_ms: 202.890292
+  ...
+# Subtest: empty symlinked managed directory cannot fall through to PATH
+ok 13 - empty symlinked managed directory cannot fall through to PATH
+  ---
+  duration_ms: 204.763916
+  ...
+# Subtest: application runtime versions are not replaced by Harness runtime pins
+ok 14 - application runtime versions are not replaced by Harness runtime pins
+  ---
+  duration_ms: 263.522
+  ...
+# Subtest: unknown engine requirements never downgrade navigation to optional
+ok 15 - unknown engine requirements never downgrade navigation to optional
+  ---
+  duration_ms: 155.952792
+  ...
+# Subtest: source and individual required navigation policies reach execution diagnostics
+ok 16 - source and individual required navigation policies reach execution diagnostics
+  ---
+  duration_ms: 723.377125
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4746.248125
