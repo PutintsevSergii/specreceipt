@@ -25,7 +25,7 @@
   "harnesslib/junit_unittest.py": "80b5fe1b2bb57a500826d3f14f08eaf8881aeff94013533ed06d9d7d8cad08c4",
   "harnesslib/openspec_tool.py": "e056518155536d16ddeeb5633f5bd3ac0058c5b42ab511b0f578d38b2050d412",
   "harnesslib/processes.py": "d28d5d0328846832be6e2af88f4239352ff1497898f697179e4c484968e1e6e2",
-  "harnesslib/protocol.py": "21bc721b35f95c3c957f7aa7751687c3b7b618ae0fd753b061fd79e2a78a4dda",
+  "harnesslib/protocol.py": "e5a00549d8907dd799bdc677912c2fa4992c1eb134e3873a8e33e191b24afc88",
   "harnesslib/quality.py": "fd4992b1897a90942310e3beb9931e0e33d41bc0948406d949ad2a271ab4ae91",
   "harnesslib/readiness.py": "702a1b4aa6fcd835b57f3712d4e49eafaf4cb322da90857fd4764c52cc9a667c",
   "harnesslib/reconciliation.py": "73a10684c7da1f73a6a203dfb20ae7c06e9050866aaabf56d47889d0bfabee54",

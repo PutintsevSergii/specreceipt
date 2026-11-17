@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.0
+
+- Add a local browser UI for task status, agent questions and answers, and reviewing verified results with bound developer approvals.
+- Add project-local quality profiles and bounded repair/reverification feedback while preserving consumer approval gates.
+- Prepare integrity-pinned archived upgrade inputs in CI instead of failing selected upgrade checks with missing archives.
+- Preserve upgrades from published 0.4.4 and 0.6.0 installations, including customized files and explicit conflict handling.
+
 ## 0.6.0
 
 - Upgrade OpenSpec to 2.1.0 with explicit project-local skills and the shared Codex/Copilot skill layout. Node >=22.20 and <25 is now required.

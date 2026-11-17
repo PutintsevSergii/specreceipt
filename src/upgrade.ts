@@ -87,7 +87,7 @@ export function prepareUpgrade(root: string, baseline?: string): Change[] {
       "Pending installation or lock; inspect and recover before upgrade.",
     );
   const previous = manifest(root);
-  const supported = ["0.1.0", "0.2.0", "0.3.0", "0.3.1", "0.4.4", VERSION];
+  const supported = ["0.1.0", "0.2.0", "0.3.0", "0.3.1", "0.4.4", "0.6.0", VERSION];
   if (!previous || !supported.includes(previous.packageVersion))
     throw Error(
       "Unsupported or absent installation version. Supported source: " + supported.join(", ") + ".",

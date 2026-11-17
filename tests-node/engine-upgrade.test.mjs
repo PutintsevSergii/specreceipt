@@ -246,7 +246,7 @@ test("upgrade preserves local Skills, shared rules, OpenSpec and custom files; d
   upgrade(root, prepareUpgrade(root));
   assert.deepEqual(snapshot(root), after);
 });
-for (const previousVersion of ["0.3.0", "0.3.1", "0.4.4"]) test(`${previousVersion} installation manifest can upgrade to the current release`, (t) => {
+for (const previousVersion of ["0.3.0", "0.3.1", "0.4.4", "0.6.0"]) test(`${previousVersion} installation manifest can upgrade to the current release`, (t) => {
   const root = fixture(t);
   const old = manifest(root);
   old.packageVersion = previousVersion;
