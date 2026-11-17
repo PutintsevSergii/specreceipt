@@ -106,6 +106,44 @@
               "reviewed_revision"
             ],
             "additionalProperties": false
+          },
+          "cwd": {
+            "type": "string",
+            "minLength": 1
+          },
+          "quality_profile": {
+            "type": "string",
+            "enum": [
+              "python",
+              "javascript",
+              "typescript",
+              "csharp",
+              "shell",
+              "powershell",
+              "go",
+              "rust",
+              "security"
+            ]
+          },
+          "version_argv": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "expected_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "file_extensions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^\\.[A-Za-z0-9]+$"
+            },
+            "minItems": 1
           }
         },
         "required": [

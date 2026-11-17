@@ -165,6 +165,15 @@ try {
       env,
     );
     assertAdaptiveInstallation(target, "codex");
+    const qualityCatalog = JSON.parse(run(process.execPath,
+      [cli, "quality", "catalog", "--target", target], consumer, env));
+    assert.ok(qualityCatalog.profiles.python);
+    assert.ok(qualityCatalog.profiles.csharp);
+    const qualityPlan = JSON.parse(run(process.execPath,
+      [cli, "quality", "plan", "--profile", "security", "--target", target], consumer, env));
+    assert.equal(Object.keys(qualityPlan.checks).length, 2);
+    assert.ok(Object.values(qualityPlan.checks).every(c => c.approved === false && Array.isArray(c.argv)));
+    assert.ok(fs.existsSync(path.join(target, "templates/quality/semgrep.json")));
     assertPackagedPreflight(target, "codex");
     assert.match(run(process.execPath, [cli, "workflow", "--help", "--target", target], consumer, env), /assess,show,confirm/);
     const first = fs.readFileSync(

@@ -10,6 +10,7 @@ from .report_operation import scope as reporting_scope
 from . import compact, assessment, index_context, installation, codegraph_tool, graph, graphify_tool, investigation, openspec_tool, readiness, runner, tool_updates, workflow, reporting, stories
 from .skills import catalog
 from .storage import HarnessError, lock, redact
+from . import quality
 
 def parser():
     p = argparse.ArgumentParser(prog='./harness')
@@ -20,6 +21,7 @@ def parser():
         if name == 'doctor':
             command.add_argument('--execution-requirements',action='store_true'); command.add_argument('--task')
         if name == 'status':
+            command.add_argument('--detailed',action='store_true')
             command.add_argument('id',nargs='?'); command.add_argument('--format',choices=['json','markdown','terminal'],default='json'); command.add_argument('--retain',action='store_true'); command.add_argument('--retain-dir',type=Path)
     story = sub.add_parser('story').add_subparsers(dest='action', required=True)
     sp = story.add_parser('propose'); sp.add_argument('--file', required=True); sp.add_argument('--apply', action='store_true'); sp.add_argument('--expected')
@@ -43,6 +45,17 @@ def parser():
     ir = inv.add_parser('record'); ir.add_argument('id'); ir.add_argument('--file',required=True)
     ic = inv.add_parser('check'); ic.add_argument('id'); ic.add_argument('--current')
     sub.add_parser('next')
+    qs = sub.add_parser('quality').add_subparsers(dest='action', required=True)
+    qs.add_parser('catalog')
+    qs.add_parser('detect')
+    qp = qs.add_parser('plan')
+    qp.add_argument('--profile', choices=sorted(quality.PROFILES), required=True)
+    qp.add_argument('--path', default='.')
+    qp.add_argument('--checks', nargs='+')
+    qp.add_argument('--rules')
+    qp.add_argument('--apply', action='store_true')
+    qp.add_argument('--expected')
+    qs.add_parser('report').add_argument('id')
     decision = sub.add_parser('approval-package')
     decision.add_argument('id'); decision.add_argument('--format',choices=['json','markdown','terminal'],default='json')
     tools = sub.add_parser('tools').add_subparsers(dest='action',required=True)
@@ -97,7 +110,7 @@ def parser():
     replan = task.add_parser('replan'); replan.add_argument('id'); replan.add_argument('--reference',required=True)
     start = task.add_parser('start'); start.add_argument('id')
     trans = task.add_parser('transition'); trans.add_argument('id'); trans.add_argument('status'); trans.add_argument('--reason',required=True)
-    approve = task.add_parser('approve'); approve.add_argument('id'); approve.add_argument('--kind',required=True); approve.add_argument('--by',required=True); approve.add_argument('--reference',required=True)
+    approve = task.add_parser('approve'); approve.add_argument('id'); approve.add_argument('--kind',required=True); approve.add_argument('--by',required=True); approve.add_argument('--reference',required=True); approve.add_argument('--expected')
     review = sub.add_parser('review')
     review.add_argument('id'); review.add_argument('--by',required=True); review.add_argument('--reference',required=True)
     g = sub.add_parser('graph').add_subparsers(dest='action',required=True)
@@ -122,6 +135,11 @@ def parser():
 
 def run(args,h):
     cmd = args.command
+    if cmd == 'quality':
+        if args.action == 'catalog': return quality.catalog()
+        if args.action == 'detect': return quality.detect(h.root)
+        if args.action == 'report': return quality.report(h, args.id)
+        return quality.plan(h.root, args.profile, args.path, args.checks, args.apply, args.expected, args.rules)
     if cmd == 'story':
         if args.action == 'propose':
             from .storage import read, safe_path
@@ -199,7 +217,7 @@ def run(args,h):
                 'git':h.git(),'validation':h.validate(),'skills':len(list((h.root/'.agents/skills').glob('*/SKILL.md'))),
                 'permissions':'Runtime-managed; no hooks, merge protection, credentials or permission overrides installed.'}
     if cmd == 'status':
-        if args.id or args.format != 'json' or args.retain or args.retain_dir:
+        if args.id or args.detailed or args.format != 'json' or args.retain or args.retain_dir:
             return reporting.report(h,args.id,args.format,args.retain or bool(args.retain_dir),args.retain_dir)
         return h.status()
     if cmd == 'resume':
@@ -218,7 +236,7 @@ def run(args,h):
         if args.action == 'replan': return h.replan(args.id,args.reference)
         if args.action == 'start': return h.transition(args.id,'IN_PROGRESS','Started approved task')
         if args.action == 'transition': return h.transition(args.id,args.status,args.reason)
-        return h.approve(args.id,args.kind,args.by,args.reference)
+        return h.approve(args.id,args.kind,args.by,args.reference,expected_result=args.expected)
     if cmd == 'graph':
         if args.action == 'status': return graph.status(h.root)
         if args.action == 'update': return graph.update(h.root)
@@ -273,6 +291,7 @@ def main():
     try:
         readonly = (args.command=='workflow' and args.action=='migrate' and not args.by) or (args.command=='tools' and not args.apply) or (args.command=='openspec' and args.action in {'status','context','validate','list','instructions'}) or (args.command=='investigation' and args.action=='check') or args.command in {'status','validate','doctor','skills','readiness','next','approval-package'} or args.command=='graph' and args.action=='status' or args.command=='graphify' and args.action in {'status','query'} or args.command=='codegraph' and args.action in {'status','query'} or args.command=='indexes' and args.action=='status'
         if args.command == 'story': readonly = args.action in {'status', 'list', 'approval-package'} or (args.action == 'propose' and not args.apply)
+        if args.command == 'quality': readonly = args.action != 'plan' or not args.apply
         if args.command == 'status' and (args.retain or args.retain_dir): readonly = False
         if readonly: result = run(args,h)
         else:

@@ -246,7 +246,7 @@ test("upgrade preserves local Skills, shared rules, OpenSpec and custom files; d
   upgrade(root, prepareUpgrade(root));
   assert.deepEqual(snapshot(root), after);
 });
-for (const previousVersion of ["0.3.0", "0.3.1"]) test(`${previousVersion} installation manifest can upgrade to the current release`, (t) => {
+for (const previousVersion of ["0.3.0", "0.3.1", "0.4.4"]) test(`${previousVersion} installation manifest can upgrade to the current release`, (t) => {
   const root = fixture(t);
   const old = manifest(root);
   old.packageVersion = previousVersion;
@@ -369,4 +369,35 @@ test('legacy upgrade without navigation policy retains dual-provider requirement
   const requirements=request(root,['doctor','--execution-requirements']);
   assert.equal(requirements.exitCode,0);
   assert.deepEqual(requirements.data.navigation_providers,['codegraph','graphify']);
+});
+
+test('CI upgrade archives are identity-checked and pinned to reviewed bytes', async t => {
+  const { verifyArchive, BASELINE, environmentLines } = await import('../scripts/prepare-upgrade-ci.mjs');
+  const { createHash } = await import('node:crypto');
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'upgrade-inputs-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const bytes = Buffer.from('isolated archive fixture');
+  const record = { name: 'specreceipt', version: '0.4.4', filename: 'specreceipt-0.4.4.tgz', integrity: 'sha512-' + createHash('sha512').update(bytes).digest('base64') };
+  fs.writeFileSync(path.join(root, record.filename), bytes);
+  assert.equal(verifyArchive(record, root, record), path.join(root, record.filename));
+  assert.throws(() => verifyArchive(record, root, BASELINE), /integrity/);
+  assert.throws(() => verifyArchive({ ...record, filename: '../outside.tgz' }, root, record), /identity/);
+  assert.throws(() => verifyArchive(record, root, { ...record, version: '0.5.0' }), /identity/);
+  fs.writeFileSync(path.join(root, record.filename), 'modified');
+  assert.throws(() => verifyArchive(record, root, record), /integrity/);
+  assert.match(environmentLines({ HARNESS_LEGACY_PACKAGE: 'C:\\with spaces\\пакет.tgz' }), /пакет.tgz\n$/);
+  assert.throws(() => environmentLines({ HARNESS_LEGACY_PACKAGE: 'file\nINJECT=value' }), /Invalid/);
+});
+
+test('CI supplies archived upgrade prerequisites before selected node checks on each OS', () => {
+  const workflow = YAML.parse(fs.readFileSync('.github/workflows/verify.yml', 'utf8'));
+  assert.equal(workflow.jobs.changes.outputs.upgrade, '${{ steps.plan.outputs.upgrade }}');
+  assert.match(workflow.jobs.changes.steps.find(s => s.id === 'plan').run, /'upgrade' in ids/);
+  for (const name of ['verify', 'windows-native']) {
+    const steps = workflow.jobs[name].steps;
+    const preparation = steps.findIndex(s => s.name === 'Prepare selected archived upgrade inputs');
+    assert.ok(preparation >= 0 && preparation < steps.findIndex(s => s.name === 'Run selected node checks'));
+    assert.equal(steps[preparation].if, "needs.changes.outputs.upgrade == 'true'");
+    assert.equal(steps[preparation].run, 'npm run ci:upgrade:prepare');
+  }
 });

@@ -18,6 +18,7 @@ jobs:
     outputs:
       python: ${{ steps.plan.outputs.python }}
       node: ${{ steps.plan.outputs.node }}
+      upgrade: ${{ steps.plan.outputs.upgrade }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -46,6 +47,7 @@ jobs:
               plan = json.load(f)
           ids = {entry['id'] for entry in plan['commands']}
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write('upgrade=' + str('upgrade' in ids).lower() + '\n')
               f.write('python=' + str(bool(ids & {'python', 'validate'})).lower() + '\n')
               f.write('node=' + str(bool(ids - {'python', 'validate'})).lower() + '\n')
       - uses: actions/upload-artifact@v4
@@ -117,6 +119,9 @@ jobs:
         with:
           name: selected-test-plan
           path: ${{ runner.temp }}
+      - name: Prepare selected archived upgrade inputs
+        if: needs.changes.outputs.upgrade == 'true'
+        run: npm run ci:upgrade:prepare
       - name: Run selected node checks
         shell: python
         run: |
@@ -152,6 +157,9 @@ jobs:
         with:
           name: selected-test-plan
           path: ${{ runner.temp }}
+      - name: Prepare selected archived upgrade inputs
+        if: needs.changes.outputs.upgrade == 'true'
+        run: npm run ci:upgrade:prepare
       - name: Run selected node checks
         shell: python
         run: |

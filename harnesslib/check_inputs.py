@@ -70,7 +70,7 @@ def binding(h, task, name, check, files):
     # while conservative global fallback is active.
     result['hash']=digest({'global':global_hash,'revision':current,'contract':contract,'identity':identity})
     # Case observations remain invocation-specific and always execute fresh.
-    if check['kind']!='command' or check.get('report_format'):
+    if check['kind']!='command' or check.get('report_format') or check.get('quality_profile') or check.get('version_argv') or check.get('file_extensions'):
         return {**result,'reason':'Builtin and case-report checks retain global execution'}
     if current!=contract['reviewed_revision']:
         return {**result,'reason':'Non-independent inputs/command/environment changed since review; full rerun until reviewed again'}

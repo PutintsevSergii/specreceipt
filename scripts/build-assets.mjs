@@ -49,6 +49,7 @@ const roots = [
   "docs/HARNESS.md",
   "docs/V02.md",
   "docs/V03.md",
+  "docs/UI.md",
   "docs/COPILOT.md",
   "docs/TECH_SPEC.md",
   "docs/ARCHITECTURE.md",

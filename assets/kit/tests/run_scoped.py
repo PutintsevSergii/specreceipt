@@ -189,7 +189,7 @@ def commands(root, config, selection, language='all'):
         node = [c[5:] for c in checks if c.startswith('node:')]
         # Keep the existing Windows compatibility set; POSIX-only fixtures stay on POSIX.
         if os.name == 'nt':
-            node = [p for p in node if p in {'tests-node/windows.test.mjs', 'tests-node/engine-upgrade.test.mjs', 'tests-node/copilot.test.mjs'}]
+            node = [p for p in node if p in {'tests-node/windows.test.mjs', 'tests-node/engine-upgrade.test.mjs', 'tests-node/copilot.test.mjs', 'tests-node/ui.test.mjs'}]
         node_checks = bool(node or set(checks) & {'typecheck', 'package', 'upgrade', 'wizard'})
         if node_checks:
             # Direct Node entry points avoid npm .cmd shell interpolation on Windows.
@@ -275,7 +275,7 @@ def main(argv=None):
         selection['language'] = args.language
         selection['not_applicable'] = []
         if os.name == 'nt' and args.language != 'python':
-            selection['not_applicable'] = [c for c in selection['checks'] if (c.startswith('node:') and c[5:] not in {'tests-node/windows.test.mjs', 'tests-node/engine-upgrade.test.mjs', 'tests-node/copilot.test.mjs'}) or c == 'wizard']
+            selection['not_applicable'] = [c for c in selection['checks'] if (c.startswith('node:') and c[5:] not in {'tests-node/windows.test.mjs', 'tests-node/engine-upgrade.test.mjs', 'tests-node/copilot.test.mjs', 'tests-node/ui.test.mjs'}) or c == 'wizard']
         selection['limitations'] = ['Conservative maintained impact map, not complete dynamic coverage.', 'Scoped PASS is not final acceptance. Read runner summaries for skips and actual test counts.', 'Windows Node and wizard selection preserves the existing platform applicability.']
         output = json.dumps(selection, ensure_ascii=True, indent=2)
         if args.output:

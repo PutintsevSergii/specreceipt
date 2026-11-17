@@ -18,6 +18,7 @@
     "test_openspec",
     "test_performance",
     "test_protocol",
+    "test_quality",
     "test_reconciliation",
     "test_reporting",
     "test_scoped_inputs",
@@ -36,7 +37,8 @@
     "tests-node/preflight.test.mjs",
     "tests-node/product.test.mjs",
     "tests-node/windows.test.mjs",
-    "tests-node/workflow.test.mjs"
+    "tests-node/workflow.test.mjs",
+    "tests-node/ui.test.mjs"
   ],
   "smoke": [
     "py:test_protocol.ProtocolTests",
@@ -522,6 +524,45 @@
         "package"
       ],
       "reason": "Version synchronization and publication guards require native engine, protocol and package contracts"
+    },
+    {
+      "paths": [
+        "harnesslib/quality.py",
+        "templates/quality/*"
+      ],
+      "checks": [
+        "py:test_quality",
+        "py:test_harness",
+        "py:test_workflow",
+        "py:test_protocol",
+        "package"
+      ],
+      "reason": "Polyglot quality configuration and repair/evidence lifecycle"
+    },
+    {
+      "paths": [
+        "src/ui.ts",
+        "src/ui-page.ts",
+        "tests-node/ui.test.mjs",
+        "scripts/preview-ui.mjs"
+      ],
+      "checks": [
+        "node:tests-node/ui.test.mjs",
+        "py:test_reporting",
+        "typecheck",
+        "package"
+      ],
+      "reason": "Local UI boundary, browser assets, answers and bound developer acceptance"
+    },
+    {
+      "paths": [
+        "scripts/prepare-upgrade-ci.mjs"
+      ],
+      "checks": [
+        "node:tests-node/engine-upgrade.test.mjs",
+        "upgrade"
+      ],
+      "reason": "CI must prepare integrity-pinned archived inputs before real upgrade checks"
     }
   ],
   "prose": [
@@ -536,6 +577,7 @@
     "tests/README.md",
     "docs/HARNESS_PERFORMANCE_PLAN.md",
     "docs/WINDOWS_NATIVE_PLAN.md",
-    "docs/WINDOWS_NATIVE_FOLLOWUP.md"
+    "docs/WINDOWS_NATIVE_FOLLOWUP.md",
+    "docs/UI.md"
   ]
 }

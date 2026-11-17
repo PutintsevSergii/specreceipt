@@ -6,7 +6,7 @@ A persisted intent without a result is never automatically replayed.
 import time
 from .report_operation import operation as report_operation
 from .storage import HarnessError, atomic, digest, read, safe_path, now, uid
-from . import compact, assessment, openspec_tool, readiness, verification
+from . import compact, assessment, openspec_tool, readiness, verification, quality
 
 
 def next_action(h):
@@ -46,6 +46,8 @@ def next_action(h):
         presentation = task_report(h,task['id'])['next_action']
         decision = approval_package(h,task['id']) if action == 'approval' and presentation['action'] == 'approval' and presentation['command'] and 'approval-package' in presentation['command'] else None
         return {'result':'PASS','action':action,'next_action':presentation,'approval_package':decision,'task_id':task['id'],'feature_id':feature['feature_id'],
+                'quality_repair':quality.repair_context(h,task),
+                'quality_standards':quality.context(h,task),
                 'scope':task['scope'],'required_checks':sorted({n for t in h.check_closure(task) for n in t['required_checks']}),
                 'acceptance_checks':task['acceptance_checks']}
     if all(h.completed(t) for t in tasks):
@@ -110,6 +112,10 @@ def run(h, max_steps, max_seconds, new_run=False):
                     return {'result':'BLOCKED','action':'time-budget','run':record}
                 ev = h.verify(task_id)
                 if ev['result'] != 'PASS':
+                    if any(r['result'] in {'BLOCKED', 'NOT_RUN'} for r in ev['results']):
+                        return {'result':'BLOCKED','action':'repair-environment','task_id':task_id,
+                                'evidence':h.task(task_id)[1]['evidence'][-1],
+                                'reason':'Required checks could not execute; resolve tool/configuration problems before code repair.', 'run':record}
                     h.transition(task_id,'REWORK','Required checks failed'); record['failures'] += 1
                     continue
                 h.transition(task_id,'VERIFIED','Dispatcher observed current PASS evidence')
@@ -134,6 +140,7 @@ def run(h, max_steps, max_seconds, new_run=False):
                 context_path = safe_path(h.root,'.harness/dispatch/context.json'); atomic(context_path,context)
                 argv = [v.replace('{context}',str(context_path)).replace('{task_id}',task_id) for v in cfg[phase+'_argv']]
                 before = h.binding()
+                repair_policy = quality.policy_snapshot(h) if action.get('quality_repair') else None
                 review_inputs = verification.inventory(h.root)
                 review_inputs.pop(review_path,None)
                 workflow_before = digest(h.features())
@@ -152,6 +159,8 @@ def run(h, max_steps, max_seconds, new_run=False):
                 state=h.state(); state['active_operation']=None
                 h.save(state,h.event('adapter-finished','Adapter process returned; validating effects. '+result['summary'],task_id,result=result['result'],commands=[{'argv':result['command'],'exit_code':result['exit_code']}]))
                 if digest(h.features()) != workflow_before: raise HarnessError('Adapter changed task workflow records')
+                if repair_policy is not None and quality.policy_snapshot(h) != repair_policy:
+                    raise HarnessError('Automatic repair changed quality policy; developer review required')
                 if phase == 'review':
                     after_review = verification.inventory(h.root); after_review.pop(review_path,None)
                     if h.binding() != before or review_inputs != after_review:
@@ -191,6 +200,8 @@ def host_action(h, action, record, max_steps, max_seconds):
         inventory=verification.inventory(h.root); inventory.pop(review_path,None)
         ticket={'id':uid(),'task_id':task['id'],'phase':action['action'],'signature':signature,
                 'binding':h.binding(),'inventory':inventory,'review_path':review_path,'run_id':record['id'],'max_steps':max_steps,'max_seconds':max_seconds}
+        if action.get('quality_repair'):
+            ticket['quality_policy'] = quality.policy_snapshot(h)
         h.save(h.state(),h.event('host-role','Current host role requested; no subprocess launched',task['id']),extra={path:ticket})
     return {**action,'result':'PASS','host_role':{'request_id':ticket['id'],'role':ticket['phase'],'review_path':review_path,
             'review_kind':'Current-host separate pass; not independent attestation',
@@ -202,6 +213,8 @@ def submit(h, token, by, reference=None):
     path='.harness/dispatch/host.json'
     ticket=read(safe_path(h.root,path)); task_id=ticket['task_id']
     if token!=ticket['id']: raise HarnessError('Wrong or stale host role token')
+    if ticket.get('quality_policy') and quality.policy_snapshot(h) != ticket['quality_policy']:
+        raise HarnessError('Automatic repair changed quality policy; developer review required')
     h.reconcile()
     task=h.task(task_id)[1]
     signature=digest({'task':task['id'],'status':task['status'],'history':task['history'],'evidence':task['evidence'],'approvals':task['approvals'],'definition':h.definition(task),'phase':ticket['phase'],'project':str(h.root)})

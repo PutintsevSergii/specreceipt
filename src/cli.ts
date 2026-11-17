@@ -21,9 +21,13 @@ import { checkedAgentLaunch, doctor, executionPreflight } from "./doctor.js";
 import { execute } from "./engine.js";
 import { dispatchCopilot } from "./copilot.js";
 import { prepareUpgrade, upgrade } from "./upgrade.js";
+import { startUI, askQuestion, questions } from "./ui.js";
 const help = `AI Engineering Harness ${VERSION}
 Usage: specreceipt init [--target DIR] [--agent codex|copilot|copilot-ide|codex,copilot --workflow openspec --quality strict --skills engineering-pack] [--yes] [--dry-run]
        specreceipt init --target DIR --recover
+       specreceipt ui [--target DIR] [--port 4317]
+       specreceipt ui ask --task ID --question TEXT [--target DIR]
+       specreceipt ui questions [--target DIR]
        specreceipt doctor [--target DIR] [--json]
        specreceipt doctor --execution --agent codex|copilot|copilot-ide [--task ID] [--target DIR] [--ignore-user-config] [--json]
        specreceipt upgrade [--target DIR] [--dry-run | --recover] [--baseline DIR]
@@ -123,6 +127,23 @@ async function dispatchCodex(root: string, contextFile: string) {
 }
 async function main() {
   const raw = process.argv.slice(2);
+  if (raw[0] === "ui") {
+    const { values, positionals } = parseArgs({ args: raw.slice(1), allowPositionals: true, options: {
+      target: { type: "string" }, port: { type: "string" }, task: { type: "string" }, question: { type: "string" },
+    }});
+    const root = path.resolve(values.target ?? process.cwd());
+    if (positionals.length === 1 && positionals[0] === "ask") {
+      console.log(JSON.stringify(askQuestion(root, values.task ?? "", values.question ?? ""), null, 2)); return;
+    }
+    if (positionals.length === 1 && positionals[0] === "questions") {
+      console.log(JSON.stringify(questions(root), null, 2)); return;
+    }
+    if (positionals.length || values.task || values.question) throw Error("Usage: specreceipt ui [--target DIR] [--port PORT]");
+    const { server, url } = await startUI(root, Number(values.port ?? 4317));
+    console.log(`SpecReceipt UI — ${root}\n${url}\nKeep this session URL private. Ctrl+C to stop.`);
+    for (const signal of ["SIGINT", "SIGTERM"] as const) process.once(signal, () => server.close());
+    return;
+  }
   if (raw[0] === "codex-runner-preview") {
     const { values } = parseArgs({ args: raw.slice(1), options: {
       target: { type: "string" }, task: { type: "string", multiple: true }, reference: { type: "string" },

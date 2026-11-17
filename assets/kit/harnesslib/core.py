@@ -7,9 +7,10 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 from .report_operation import operation as report_operation
 from . import compact, acceptance_evidence, case_receipts, check_inputs, graph, index_context, openspec_tool, readiness, verification, workflow
-from . import processes
+from . import processes, quality
 from .storage import HarnessError, atomic, digest, events, finish_transaction, now, read, redact, safe_path, transaction, uid, validate_schema
 
 TRANSITIONS = {'TODO':{'IN_PROGRESS','BLOCKED'},'IN_PROGRESS':{'IMPLEMENTED','BLOCKED','REWORK'},
@@ -645,8 +646,20 @@ class Harness:
         if not check['argv']:
             result.update(result='BLOCKED',summary='Empty command configuration')
             return result
+        started = time.monotonic()
+        try:
+            cwd, argv = quality.prepare(self.root, check)
+            if check.get('version_argv'):
+                result['tool_version'] = quality.version(self.root, check)
+            if check.get('file_extensions'):
+                result['command'] = argv
+            if check.get('cwd'):
+                result['cwd'] = check['cwd']
+        except (HarnessError, OSError) as exc:
+            result.update(result='BLOCKED', summary=redact(str(exc)))
+            return result
         # No shell; minimal inherited environment. No secrets or full environment logging.
-        env = processes.environment()
+        env = quality.environment(self.root, check)
         env['PYTHONDONTWRITEBYTECODE']='1'
         env['HARNESS_CHECK_NAME'] = name
         operation = self.state().get('active_operation') or {}
@@ -656,12 +669,15 @@ class Harness:
             pending = case_receipts.prepare(self, name, result['command'], env['HARNESS_OPERATION_ID'], self.binding())
             env['HARNESS_TEST_REPORT'] = pending['path']
             env['HARNESS_TEST_INVOCATION'] = pending['invocation']
-        argv = [sys.executable if v=='{python}' else v for v in check['argv']]
         try:
             with tempfile.TemporaryFile() as output:
-                process = subprocess.Popen(processes.argv(argv),cwd=self.root,env=env,stdout=output,stderr=subprocess.STDOUT,start_new_session=True)
+                remaining = check['timeout_seconds'] - (time.monotonic() - started)
+                if remaining <= 0:
+                    result.update(result='BLOCKED', summary='Check time budget exhausted by tool preflight')
+                    return result
+                process = subprocess.Popen(processes.argv(argv),cwd=cwd,env=env,stdout=output,stderr=subprocess.STDOUT,start_new_session=True)
                 timed_out = False
-                try: code = process.wait(timeout=check['timeout_seconds'])
+                try: code = process.wait(timeout=remaining)
                 except subprocess.TimeoutExpired:
                     timed_out = True
                     processes.stop(process)
@@ -689,6 +705,12 @@ class Harness:
     def approve(self, task_id, kind, by, reference, expected_result=None):
         self.reconcile()
         feature,task = self.task(task_id)
+        if expected_result is not None:
+            if kind != 'developer' or expected_result != compact.result_binding(self,task):
+                raise HarnessError('Displayed acceptance result is stale or belongs to another task')
+            from .reporting import approval_package
+            package = approval_package(self, task_id)
+            if package['result'] != 'PASS': raise HarnessError(package['reason'])
         if compact.is_compact(feature) and kind=='developer' and expected_result!=compact.result_binding(self,task):
             raise HarnessError('Compact final approval requires the current result binding through workflow accept')
         path = safe_path(self.root,reference)

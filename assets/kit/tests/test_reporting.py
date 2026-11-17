@@ -63,6 +63,19 @@ class ReportingTests(unittest.TestCase):
         self.assertEqual(r['approvals']['review']['status'],'STALE')
         self.assertEqual(r['next_action']['action'],'review')
 
+    def test_ui_expected_result_rejects_stale_and_accepts_current_formal_result(self):
+        f,t=self.h.task('DEMO-001');t['approval_requirements']=['developer'];atomic(self.root/'specs/harness-demo/tasks.json',f)
+        self.verified(); self.review()
+        package = reporting.approval_package(self.h, 'DEMO-001')
+        reference = '.harness/approvals/ui-test.txt'
+        p = self.root/reference; p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text('Isolated test developer explicitly accepts this verified result.')
+        with self.assertRaisesRegex(HarnessError, 'stale'):
+            self.h.approve('DEMO-001', 'developer', 'fixture', reference, expected_result='old')
+        self.assertNotIn('developer', self.h.task('DEMO-001')[1]['approvals'])
+        result = self.h.approve('DEMO-001', 'developer', 'fixture', reference, expected_result=package['acceptance_binding'])
+        self.assertEqual(result['recorded'], 'developer')
+
     def test_approval_package_links_exact_current_result_without_writes(self):
         f,t=self.h.task('DEMO-001');t['approval_requirements']=['developer'];atomic(self.root/'specs/harness-demo/tasks.json',f)
         self.h.transition('DEMO-001','IN_PROGRESS','fixture start')

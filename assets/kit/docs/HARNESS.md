@@ -829,3 +829,107 @@ For reproducibility, these are **host-agent operations**, not instructions for t
 An unchanged `run` resumes durable work without reassessment or another initial decision. Resubmitting a changed proposal for the same compact task creates one renewal boundary, preserves the original source baseline and requires fresh checks/review. It cannot silently absorb outside-scope work. Progress notes and derived reports do not change substantive plan identity. New commands or changes to scope, acceptance, context, risk or project instructions require renewed review.
 
 `status TASK --format terminal` is a compact card; JSON and retained reports carry full details. Reports live under `.harness/reports` and do not invalidate evidence. CHECK_ONLY remains distinct from observed cases; missing/skipped cases or configured missing review/fault evidence block acceptance. Framework self-tests validate the installed toolkit, not the consumer application; only explicitly required project checks enter the task.
+
+## Local quality profiles and repair loop
+
+`quality catalog` lists reusable language profiles. `quality detect` suggests module
+boundaries from manifests and source files without executing project code. A
+multi-language repository can register several profiles at different paths:
+
+```sh
+specreceipt quality plan --profile python --path backend
+specreceipt quality plan --profile typescript --path frontend
+specreceipt quality plan --profile csharp --path mobile
+specreceipt quality plan --profile shell --path scripts
+specreceipt quality plan --profile powershell --path scripts
+specreceipt quality plan --profile security --path backend
+```
+
+Each preview contains complete check definitions, their IDs and an `expected`
+hash. Repeat the same command with `--apply --expected HASH` to register them.
+Registration preserves existing checks and never overwrites a conflicting
+configuration. New commands remain `approved: false` with no invented approval.
+During normal consumer planning, review the exact commands, record genuine
+execution authorization in `approved` / `approval_reference`, and include the
+returned IDs in the task's `required_checks` (or the existing workflow policy).
+Renew affected task/plan approvals through the existing consumer workflow.
+Registration alone does not enroll a check in any task.
+
+Use `--checks lint format types tests` to select supported categories. Defaults
+include formatting and linting where available. Tests, Python typing and dependency
+network scans are opt-in because projects use different frameworks and environments.
+Commands are editable project configuration: preserve existing test runners and
+analyzer rules rather than imposing a new framework. No tool, package, hook,
+service or rule update is installed automatically. Pin tools in project lockfiles
+or the development environment; `version_argv` records the observed tool version.
+An optional `expected_version` requires an exact match to that probe's output.
+Keep tool/environment versions declared in `.harness/environment.json`; an old
+receipt is not a background check for changes to externally installed tools.
+
+| Profile | Checks/tools |
+| --- | --- |
+| `python` | Ruff format/check; optional mypy and pytest. Standalone `.py` script directories work without a package manifest. |
+| `javascript`, `typescript` | Workspace-local Prettier and ESLint; TypeScript compiler; optional existing `npm test`. No `npx` download fallback. |
+| `csharp` | `dotnet format --verify-no-changes`, build with warnings as errors, optional tests; existing Roslyn/.editorconfig rules. |
+| `shell` | ShellCheck against freshly enumerated `.sh`/`.bash` files; zero matching scripts blocks. Extensionless scripts need an explicit custom command. |
+| `powershell` | PSScriptAnalyzer through `pwsh`, without loading the user profile; warnings and errors fail. |
+| `go` | `go vet`, optional `go test`. |
+| `rust` | rustfmt, Clippy, optional Cargo tests; build/test dependency resolution is offline. |
+| `security` | Local Semgrep rules and redacted Gitleaks directory scan; optional OSV-Scanner dependency scan. |
+
+For C#, select a directory containing one project or solution. The default
+build/test profile requires .NET SDK 8+ for `--artifacts-path`; prepare its restore
+using the **same artifacts path shown in the preview** before starting the task.
+The preview includes a non-executed restore preparation command. Formatting uses
+the same artifacts layout through `UseArtifactsOutput` / `ArtifactsPath`, including
+Roslyn's design-time generated files. Commands use
+`--no-restore`; failed preparation is never a successful analysis. Build/test
+artifacts and mypy caches are directed into `.harness/quality-artifacts/` so they
+do not change source evidence. Existing project test plugins or custom build
+steps must likewise keep generated outputs outside attested source inputs.
+Ruff runs without its cache. Framework-specific test receipts remain separately
+configured; a successful test command alone does not prove that tests ran.
+
+The `security` profile defaults to the checked-in
+`templates/quality/semgrep.json`. These are a small starter set of risky Python,
+JavaScript and C# patterns, **not comprehensive security coverage**. Supply
+`--rules path/to/reviewed-rules.json` for a project-owned local ruleset. Semgrep
+runs with metrics/version checks disabled and does not fetch a remote ruleset.
+Gitleaks uses redaction and scans the working directory, not full Git history.
+`--checks dependencies` explicitly enables OSV-Scanner, which may contact external
+vulnerability services and transmit dependency metadata. Language support,
+plugins, rule configuration and tool licensing remain properties of each tool.
+
+After enrollment, ordinary `verify` executes quality checks together with all
+required functional checks. Evidence includes logs, exit codes, module cwd and
+observed tool versions. Missing tools, failed version probes, empty script sets
+and timeouts are `BLOCKED`. The bounded `run` dispatcher stops for environment
+repair instead of asking an agent to change source to compensate for a missing
+tool. Findings return the task to `REWORK`; the next implementation request includes
+full log references, findings and instructions to repair only the approved scope.
+The current IDE host or an explicitly configured adapter performs the repairs;
+there is no new unattended background agent. Existing time/failure budgets,
+separate review and final developer approval remain in force.
+
+During automatic repair the dispatcher snapshots recognized analyzer configuration,
+ignore files, project files, check definitions and selected Semgrep rules. A change
+blocks host submission/adapter completion and requires a developer decision.
+This is not tamper-proof enforcement or a universal detector of inline suppressions:
+review must reject new `noqa`, `nosemgrep`, warning pragmas, arbitrary plugin-policy
+changes and other attempts to hide findings. No baseline suppression is created
+automatically. Existing findings outside the task scope need an explicit follow-up
+or a reviewed policy decision, not silent suppression.
+
+`quality report TASK-ID` reads the latest task evidence and links diagnostics. It
+marks stale/nonpassing acceptance as blocked and never promotes a historical
+report to fresh evidence. Existing CI can execute the same enrolled verification;
+this feature does not create a scheduled monitor, hosted dashboard or SonarQube
+server. SonarQube can still be integrated as an explicitly configured command
+against an existing server, waiting for its quality gate; scanner upload success
+alone must not be treated as gate success.
+
+Maintainers can exercise the real C# formatting/source-integrity regression with
+`HARNESS_REAL_DOTNET=/absolute/path/to/dotnet python3 -B -m unittest discover -s tests -p test_quality.py -v`.
+It needs SDK 8+, local Roslyn/MSBuild IPC and uses an empty local package feed for
+its generated fixture. Without that explicit SDK, the external-tool case is
+reported as skipped; ordinary profile/approval/repair tests still run.

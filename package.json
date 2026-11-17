@@ -42,7 +42,8 @@
     "test:package": "node scripts/test-package.mjs",
     "test:upgrade": "node scripts/test-upgrade.mjs",
     "test:e2e": "node scripts/test-codex-e2e.mjs",
-    "test:e2e:copilot": "node scripts/test-copilot-e2e.mjs"
+    "test:e2e:copilot": "node scripts/test-copilot-e2e.mjs",
+    "ci:upgrade:prepare": "node scripts/prepare-upgrade-ci.mjs"
   },
   "devDependencies": {
     "@types/node": "26.6.6",

@@ -7,6 +7,10 @@ import assert from "node:assert/strict";
 import { nativeCommand, executable } from "../dist/integrations.js";
 const source = process.cwd();
 const currentVersion = JSON.parse(fs.readFileSync(path.join(source, "package.json"), "utf8")).version;
+const legacyName = process.env.HARNESS_LEGACY_NAME ?? "my-ai-harness";
+const legacyVersion = process.env.HARNESS_LEGACY_VERSION ?? "0.1.0";
+if (!["my-ai-harness", "specreceipt"].includes(legacyName) || !/^\d+\.\d+\.\d+$/.test(legacyVersion) || legacyVersion === currentVersion)
+  throw Error("Expected a distinct, explicit legacy package identity");
 const base = fs.realpathSync(
   fs.mkdtempSync(path.join(os.tmpdir(), "harness-two-versions-")),
 );
@@ -53,7 +57,7 @@ function snapshot(root) {
 try {
   if (!process.env.HARNESS_LEGACY_PACKAGE || !process.env.HARNESS_UPGRADE_PACKAGE)
     throw Error("Set HARNESS_LEGACY_PACKAGE and HARNESS_UPGRADE_PACKAGE to reviewed archive paths.");
-  for (const version of ["0.1.0", currentVersion]) {
+  for (const version of [legacyVersion, currentVersion]) {
     const consumer = path.join(base, version);
     fs.mkdirSync(consumer);
     fs.writeFileSync(path.join(consumer, "package.json"), "{}");
@@ -81,7 +85,10 @@ try {
       consumer,
     );
   }
-  const oldPackage = path.join(base, "0.1.0/node_modules/my-ai-harness");
+  const oldPackage = path.join(base, legacyVersion, "node_modules", legacyName);
+  const oldMetadata = JSON.parse(fs.readFileSync(path.join(oldPackage, "package.json"), "utf8"));
+  assert.equal(oldMetadata.name, legacyName);
+  assert.equal(oldMetadata.version, legacyVersion);
   const oldCli = path.join(oldPackage, "dist/cli.js");
   const cli = path.join(base, currentVersion, "node_modules/specreceipt/dist/cli.js");
   for (const scenario of [
@@ -121,6 +128,15 @@ try {
         path.join(root, "openspec/config.yaml"),
         "\n# company customization\n",
       );
+    }
+    if (scenario === "missing-baseline") {
+      // Modern archives retain baselines in the manifest. Remove the selected
+      // baseline explicitly so this scenario still tests a genuinely missing input.
+      const file = path.join(root, ".harness/installation-manifest.json");
+      const owned = JSON.parse(fs.readFileSync(file, "utf8"));
+      delete owned.files[".agents/skills/discovery/SKILL.md"].baseline;
+      delete owned.files[".agents/skills/discovery/SKILL.md"].baselineHash;
+      fs.writeFileSync(file, JSON.stringify(owned, null, 2) + "\n");
     }
     if (scenario === "conflict") {
       const file = path.join(root, "harnesslib/cli.py");

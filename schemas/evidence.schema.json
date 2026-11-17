@@ -141,6 +141,14 @@
           "reused_from": {
             "type": "string",
             "minLength": 1
+          },
+          "tool_version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "cwd": {
+            "type": "string",
+            "minLength": 1
           }
         },
         "required": [

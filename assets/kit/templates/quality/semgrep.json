@@ -1,0 +1,49 @@
+{
+  "rules": [
+    {
+      "id": "specreceipt.python-eval",
+      "languages": [
+        "python"
+      ],
+      "message": "Avoid evaluating dynamic Python input.",
+      "severity": "ERROR",
+      "pattern": "eval(...)"
+    },
+    {
+      "id": "specreceipt.python-exec",
+      "languages": [
+        "python"
+      ],
+      "message": "Avoid executing dynamic Python input.",
+      "severity": "ERROR",
+      "pattern": "exec(...)"
+    },
+    {
+      "id": "specreceipt.python-shell",
+      "languages": [
+        "python"
+      ],
+      "message": "Avoid shell execution; pass an argument list.",
+      "severity": "ERROR",
+      "pattern": "subprocess.$FUNC(..., shell=True, ...)"
+    },
+    {
+      "id": "specreceipt.javascript-eval",
+      "languages": [
+        "javascript"
+      ],
+      "message": "Avoid evaluating dynamic JavaScript input.",
+      "severity": "ERROR",
+      "pattern": "eval(...)"
+    },
+    {
+      "id": "specreceipt.csharp-cert-validation",
+      "languages": [
+        "csharp"
+      ],
+      "message": "Do not unconditionally bypass TLS certificate validation.",
+      "severity": "ERROR",
+      "pattern": "$HANDLER.ServerCertificateCustomValidationCallback = (...) => true"
+    }
+  ]
+}
