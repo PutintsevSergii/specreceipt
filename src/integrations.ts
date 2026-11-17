@@ -18,7 +18,8 @@ export const PACKAGE_ROOT = path.resolve(
   "..",
 );
 export const KIT = path.join(PACKAGE_ROOT, "assets/kit");
-const adaptiveInstructions = `For eligible compact FAST tasks, follow docs/HARNESS.md#compact-fast-journey: workflow propose renders the canonical task/context/check bundle; record the actual combined answer with workflow confirm --expected, use run and guarded host-role submissions, then obtain separate workflow accept --expected after current evidence/review. The current IDE host needs no nested agent CLI. Developer lifecycle commands and manual JSON edits are not required. Legacy installations use workflow migrate preview and one explicit project decision; formal and stricter requirements remain authoritative.
+const adaptiveInstructions = `For large multi-outcome requests or explicit decomposition, follow docs/HARNESS.md#large-stories before detailed specification: inspect the project, prepare templates/story.json, preview/save a DRAFT story map and present outcomes, shared contracts, dependencies and integration scenarios. Record only the actual map decision with story approve-map --expected. Detail one eligible block at a time as its own OpenSpec feature, obtain normal task approvals, implement and verify sequentially. Show story approval-package --block and record actual story accept-block --expected before dependent work. Complete the integration feature, current regressions and a separate story accept --expected decision. Map approval never authorizes task implementation; accepted blocks alone do not complete a story. On resume use story status; the agent handles JSON and commands while the developer sees short decision cards. Small STRICT tasks need not be decomposed.
+For eligible compact FAST tasks, follow docs/HARNESS.md#compact-fast-journey: workflow propose renders the canonical task/context/check bundle; record the actual combined answer with workflow confirm --expected, use run and guarded host-role submissions, then obtain separate workflow accept --expected after current evidence/review. The current IDE host needs no nested agent CLI. Developer lifecycle commands and manual JSON edits are not required. Legacy installations use workflow migrate preview and one explicit project decision; formal and stricter requirements remain authoritative.
 The Python Engine owns task workflow policy and OpenSpec requirements. For adaptive tasks, use specreceipt workflow assess TASK-ID --facts FILE; present its actual recommendation, policy minimum and plan, then wait for explicit developer confirmation before workflow confirm. Never treat a recommendation as approval.
 FAST/STANDARD use concise specifications and plans without a task OpenSpec change unless linked requirements or project policy require it. STRICT retains required OpenSpec sources and all quality gates. Preserve legacy task requirements. Installing the OpenSpec integration does not select a task execution profile. The strict policy in .harness/quality.json is the engineering baseline, not the task execution-profile minimum; Python enforces .harness/workflow-policy.json and task requirements.
 Keep readiness, required checks, substantive review and separate final developer approval after VERIFIED and before DONE. Before asking for final DONE, run specreceipt approval-package TASK-ID --format markdown, show the developer its linked spec, plan, changed files, current evidence and review, and briefly explain the exact result, limitations and what DONE approves. A package is not approval or proof the developer saw it; if the command blocks, do not ask for DONE.`;
@@ -40,7 +41,7 @@ Read AGENTS.md at the repository root before work; resolve all paths in this par
 Use the shared workflow guide docs/HARNESS.md#reference-navigation only as needed. All Harness approvals and verification remain required; Copilot tool permission is not developer approval.
 ${adaptiveInstructions}
 ${investigationInstructions}
-When OpenSpec is required, use official OpenSpec /opsx-* prompts in .github/prompts. Do not infer approval from a request to implement.
+When OpenSpec is required, use official OpenSpec skills in .agents/skills (for example /openspec-propose). Do not infer approval from a request to implement.
 ${END}`;
 export interface Command {
   file: string;
@@ -187,6 +188,8 @@ export function stageOpenSpec(root: string, agent = "codex"): Asset[] {
       check.command,
       [
         "init",
+        "--scope",
+        "project",
         "--tools",
         [
           hasCodex(agent) ? "codex" : "",

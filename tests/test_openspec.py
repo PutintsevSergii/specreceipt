@@ -39,7 +39,7 @@ class OpenSpecTests(unittest.TestCase):
             (package/'fixture.cjs').write_text('''const fs = require('node:fs');
 const path = require('node:path');
 const args = process.argv.slice(2);
-if (args.includes('--version')) console.log('1.14.3');
+if (args.includes('--version')) console.log('2.1.0');
 else if (args[0] === 'init') {
   fs.mkdirSync('openspec', {recursive:true});
   fs.writeFileSync('openspec/config.yaml', 'schema: spec-driven\\n');
@@ -56,7 +56,7 @@ else if (args[0] === 'init') {
             executable=bin_dir/'openspec'
             executable.write_text('#!'+sys.executable+'''\nimport sys,json
 from pathlib import Path
-if '--version' in sys.argv: print('1.14.3')
+if '--version' in sys.argv: print('2.1.0')
 elif sys.argv[1]=='init':
     p=Path('openspec/config.yaml');p.parent.mkdir(exist_ok=True);p.write_text('schema: spec-driven\\n')
 elif sys.argv[1]=='validate':
@@ -163,6 +163,24 @@ else: sys.exit(2)
         before=config.read_bytes()
         adapter.initialize(self.root)
         self.assertEqual(config.read_bytes(),before)
+
+    def test_project_skill_alias_is_copied_and_external_alias_is_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            stage = Path(directory).resolve()
+            canonical = stage/'.agents/skills/openspec-propose'
+            canonical.mkdir(parents=True)
+            (canonical/'SKILL.md').write_text('Official project-local skill fixture')
+            alias = stage/'.claude/skills/openspec-propose'
+            alias.parent.mkdir(parents=True)
+            symlink(alias, canonical, target_is_directory=True)
+            adapter.materialize_skill_links(stage)
+            self.assertFalse(alias.is_symlink())
+            self.assertEqual((alias/'SKILL.md').read_text(), (canonical/'SKILL.md').read_text())
+            shutil.rmtree(alias)
+            outside = stage/'outside'; outside.mkdir()
+            symlink(alias, outside, target_is_directory=True)
+            with self.assertRaisesRegex(HarnessError, 'escapes'):
+                adapter.materialize_skill_links(stage)
 
     def test_checkboxes_are_progress_not_acceptance_evidence(self):
         self.imported(True)

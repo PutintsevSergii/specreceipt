@@ -1,6 +1,6 @@
 /** Pure distribution contracts. No filesystem, process or terminal dependencies. */
-export const VERSION = "0.4.4";
-export const OPENSPEC_VERSION = "1.14.3";
+export const VERSION = "0.6.0";
+export const OPENSPEC_VERSION = "2.1.0";
 export const DEFAULTS = {
   agent: "codex",
   workflow: "openspec",
@@ -208,7 +208,7 @@ export function nodeSupported(version: string): boolean {
   if (!match) return false;
   const major = Number(match[1]),
     minor = Number(match[2]);
-  return major >= 20 && major < 25 && (major !== 20 || minor >= 19);
+  return major >= 22 && major < 25 && (major !== 22 || minor >= 20);
 }
 
 export const QUALITY = {

@@ -15,7 +15,8 @@ def next_action(h):
         return {'result':'BLOCKED','action':'recover','reasons':state['blockers'] or ['Operation active or uncertain']}
     h.validate()
     tasks = [t for f in h.features().values() for t in f['tasks']]
-    if not tasks: return {'result':'BLOCKED','action':'onboard','reasons':['No approved tasks are defined']}
+    from . import stories
+    if not tasks: return stories.next_story(h) or {'result':'BLOCKED','action':'onboard','reasons':['No approved tasks are defined']}
     active = next((t for t in tasks if t['id'] == state['active_task'] and t['status'] not in {'DONE','BLOCKED'}),None)
     candidates = [active] if active else sorted((t for t in tasks if t['status'] not in {'DONE','BLOCKED'}),key=lambda t:t['id'])
     if not active and len(candidates)>1 and any(compact.is_compact(h.task(t['id'])[0]) for t in candidates):
@@ -50,8 +51,8 @@ def next_action(h):
     if all(h.completed(t) for t in tasks):
         stale = [t['id'] for t in tasks if not h.current_evidence(t)]
         if stale: return {'result':'PASS','action':'regression','task_id':stale[0]}
-        return {'result':'PASS','action':'finished'}
-    return {'result':'BLOCKED','action':'blocked','reasons':blocked or ['Remaining tasks are explicitly BLOCKED']}
+        return stories.next_story(h) or {'result':'PASS','action':'finished'}
+    return stories.next_story(h) or {'result':'BLOCKED','action':'blocked','reasons':blocked or ['Remaining tasks are explicitly BLOCKED']}
 
 
 def authorization_hash(cfg, reference):

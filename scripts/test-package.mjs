@@ -29,6 +29,11 @@ function run(cmd, args, cwd = root, env = process.env, timeoutMs = 120000) {
   return r.stdout;
 }
 function assertAdaptiveInstallation(project, agent) {
+  for (const file of ['harnesslib/stories.py', 'schemas/story.schema.json', 'schemas/story-record.schema.json', 'templates/story.json']) {
+    assert.equal(fs.existsSync(path.join(project, file)), true, file);
+  }
+  assert.match(run('python3', ['-B', 'harness', 'story', '--help'], project), /approve-map.*accept-block/s);
+  assert.match(fs.readFileSync(path.join(project, 'AGENTS.md'), 'utf8'), /docs\/HARNESS.md#large-stories/);
   assert.equal(fs.existsSync(path.join(project, "harnesslib/reconciliation.py")), true);
   assert.equal(fs.existsSync(path.join(project, "schemas/reconciliation.schema.json")), true);
   assert.match(run("python3", ["-B", "harness", "task", "baseline", "--help"], project), /propose.*accept/s);

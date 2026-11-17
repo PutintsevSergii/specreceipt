@@ -8,7 +8,7 @@ from .tool_paths import binary as tool_binary
 from . import processes
 from .storage import HarnessError, atomic, digest, read
 
-PACKAGE = '@colbymchenry/codegraph@1.6.2'
+PACKAGE = '@colbymchenry/codegraph@1.6.3'
 STATE = '.harness/graph/codegraph-state.json'
 INDEXES = ('.codegraph', '.codegraph-wsl')
 

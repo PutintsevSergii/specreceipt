@@ -45,8 +45,8 @@ function fakeTools(t, base) {
   fs.mkdirSync(bin);
   const old = process.env.PATH;
   for (const [name, output] of [
-    ["codegraph", "1.6.2"],
-    ["graphify", "graphify 0.9.27"],
+    ["codegraph", "1.6.3"],
+    ["graphify", "graphify 0.9.112"],
   ]) {
     fs.writeFileSync(
       path.join(bin, name),
@@ -59,9 +59,9 @@ function fakeTools(t, base) {
     fake,
     `#!${process.execPath}
 const fs=require('node:fs');
-if(process.argv[2]==='--version')console.log('1.14.3');
+if(process.argv[2]==='--version')console.log('2.1.0');
 else if(process.argv[2]==='init'){
- if(process.argv.slice(2).join(' ')!=='init --tools codex')process.exit(5);
+ if(process.argv.slice(2).join(' ')!=='init --scope project --tools codex')process.exit(5);
  fs.mkdirSync('openspec',{recursive:true});fs.writeFileSync('openspec/config.yaml','schema: spec-driven\\n');
  fs.mkdirSync('.agents/skills/openspec-propose',{recursive:true});fs.writeFileSync('.agents/skills/openspec-propose/SKILL.md','---\\nname: openspec-propose\\ndescription: Official generated test double\\n---\\n');
 }else process.exit(2);
@@ -366,7 +366,7 @@ test("OpenSpec version mismatch and failed generator never mutate the target", (
   assert.equal(fs.existsSync(root), false);
   fs.writeFileSync(
     executable,
-    `#!${process.execPath}\nif(process.argv[2]==='--version')console.log('1.14.3');else process.exit(3);\n`,
+    `#!${process.execPath}\nif(process.argv[2]==='--version')console.log('2.1.0');else process.exit(3);\n`,
   );
   assert.throws(() => prepare(root), /staging/);
   assert.equal(fs.existsSync(root), false);
@@ -400,7 +400,10 @@ test("YAML and TOML diagnostics reject syntax errors without leaking values", (t
 test("review regressions: unsupported runtime and stale lock fail closed", async (t) => {
   const { nodeSupported } = await import("../dist/core.js");
   assert.equal(nodeSupported("20.18.9"), false);
-  assert.equal(nodeSupported("20.19.0"), true);
+  assert.equal(nodeSupported("20.19.0"), false);
+  assert.equal(nodeSupported("22.19.9"), false);
+  assert.equal(nodeSupported("22.20.0"), true);
+  assert.equal(nodeSupported("24.22.3"), true);
   assert.equal(nodeSupported("25.0.0"), false);
   const base = fixture(t);
   fakeTools(t, base);

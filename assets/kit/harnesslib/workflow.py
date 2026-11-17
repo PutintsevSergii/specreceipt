@@ -180,10 +180,13 @@ def material(h, feature, task):
     navigation = safe_path(h.root, '.harness/navigation.json')
     from .index_context import policy as navigation_policy
     navigation_inputs = {'navigation_policy': navigation_policy(h.root)} if navigation.exists() else {}
+    from . import stories
+    story = stories.context(h, feature['feature_id'])
+    if story is not None: navigation_inputs['story'] = story
     if any(r.get('required_cases') for r in task.get('acceptance_checks', [])):
         navigation_inputs['case_contract'] = task['acceptance_checks']
     return digest({**navigation_inputs, 'risk_classifier':RISK_CLASSIFIER_VERSION, 'task':{k:task[k] for k in fields}, 'revisions':feature['revisions'], 'policy':policy(h),
-                   'source':feature.get('spec_source'), 'inputs':{p:digest(safe_path(h.root,p).read_text(encoding='utf-8')) for p in paths}})
+                   'source':feature.get('spec_source'), 'inputs':stories.definition_inputs(h, feature, task, {p:digest(safe_path(h.root,p).read_text(encoding='utf-8')) for p in paths})})
 
 
 def floor(h, task, facts):

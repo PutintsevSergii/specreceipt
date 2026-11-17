@@ -32,7 +32,7 @@ test('child PATH wins over parent; missing optional tools allow repository searc
   assert.equal(r.status,'WARN'); assert.equal(check(r,'codegraph-cli').requirement,'OPTIONAL');
   assert.equal(check(r,'codegraph-cli').status,'WARN');assert.equal(check(r,'repository-search').status,'PASS');
   assert.equal(checkedAgentLaunch(o,()=>42),42);
-  tool(o,'codegraph','1.6.2'); assert.equal(check(executionPreflight(o),'codegraph-cli').status,'PASS');
+  tool(o,'codegraph','1.6.3'); assert.equal(check(executionPreflight(o),'codegraph-cli').status,'PASS');
   o.env.PATH=''; assert.equal(check(executionPreflight(o),'codegraph-cli').status,'WARN');
 });
 test('required navigation and version failures prevent paid launch, even with available MCP',t=>{
@@ -40,12 +40,12 @@ test('required navigation and version failures prevent paid launch, even with av
   const r=executionPreflight(o);assert.equal(check(r,'codegraph-mcp').status,'PASS');
   assert.equal(check(r,'codegraph-cli').requirement,'REQUIRED');assert.equal(r.status,'FAIL');
   let spawns=0; assert.throws(()=>checkedAgentLaunch(o,()=>spawns++),/preflight failed/); assert.equal(spawns,0);
-  o.env.PATH=o.cwd;tool(o,'codegraph','0.0.1');tool(o,'graphify','graphify 0.9.27');
+  o.env.PATH=o.cwd;tool(o,'codegraph','0.0.1');tool(o,'graphify','graphify 0.9.112');
   assert.equal(check(executionPreflight(o),'codegraph-cli').status,'FAIL');
-  tool(o,'codegraph','1.6.2');assert.equal(check(executionPreflight(o),'codegraph-cli').status,'PASS');
+  tool(o,'codegraph','1.6.3');assert.equal(check(executionPreflight(o),'codegraph-cli').status,'PASS');
 });
 test('agent shell PATH transformation is probed rather than assumed',t=>{
-  const o=fixture(t);tool(o,'codegraph','1.6.2');o.env.PATH=o.cwd;
+  const o=fixture(t);tool(o,'codegraph','1.6.3');o.env.PATH=o.cwd;
   const shell=path.join(o.cwd,'shell');
   fs.writeFileSync(shell,'#!/bin/sh\nPATH=/missing\nexport PATH\nexec /bin/sh "$@"\n',{mode:0o755});
   o.shell={file:shell,login:false};assert.equal(check(executionPreflight(o),'codegraph-cli').status,'WARN');
@@ -91,7 +91,7 @@ test('incompatible agent capability fails and IDE-only needs no CLI',t=>{
 });
 
 test('broken managed tool must not fall back to compatible PATH executable',t=>{
-  const o=fixture(t);installed(o);o.env.PATH=o.cwd;tool(o,'codegraph','1.6.2');
+  const o=fixture(t);installed(o);o.env.PATH=o.cwd;tool(o,'codegraph','1.6.3');
   const local=path.join(o.cwd,'.harness/tools/codegraph/node_modules/.bin');fs.mkdirSync(local,{recursive:true});
   fs.symlinkSync('/missing/codegraph',path.join(local,'codegraph'));
   assert.equal(check(executionPreflight(o),'codegraph-cli').status,'FAIL');
@@ -120,7 +120,7 @@ test('selected required check executable missing in child environment fails befo
   let spawns=0;assert.throws(()=>checkedAgentLaunch(o,()=>spawns++));assert.equal(spawns,0);
 });
 test('symlinked managed tool directory is rejected instead of passing PATH fallback',t=>{
-  const o=fixture(t);installed(o);tool(o,'codegraph','1.6.2');o.env.PATH=o.cwd;
+  const o=fixture(t);installed(o);tool(o,'codegraph','1.6.3');o.env.PATH=o.cwd;
   const external=path.join(o.cwd,'external');fs.mkdirSync(path.join(external,'node_modules/.bin'),{recursive:true});
   fs.copyFileSync(path.join(o.cwd,'codegraph'),path.join(external,'node_modules/.bin/codegraph'));
   fs.mkdirSync(path.join(o.cwd,'.harness/tools'),{recursive:true});fs.symlinkSync(external,path.join(o.cwd,'.harness/tools/codegraph'));
@@ -128,7 +128,7 @@ test('symlinked managed tool directory is rejected instead of passing PATH fallb
 });
 
 test('empty symlinked managed directory cannot fall through to PATH',t=>{
-  const o=fixture(t);installed(o);tool(o,'codegraph','1.6.2');o.env.PATH=o.cwd;
+  const o=fixture(t);installed(o);tool(o,'codegraph','1.6.3');o.env.PATH=o.cwd;
   const external=path.join(o.cwd,'empty');fs.mkdirSync(external);
   fs.mkdirSync(path.join(o.cwd,'.harness/tools'),{recursive:true});fs.symlinkSync(external,path.join(o.cwd,'.harness/tools/codegraph'));
   assert.equal(check(executionPreflight(o),'codegraph-cli').status,'FAIL');

@@ -74,6 +74,7 @@ class Harness:
 
     def fingerprints(self):
         # Conservative repository-wide invalidation. Tasks contribute only their definitions.
+        from . import stories
         hashes = verification.inventory(self.root)
         hashes.pop('docs/ENGINEERING_LOG.md',None)
         for rel in list(hashes):
@@ -94,6 +95,8 @@ class Harness:
         selected_navigation = index_context.policy(self.root)
         if safe_path(self.root, index_context.POLICY_PATH).exists():
             hashes[index_context.POLICY_PATH] = digest(selected_navigation)
+        for record in stories.records(self):
+            hashes[stories.path(record['definition']['id'])] = digest(record['definition'])
         for feature in self.features().values():
             if feature.get('spec_source'):
                 for rel, text in openspec_tool.feature_source(self.root,feature).items():
@@ -102,6 +105,7 @@ class Harness:
         return hashes
 
     def definition(self, task):
+        from . import stories
         definitions = {}
         for item in self.check_closure(task):
             feature, _ = self.task(item['id'])
@@ -112,8 +116,12 @@ class Harness:
             definitions[item['id']] = {'task':compact.definition_task(item) if compact.is_compact(feature) else {k:v for k,v in item.items() if k not in MUTABLE_TASK},
                 'kind':feature['kind'], 'revisions':feature['revisions'],
                 **({'navigation_policy': index_context.policy(self.root)} if safe_path(self.root, index_context.POLICY_PATH).exists() else {}),
-                'inputs':{rel:digest(safe_path(self.root,rel).read_text(encoding='utf-8')) for rel in paths},
+                'inputs':stories.definition_inputs(self, feature, item, {rel:digest(safe_path(self.root,rel).read_text(encoding='utf-8')) for rel in paths}),
                 **({'spec_source':feature['spec_source'], 'openspec_inputs':openspec_tool.feature_source(self.root,feature)} if feature.get('spec_source') else {})}
+        for item in self.check_closure(task):
+            feature, _ = self.task(item['id'])
+            story = stories.context(self, feature['feature_id'])
+            if story is not None: definitions[item['id']]['story'] = story
         return digest(definitions)
 
     def check_closure(self, task):
@@ -203,6 +211,8 @@ class Harness:
         return {'changed':True}
 
     def validate(self):
+        from . import stories
+        stories.records(self)
         state = self.state()
         for rel,sections in {
             'docs/TECH_SPEC.md':['Goals','Users','Scope','Non-goals','Requirements','Stack','Persistence','Contracts','Security','Performance','Dependencies','Environments','Acceptance','Assumptions','Questions'],
@@ -306,6 +316,8 @@ class Harness:
         return readiness.project(self)
 
     def ready(self, feature, task):
+        from . import stories
+        stories.guard(self, feature, task)
         workflow.guard(self, feature, task)
         openspec_tool.ready(self.root, feature)
         if compact.is_compact(feature): compact.eligible(self,feature,task)
@@ -335,6 +347,7 @@ class Harness:
         return data
 
     def successful_evidence(self, task, ev):
+        from . import stories
         closure = self.check_closure(task)
         required = {name for t in closure for name in t['required_checks']}
         results = ev['results']
@@ -361,7 +374,7 @@ class Harness:
                 and ev['result'] == 'PASS' and passed == required and len(passed) == len(results)
                 and ev.get('checked_tasks') == [t['id'] for t in closure]
                 and ev.get('acceptance_results') == expected and ev['revisions'] == self.revisions()
-                and ev['check_config_hash'] == digest(read(safe_path(self.root,'.harness/checks.json'))))
+                and ev['check_config_hash'] == digest(stories.check_configuration(self, task)))
 
     def current_evidence(self, task):
         if task.get('execution', {}).get('recognitions'):
@@ -539,6 +552,7 @@ class Harness:
 
     @report_operation
     def verify(self, task_id, regression=False):
+        from . import stories
         self.reconcile()
         self.validate()
         state = self.state()
@@ -592,7 +606,7 @@ class Harness:
         overall = 'PASS' if all(r['level'] not in ('INSUFFICIENT','FAILED') for section in [support, *[d['support'] for d in dependency_support]] for r in section['criteria']) and results and all(r['result']=='PASS' for r in results) else 'FAIL'
         ref = f'.harness/evidence/{operation_id}.json'
         evidence = {'schema_version':1,'id':operation_id,'task_id':task_id,'created_at':now(),'fingerprint':start_binding,
-                    'revisions':self.revisions(),'environment':self.environment(),'check_config_hash':digest(cfg),'results':results,'result':overall,
+                    'revisions':self.revisions(),'environment':self.environment(),'check_config_hash':digest(stories.check_configuration(self, task)),'results':results,'result':overall,
                     'definition_hash':self.definition(task), 'checked_tasks':[t['id'] for t in closure],
                     'acceptance_results':acceptance_results,
                     'acceptance_support':support,

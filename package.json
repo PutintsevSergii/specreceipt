@@ -1,6 +1,6 @@
 {
   "name": "specreceipt",
-  "version": "0.4.4",
+  "version": "0.6.0",
   "description": "Repository-local engineering workflow and evidence toolkit for coding agents",
   "license": "Unlicense",
   "publishConfig": {
@@ -20,7 +20,7 @@
     "specreceipt": "dist/cli.js"
   },
   "engines": {
-    "node": ">=20.19.0 <25"
+    "node": ">=22.20.0 <25"
   },
   "files": [
     "dist/",
@@ -45,9 +45,9 @@
     "test:e2e:copilot": "node scripts/test-copilot-e2e.mjs"
   },
   "devDependencies": {
-    "@types/node": "22.18.0",
-    "prettier": "3.6.2",
-    "typescript": "5.9.3"
+    "@types/node": "26.6.6",
+    "prettier": "3.10.1",
+    "typescript": "7.0.2"
   },
   "dependencies": {
     "smol-toml": "1.9.1",

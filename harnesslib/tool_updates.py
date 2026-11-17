@@ -115,7 +115,7 @@ def install(root, name, config):
         if not npm or not node: raise HarnessError('Node and npm are required.')
         node_version=execute(root,[node,'--version'],15).strip().lstrip('v')
         current=version_tuple(node_version)
-        if (name=='codegraph' and not 20<=current[0]<25) or (name=='openspec' and current<(20,19,0)):
+        if (name=='codegraph' and not 20<=current[0]<25) or (name=='openspec' and current<(22,20,0)):
             raise HarnessError('Node version does not meet '+name+' requirements.')
         target.mkdir(parents=True,exist_ok=True)
         argv=[npm,'install','--prefix',str(target),'--no-audit','--no-fund',

@@ -39,7 +39,7 @@ class CodeGraphToolTests(unittest.TestCase):
                               'if cmd in ("init", "sync"):\n'
                               '    (root/".codegraph").mkdir(exist_ok=True)\n'
                               '    print(cmd)\n'
-                              'elif cmd=="version": print("codegraph 1.6.2")\n'
+                              'elif cmd=="version": print("codegraph 1.6.3")\n'
                               'elif cmd=="status": print(json.dumps({"files":1}))\n'
                               'elif cmd=="query": print(json.dumps({"matches":["app.py"]}))\n')
             binary.chmod(0o755)

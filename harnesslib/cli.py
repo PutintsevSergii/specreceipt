@@ -7,7 +7,7 @@ import sys
 import unittest
 from .core import Harness
 from .report_operation import scope as reporting_scope
-from . import compact, assessment, index_context, installation, codegraph_tool, graph, graphify_tool, investigation, openspec_tool, readiness, runner, tool_updates, workflow, reporting
+from . import compact, assessment, index_context, installation, codegraph_tool, graph, graphify_tool, investigation, openspec_tool, readiness, runner, tool_updates, workflow, reporting, stories
 from .skills import catalog
 from .storage import HarnessError, lock, redact
 
@@ -21,6 +21,15 @@ def parser():
             command.add_argument('--execution-requirements',action='store_true'); command.add_argument('--task')
         if name == 'status':
             command.add_argument('id',nargs='?'); command.add_argument('--format',choices=['json','markdown','terminal'],default='json'); command.add_argument('--retain',action='store_true'); command.add_argument('--retain-dir',type=Path)
+    story = sub.add_parser('story').add_subparsers(dest='action', required=True)
+    sp = story.add_parser('propose'); sp.add_argument('--file', required=True); sp.add_argument('--apply', action='store_true'); sp.add_argument('--expected')
+    story.add_parser('list')
+    for action in ('status', 'approval-package'):
+        sp = story.add_parser(action); sp.add_argument('id'); sp.add_argument('--format', choices=['json', 'markdown', 'terminal'], default='json')
+        if action == 'approval-package': sp.add_argument('--block')
+    for action in ('approve-map', 'accept-block', 'accept'):
+        sp = story.add_parser(action); sp.add_argument('id'); sp.add_argument('--by', required=True); sp.add_argument('--reference', required=True); sp.add_argument('--expected', required=True)
+        if action == 'accept-block': sp.add_argument('--block', required=True)
     wf = sub.add_parser('workflow').add_subparsers(dest='action',required=True)
     wp = wf.add_parser('propose'); wp.add_argument('--file',required=True)
     wm = wf.add_parser('migrate'); wm.add_argument('--by'); wm.add_argument('--reference'); wm.add_argument('--expected')
@@ -113,6 +122,16 @@ def parser():
 
 def run(args,h):
     cmd = args.command
+    if cmd == 'story':
+        if args.action == 'propose':
+            from .storage import read, safe_path
+            return stories.propose(h, read(safe_path(h.root, args.file)), args.apply, args.expected)
+        if args.action == 'list': return {'result': 'PASS', 'stories': [stories.status(h, r['definition']['id']) for r in stories.records(h)]}
+        if args.action == 'approve-map': return stories.approve_map(h, args.id, args.by, args.reference, args.expected)
+        if args.action in {'accept-block', 'accept'}: return stories.accept(h, args.id, getattr(args, 'block', None), args.by, args.reference, args.expected)
+        result = stories.status(h, args.id) if args.action == 'status' else stories.package(h, args.id, args.block)
+        if args.format != 'json': result['text'] = stories.render(result)
+        return result
     if cmd == 'workflow':
         if args.action == 'propose':
             from .storage import read, safe_path
@@ -253,11 +272,12 @@ def main():
     h = Harness(args.root)
     try:
         readonly = (args.command=='workflow' and args.action=='migrate' and not args.by) or (args.command=='tools' and not args.apply) or (args.command=='openspec' and args.action in {'status','context','validate','list','instructions'}) or (args.command=='investigation' and args.action=='check') or args.command in {'status','validate','doctor','skills','readiness','next','approval-package'} or args.command=='graph' and args.action=='status' or args.command=='graphify' and args.action in {'status','query'} or args.command=='codegraph' and args.action in {'status','query'} or args.command=='indexes' and args.action=='status'
+        if args.command == 'story': readonly = args.action in {'status', 'list', 'approval-package'} or (args.action == 'propose' and not args.apply)
         if args.command == 'status' and (args.retain or args.retain_dir): readonly = False
         if readonly: result = run(args,h)
         else:
             with lock(h.root), reporting_scope(h): result = run(args,h)
-        if args.command in {'status','approval-package'} and args.format in {'terminal','markdown'} and result.get('result') != 'BLOCKED':
+        if (args.command in {'status','approval-package'} or (args.command == 'story' and args.action in {'status','approval-package'})) and args.format in {'terminal','markdown'} and result.get('result') != 'BLOCKED':
             print(redact(result['text']),end='')
         else:
             print(json.dumps(redact(result),indent=2,sort_keys=True))

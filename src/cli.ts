@@ -31,7 +31,7 @@ Usage: specreceipt init [--target DIR] [--agent codex|copilot|copilot-ide|codex,
        specreceipt codex-exec --context FILE [--target DIR]
        specreceipt codex-runner-preview --task ID [--task ID ...] --reference FILE [--target DIR]
        specreceipt <Python operation> [arguments] [--target DIR] [--json]
-Operations: workflow, task, run, verify, review, approval-package, status, resume, next, readiness, onboarding, skills, openspec, indexes, graph, codegraph, graphify, tools, validate, self-test, regression, checkpoint, note, recovery, engineering-log, adopt.
+Operations: story, workflow, task, run, verify, review, approval-package, status, resume, next, readiness, onboarding, skills, openspec, indexes, graph, codegraph, graphify, tools, validate, self-test, regression, checkpoint, note, recovery, engineering-log, adopt.
 Initialization: --workflow openspec selects the specification integration; --quality strict selects the engineering baseline, not a task execution-profile minimum. --workflow adaptive is not an init option.
 Adaptive tasks: workflow assess TASK-ID --facts FILE; after actual developer approval, workflow confirm TASK-ID --profile FAST|STANDARD|STRICT --by NAME --reference FILE. Python enforces task policy and OpenSpec requirements.
 Compact FAST: workflow propose --file FILE; confirm with --expected PROPOSAL_BINDING; run returns a guarded current-host role; run --submit TOKEN; workflow accept with --expected ACCEPTANCE_BINDING. Legacy opt-in: workflow migrate preview.
@@ -339,7 +339,7 @@ async function main() {
     return;
   }
   if (!nodeSupported(process.versions.node))
-    throw Error("Unsupported Node runtime: use Node >=20.19 and <25.");
+    throw Error("Unsupported Node runtime: use Node >=22.20 and <25.");
   if (values.json) throw Error("--json is supported by doctor.");
   if (values.recover) {
     if (values["dry-run"])

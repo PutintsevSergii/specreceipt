@@ -6,11 +6,11 @@ SpecReceipt is a repository-local engineering workflow toolkit for coding agents
 
 ## Requirements
 
-- Node.js 20.19 through 24 and npm.
+- Node.js 22.20 through 24 and npm.
 - Python 3.11 or newer.
 - Windows x64 (Windows PowerShell 5.1 or Command Prompt), macOS, or Linux. WSL and Bash are not required on Windows.
 - Git for merging user changes during upgrades.
-- OpenSpec 1.14.3 for `init`; new projects use source navigation without CodeGraph or Graphify. Explicitly required providers remain mandatory.
+- OpenSpec 2.1.0 for `init` (Git and access to GitHub are required to fetch its official skills); new projects use source navigation without CodeGraph or Graphify. Explicitly required providers remain mandatory.
 
 ## Native Windows setup
 
@@ -52,7 +52,7 @@ Before npm publication, use the reviewed local archive instead (replace `VERSION
 
 ```sh
 npm install --prefix /path/to/tools --ignore-scripts /path/to/specreceipt-VERSION.tgz
-npm install --prefix /path/to/project/.harness/tools/openspec --ignore-scripts @fission-ai/openspec@1.14.3
+npm install --prefix /path/to/project/.harness/tools/openspec --ignore-scripts @fission-ai/openspec@2.1.0
 cd /path/to/project
 /path/to/tools/node_modules/.bin/specreceipt init --target /path/to/project --dry-run
 /path/to/tools/node_modules/.bin/specreceipt init --target /path/to/project --agent codex --yes
@@ -86,7 +86,7 @@ python3 -B harness self-test
 npm run test:package
 ```
 
-The package test installs a packed archive in a temporary consumer. Integration coverage with the real OpenSpec CLI requires `HARNESS_REAL_OPENSPEC` to name the installed 1.14.3 executable. Check the [GitHub Actions runs](https://github.com/PutintsevSergii/specreceipt/actions) for hosted verification results.
+The package test installs a packed archive in a temporary consumer. Integration coverage with the real OpenSpec CLI requires `HARNESS_REAL_OPENSPEC` to name the installed 2.1.0 executable. Check the [GitHub Actions runs](https://github.com/PutintsevSergii/specreceipt/actions) for hosted verification results.
 
 ## Project information
 
@@ -97,3 +97,5 @@ The package test installs a packed archive in a temporary consumer. Integration 
 - [Third-party notices](THIRD_PARTY_NOTICES.md)
 
 The [public repository](https://github.com/PutintsevSergii/specreceipt) contains the source. Check the [npm package page](https://www.npmjs.com/package/specreceipt) for published versions.
+
+Large requests can be managed as a reviewed story map with sequential OpenSpec blocks, separate block acceptance and final integration checks. See [Large stories](docs/HARNESS.md#large-stories); the agent prepares the map and presents decisions while the existing task gates remain in force.

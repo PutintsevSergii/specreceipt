@@ -227,7 +227,7 @@ test(
       );
       assert.ok(
         fs.existsSync(
-          path.join(root, ".github/prompts/opsx-propose.prompt.md"),
+          path.join(root, ".agents/skills/openspec-propose/SKILL.md"),
         ),
       );
       assert.equal(prepare(root).filter((c) => c.action !== "keep").length, 0);
@@ -256,11 +256,11 @@ test(
       } finally {
         process.env.PATH = availablePath;
       }
-      const prompt = path.join(root, ".github/prompts/opsx-propose.prompt.md");
+      const prompt = path.join(root, ".agents/skills/openspec-propose/SKILL.md");
       fs.appendFileSync(prompt, "\nUser customization\n");
       assert.equal(
         prepare(root).find(
-          (c) => c.path === ".github/prompts/opsx-propose.prompt.md",
+          (c) => c.path === ".agents/skills/openspec-propose/SKILL.md",
         ).content,
         fs.readFileSync(prompt, "utf8"),
       );

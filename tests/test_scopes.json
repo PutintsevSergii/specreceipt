@@ -21,6 +21,7 @@
     "test_reconciliation",
     "test_reporting",
     "test_scoped_inputs",
+    "test_stories",
     "test_test_selection",
     "test_tool_updates",
     "test_windows_setup",
@@ -62,7 +63,11 @@
         "harnesslib/compact.py",
         "schemas/compact-context.schema.json",
         "templates/workflow-policy.json",
-        "tests/compact_journey.py"
+        "tests/compact_journey.py",
+        "harnesslib/stories.py",
+        "schemas/story.schema.json",
+        "templates/story.json",
+        "schemas/story-record.schema.json"
       ],
       "checks": [
         "full"

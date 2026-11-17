@@ -162,7 +162,9 @@ def project(h, require_approval=True, selected=None):
 
 def task_gaps(h, feature, task):
     gaps = []
-    from . import investigation, openspec_tool, workflow
+    from . import investigation, openspec_tool, workflow, stories
+    try: stories.guard(h, feature, task)
+    except (HarnessError, OSError) as exc: gaps.append(str(exc))
     try: workflow.guard(h,feature,task)
     except (HarnessError,OSError) as exc: gaps.append(str(exc))
     try: openspec_tool.ready(h.root, feature)

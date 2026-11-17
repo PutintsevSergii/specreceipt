@@ -9,7 +9,7 @@ from .tool_paths import binary as tool_binary
 from . import processes
 from .storage import HarnessError, atomic, digest, read, safe_path
 
-PACKAGE = 'graphifyy==0.9.27'
+PACKAGE = 'graphifyy==0.9.112'
 STATE = '.harness/graph/graphify-state.json'
 GRAPH = 'graphify-out/graph.json'
 EXCLUDES = ('graphify-out', 'graphify-out/*')

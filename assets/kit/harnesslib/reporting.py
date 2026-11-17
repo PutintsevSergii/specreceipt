@@ -121,7 +121,10 @@ def task_report(h, task_id, snapshot=None):
     if temporary: warnings.append('Temporary project: files may be deleted. Retain review artifacts before cleanup.')
     next_action = next_step(h, task, effective, current, approvals, blocked)
     git = h.git()
+    from . import stories
+    story = stories.location(h, feature['feature_id'])
     return {'documentation':'compact' if compact.is_compact(feature) else 'formal','git':git,'task_id':task_id,'title':task['outcome'],'agent':task.get('workflow',{}).get('facts',{}).get('agent','unknown'),
+            **({'story':story} if story else {}),
             'workflow':selected or ('UNCONFIRMED' if task.get('workflow') else 'STRICT (legacy)'),
             'status':status,'effective_status':effective,'recorded_at':snapshot.observed_at,
             'regression_required':effective == 'DONE' and not current,
@@ -285,6 +288,7 @@ def approval_package(h, task_id, format='json', snapshot=None):
     limitations = [brief(row['limitation']) for row in review.get('criterion_evidence', [])]
     package = {
         'result':'PASS', 'task_id':task_id, 'outcome':task['outcome'],
+        **({'story':report['story']} if report.get('story') else {}),
         'acceptance_binding':compact.result_binding(h,task),
         'state':'Ready for your acceptance — not yet DONE',
         'review_summary':brief(review['summary']), 'review_verdict':review['verdict'],

@@ -45,7 +45,7 @@ class ToolUpdatesTests(unittest.TestCase):
 
     def test_partial_failure_keeps_other_updates_and_checks(self):
         with patch.object(u,'probe',return_value=None), \
-             patch.object(u,'install',side_effect=[HarnessError('fixture failure'),'1.14.3']) as install, \
+             patch.object(u,'install',side_effect=[HarnessError('fixture failure'),'2.1.0']) as install, \
              patch.object(u,'execute',return_value='PASS'):
             result = u.update(self.root,['codegraph','openspec'],apply=True,include_optional=True)
         self.assertEqual(install.call_count,2)
@@ -63,7 +63,7 @@ class ToolUpdatesTests(unittest.TestCase):
 
     def test_install_local_pinned_and_version_verified(self):
         with patch.object(u.shutil,'which',side_effect=lambda name:'/bin/'+name), \
-             patch.object(u,'execute',side_effect=['v22.0.0','installed']) as execute, \
+             patch.object(u,'execute',side_effect=['v22.20.0','installed']) as execute, \
              patch.object(u,'probe',return_value=u.openspec_tool.VERSION):
             u.install(self.root,'openspec',u.registry()['openspec'])
         argv=execute.call_args.args[1]
@@ -72,7 +72,7 @@ class ToolUpdatesTests(unittest.TestCase):
         self.assertEqual(argv[-1],u.openspec_tool.PACKAGE)
 
     def test_changed_index_is_refreshed(self):
-        with patch.object(u,'probe',return_value=None), patch.object(u,'install',return_value='0.9.27'), \
+        with patch.object(u,'probe',return_value=None), patch.object(u,'install',return_value='0.9.112'), \
              patch.object(u.graphify_tool,'ensure',return_value={'freshness':'fresh'}) as ensure, \
              patch.object(u,'execute',return_value='PASS'):
             result=u.update(self.root,['graphify'],apply=True)

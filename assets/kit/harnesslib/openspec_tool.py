@@ -13,7 +13,7 @@ import tempfile
 from . import processes
 from .storage import is_link, HarnessError, atomic, digest, read, redact, safe_path
 
-VERSION = '1.14.3'
+VERSION = '2.1.0'
 PACKAGE = '@fission-ai/openspec@' + VERSION
 LOCAL = '.harness/tools/openspec/node_modules/.bin/openspec'
 TOOLS = {'none', 'codex', 'claude', 'github-copilot'}
@@ -72,7 +72,7 @@ def install(root):
     target = safe_path(root, '.harness/tools/openspec')
     npm = shutil.which('npm')
     if not npm:
-        raise HarnessError('npm and Node >=20.19 are required to install OpenSpec.')
+        raise HarnessError('npm and Node >=22.20 are required to install OpenSpec.')
     target.mkdir(parents=True, exist_ok=True)
     result = processes.run([npm, 'install', '--prefix', str(target), '--ignore-scripts', '--no-audit',
                              '--no-fund', '--cache', str(safe_path(root,'.harness/npm-cache')), PACKAGE],
@@ -124,9 +124,10 @@ def initialize(root, tools='none', install_missing=False):
     # Generate into staging first: never overwrite corporate instructions or skill files.
     with tempfile.TemporaryDirectory(prefix='harness-openspec-init-') as directory:
         stage=Path(directory)
-        result=invoke(root,['init','--tools',tools],cwd=stage)
+        result=invoke(root,['init','--scope','project','--tools',tools],cwd=stage)
         if result['result']!='PASS':
             raise HarnessError('OpenSpec init failed: '+result['summary'])
+        materialize_skill_links(stage)
         additions=[]; conflicts=[]
         for path in sorted(stage.rglob('*')):
             if is_link(path): raise HarnessError('OpenSpec generated an unexpected symlink.')
@@ -149,6 +150,28 @@ def initialize(root, tools='none', install_missing=False):
             with target.open('xb') as output: output.write((stage/rel).read_bytes())
     return {'result':'PASS','files':additions,'version':VERSION,
             'next_action':'Create an OpenSpec change, then import its execution mapping into harness.'}
+
+
+def materialize_skill_links(stage):
+    """Copy only the official shared-skill aliases; never follow arbitrary links.
+
+    OpenSpec 2 writes Claude aliases to the project-local canonical skills.
+    Consumers still receive regular files, preserving the harness no-link boundary.
+    """
+    import shutil
+    for alias in sorted(stage.rglob('*')):
+        if not is_link(alias): continue
+        rel = alias.relative_to(stage).as_posix()
+        if not re.fullmatch(r'\.claude/skills/openspec-[a-z-]+', rel):
+            raise HarnessError('OpenSpec generated an unexpected symlink.')
+        expected = stage / '.agents/skills' / alias.name
+        canonical = safe_path(stage, expected.relative_to(stage).as_posix())
+        if alias.resolve() != canonical or not canonical.is_dir():
+            raise HarnessError('OpenSpec skill alias escapes its canonical project skill.')
+        for item in canonical.rglob('*'):
+            if is_link(item): raise HarnessError('OpenSpec canonical skill contains a symlink.')
+        alias.unlink()
+        shutil.copytree(canonical, alias)
 
 
 def source(root, change):

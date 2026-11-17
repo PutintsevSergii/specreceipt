@@ -25,11 +25,11 @@ const env = {
     process.env.PATH,
   ].join(path.delimiter),
 };
-function run(file, args, cwd = base, expected = 0) {
-  const command = nativeCommand({file: executable(file, env) ?? file, prefix: []}, env);
+function run(file, args, cwd = base, expected = 0, commandEnv = env) {
+  const command = nativeCommand({file: executable(file, commandEnv) ?? file, prefix: []}, commandEnv);
   const r = spawnSync(command.file, [...command.prefix, ...args], {
     cwd,
-    env,
+    env: commandEnv,
     encoding: "utf8",
     timeout: 180000,
     maxBuffer: 8 * 1024 * 1024,
@@ -91,7 +91,12 @@ try {
     "conflict",
   ]) {
     const root = path.join(base, scenario);
-    run(process.execPath, [oldCli, "init", "--target", root, "--yes"]);
+    // The archived adapter must initialize with its own supported OpenSpec.
+    // Only the upgraded adapter sees HARNESS_REAL_OPENSPEC afterward.
+    const legacyEnv = process.env.HARNESS_LEGACY_OPENSPEC
+      ? { ...env, PATH: path.dirname(process.env.HARNESS_LEGACY_OPENSPEC) + path.delimiter + env.PATH }
+      : env;
+    run(process.execPath, [oldCli, "init", "--target", root, "--yes"], base, 0, legacyEnv);
     const skill = path.join(root, ".agents/skills/discovery/SKILL.md");
     if (scenario !== "clean")
       fs.appendFileSync(skill, "\nCompany customization retained.\n");

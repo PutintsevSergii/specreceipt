@@ -1,0 +1,248 @@
+{
+  "type": "object",
+  "properties": {
+    "definition": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "integer",
+          "enum": [
+            1
+          ]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "goal": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "contracts": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "feature": {
+                "type": "string",
+                "minLength": 1
+              },
+              "outcome": {
+                "type": "string",
+                "minLength": 1
+              },
+              "requirements": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1
+              },
+              "acceptance": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1
+              },
+              "dependencies": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "required": [
+              "id",
+              "feature",
+              "outcome",
+              "requirements",
+              "acceptance",
+              "dependencies"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        },
+        "integration_feature": {
+          "type": "string",
+          "minLength": 1
+        },
+        "integration": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "schema_version",
+        "id",
+        "goal",
+        "scope",
+        "requirements",
+        "contracts",
+        "blocks",
+        "integration_feature",
+        "integration"
+      ],
+      "additionalProperties": false
+    },
+    "map_approval": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "binding": {
+          "type": "string",
+          "minLength": 1
+        },
+        "by": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reference": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reference_hash": {
+          "type": "string",
+          "minLength": 1
+        },
+        "at": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "binding",
+        "by",
+        "reference",
+        "reference_hash",
+        "at"
+      ],
+      "additionalProperties": false
+    },
+    "blocks": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "binding": {
+            "type": "string",
+            "minLength": 1
+          },
+          "by": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reference": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reference_hash": {
+            "type": "string",
+            "minLength": 1
+          },
+          "at": {
+            "type": "string",
+            "minLength": 1
+          },
+          "result_snapshot": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "binding",
+          "by",
+          "reference",
+          "reference_hash",
+          "at",
+          "result_snapshot"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "acceptance": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "binding": {
+          "type": "string",
+          "minLength": 1
+        },
+        "by": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reference": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reference_hash": {
+          "type": "string",
+          "minLength": 1
+        },
+        "at": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "binding",
+        "by",
+        "reference",
+        "reference_hash",
+        "at"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "definition",
+    "map_approval",
+    "blocks",
+    "acceptance"
+  ],
+  "additionalProperties": false
+}

@@ -11,9 +11,9 @@ specreceipt init --agent codex,copilot-ide
 
 Copilot IDE mode (including Rider) does not require the CLI. The wizard offers these same choices. OpenSpec, Strict and Engineering Pack are shared. Repeating init without selection flags retains the saved selection. To add a second agent, explicitly select the combined mode. Existing instructions and OpenSpec customization are preserved; conflicting managed content stops installation.
 
-The short `.github/copilot-instructions.md` bridge points to shared `AGENTS.md` and task-specific guide sections. All 18 Engineering Skills remain in `.agents/skills`; none are copied into `.github/skills`. OpenSpec's official `github-copilot` integration supplies `.github/prompts/opsx-*.prompt.md` and its own Skills. When Codex is also selected, freshly generated duplicate OpenSpec Skills are omitted in favor of the shared `.agents/skills` copy. Existing user files are never deleted. OpenSpec init runs only in an empty staging directory with cloud generation disabled; no Actions workflows or cloud agent are installed.
+The short `.github/copilot-instructions.md` bridge points to shared `AGENTS.md` and task-specific guide sections. All 18 Engineering Skills remain in `.agents/skills`; none are copied into `.github/skills`. OpenSpec 2.1 installs the six official workflows into shared `.agents/skills/` for both Codex and Copilot; use `/openspec-propose` and other skill names instead of the removed `/opsx-*` prompts. Existing user files and legacy prompts are preserved. OpenSpec init runs with explicit `--scope project` in an empty staging directory with cloud generation disabled; no global skills, Actions workflows or cloud agent are installed. Installation needs Git and access to the official GitHub release skills.
 
-In Rider, enable the GitHub Copilot plugin and sign in with an account authorized for this device. Check the response References for `.github/copilot-instructions.md`. Ask Copilot to load the relevant Engineering Skill explicitly if automatic `.agents/skills` discovery is unavailable in your plugin version. Restart the IDE after installing OpenSpec prompts. Doctor validates files, not actual IDE loading.
+In Rider, enable the GitHub Copilot plugin and sign in with an account authorized for this device. Check the response References for `.github/copilot-instructions.md`. Ask Copilot to load the relevant Engineering Skill explicitly if automatic `.agents/skills` discovery is unavailable in your plugin version. Restart the IDE after installing OpenSpec skills. Doctor validates files, not actual IDE loading.
 
 For CLI use, install official stable GitHub Copilot CLI independently (`brew install --cask copilot-cli` on macOS, or an official supported alternative), then run `copilot login`. Complete the official OAuth flow yourself; never paste credentials into Harness configuration. Doctor does not spend model credits or inspect credential files. Successful login alone does not prove entitlement, available quota, or organization permission.
 
@@ -30,7 +30,7 @@ Only named command/file permission grants are accepted; no allow-all, yolo or au
 - [GitHub CLI Skills locations](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills)
 - [JetBrains repository instructions](https://docs.github.com/en/copilot/how-tos/copilot-in-your-ide/customize-copilot/configure-custom-instructions/add-repository-instructions-in-your-ide)
 - [GitHub CLI reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference)
-- Official installed OpenSpec 1.14.3 source: `dist/core/init.js`, `dist/core/config.js`, `dist/core/command-generation/adapters/github-copilot.js`.
+- [OpenSpec 2.1 release](https://github.com/Fission-AI/OpenSpec/releases/tag/v2.1.0); inspected official installed `dist/core/init.js` and `dist/core/skill-installer.js`.
 
 Live consumer E2E must stop at planning and final developer approval until actual consent is provided. No cross-provider token equivalence is assumed.
 

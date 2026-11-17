@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "id": "payments",
+  "goal": "Customers can pay for an order and recover from payment failures.",
+  "scope": [
+    "Order payment; refunds are outside this story."
+  ],
+  "requirements": [
+    "PAY-001",
+    "PAY-002"
+  ],
+  "contracts": [
+    "docs/ARCHITECTURE.md"
+  ],
+  "blocks": [
+    {
+      "id": "create-payment",
+      "feature": "payment-session",
+      "outcome": "An order receives a payment session.",
+      "requirements": [
+        "PAY-001"
+      ],
+      "acceptance": [
+        "An unpaid order receives exactly one active payment session."
+      ],
+      "dependencies": []
+    },
+    {
+      "id": "confirm-payment",
+      "feature": "payment-confirmation",
+      "outcome": "Confirmed payments update the order exactly once.",
+      "requirements": [
+        "PAY-002"
+      ],
+      "acceptance": [
+        "Repeated payment notifications do not duplicate order fulfillment."
+      ],
+      "dependencies": [
+        "create-payment"
+      ]
+    }
+  ],
+  "integration_feature": "payment-integration",
+  "integration": [
+    "A customer completes payment and the order reaches paid status.",
+    "A failed payment can be retried without duplicate fulfillment."
+  ]
+}

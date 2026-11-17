@@ -89,7 +89,7 @@ def node_compatible():
         match = re.fullmatch(r'v(\d+)\.(\d+)\.(\d+)',version)
         if not match: return False
         number = tuple(map(int,match.groups()))
-        if not (20,19,0) <= number < (25,0,0): return False
+        if not (22,20,0) <= number < (25,0,0): return False
         command([npm,'--version'],15)
         return True
     except HarnessError:

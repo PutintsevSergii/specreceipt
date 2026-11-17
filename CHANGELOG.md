@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.6.0
+
+- Upgrade OpenSpec to 2.1.0 with explicit project-local skills and the shared Codex/Copilot skill layout. Node >=22.20 and <25 is now required.
+- Update CodeGraph to 1.6.3, Graphify to 0.9.112, TypeScript to 7.0.2, Prettier to 3.10.1 and Node types to 26.6.6.
+- Preserve existing specification sources, approval gates and customized integration files.
+
+
+## 0.5.0
+
+- Add story maps with requirement coverage, shared contracts, dependency validation and progressive OpenSpec block planning.
+- Separate map decisions, existing task approvals, block acceptance and final integrated-story acceptance.
+- Add read-only story status/decision packages, sequential execution guards, durable revisions and resume guidance.
+- Keep historical story receipts stable when unrelated future checks are added; current verification still uses the complete repository inventory. Standalone task behavior is unchanged.
+
+
 ## 0.4.4
 
 - Add compact FAST task proposals, combined plan approval, guarded IDE-host progression, concise acceptance reporting, and explicit legacy migration.

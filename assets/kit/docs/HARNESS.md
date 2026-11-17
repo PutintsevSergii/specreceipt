@@ -19,6 +19,7 @@ This guide is a reference, not a required full-document read on every task. Sele
 | New implementation or material replanning | [Implementation approval](#required-implementation-approval-conversation) |
 | Incomplete project | [Onboarding](#automatic-onboarding-after-adoption), plus the project-onboarding Skill |
 | Task execution, verification or review | [Working cycle](#the-normal-working-cycle), [completion contracts](#verification-and-completion-contracts-hardening-revision) |
+| Large story / decomposition | [Large stories](#large-stories) |
 | OpenSpec feature | [OpenSpec workflow](#openspec-workflow-enabled-by-default) |
 | Skill selection or host capabilities | [Skill catalog](#all-skills-when-and-how-to-use-them), [portable access](#use-with-different-agents-and-hosts) |
 | Installation, package upgrade or Strict policy | [v0.2 guide](V02.md) and the project's .harness/quality.json |
@@ -84,9 +85,37 @@ The installers prepare Python 3.12 when Python 3.11+ is unavailable. On Windows 
 
 Some features are executable safeguards; others are agent procedures. In particular, each task must map its acceptance criteria to required checks through `acceptance_checks`. Execution records this declared coverage; prose tables still support semantic review and are not a proof that the checks are adequate. A passing schema does not establish that a specification is complete or correct.
 
+## Large stories
+
+A story coordinates `story → block → existing feature tasks`. Use it for large requests with independently verifiable outcomes, cross-subsystem dependencies or substantial uncertainty, and when the developer explicitly requests decomposition. The host agent investigates and proposes the map; no language model is embedded in the CLI. Small STRICT tasks may remain standalone. Story blocks use separate formal OpenSpec changes regardless of their task profile. Existing standalone tasks keep their existing behavior.
+
+The map (`templates/story.json`, validated against `schemas/story.schema.json`) contains the goal, scope/non-goals, stable requirement IDs, shared contract paths, blocks and a distinct integration feature. Each block declares its planned feature ID, outcome, requirement IDs, acceptance criteria and predecessor block IDs. All requirements must be covered; duplicate ownership, unknown dependencies and cycles fail closed. Planned features need not exist yet. In each imported feature, task requirements must cover its map IDs and task acceptance criteria must include the exact declared scenario strings. The integration feature must cover all story requirements and integration scenarios.
+
+Commands below are internal agent operations. Present concise cards and preserve actual developer responses; do not ask the developer to edit JSON or type commands.
+
+```text
+story propose --file .harness/story-request.json
+story propose --file .harness/story-request.json --apply --expected PROPOSAL_BINDING
+story status STORY --format markdown
+story approve-map STORY --by NAME --reference .harness/map-answer.md --expected MAP_BINDING
+story approval-package STORY --block BLOCK --format markdown
+story accept-block STORY --block BLOCK --by NAME --reference .harness/block-answer.md --expected BINDING
+story approval-package STORY --format markdown
+story accept STORY --by NAME --reference .harness/final-answer.md --expected BINDING
+story list
+```
+
+Prefix these operations with `specreceipt` (or `./harness` in an adopted Python kit). `story propose` previews without writing. Applying saves a DRAFT map, preserving previous revisions under `.harness/story-history/`. Existing feature IDs can be mapped without cloning their task state or approvals. Attaching existing work changes its definition binding and requires normal replanning/reverification; no migration grants acceptance. Features with execution history cannot be detached. Splitting an existing feature requires new TODO mappings and explicit decisions about the old work; there is no automatic transfer of completed receipts.
+
+Map approval only authorizes the direction. Detail the next eligible OpenSpec change, import its execution mapping, and obtain normal feature/task approvals. Predecessors must be accepted before a dependent block starts. Only one block executes at a time. A block acceptance requires completed tasks, current evidence and a decision bound to the displayed result. The next block still needs its own approvals. The `next`/`run` driver stops at story decisions; it never approves them automatically.
+
+Common contract content and ancestor definitions enter task definition and workflow bindings. Future-block map edits preserve unrelated earlier definition bindings but require renewed map approval. For story tasks only, historical receipts bind the checks actually executed and substantive onboarding inputs; adding an unrelated future check or renewing onboarding approval alone does not erase that history. Changing a selected check still invalidates it. Full repository fingerprints continue to govern current verification/review: new code and documents can require regressions. OpenSpec import still requires renewed project readiness when it changes check configuration.
+
+After every block is accepted, the integration feature exercises the complete user journey and cross-block failure cases through normal task checks and review. Final story acceptance additionally requires current evidence for every block (use normal `regression TASK` as needed), the completed integration feature, and a separate final developer decision. Historical block acceptance is not a claim of current regression coverage. Source drift makes final story acceptance stale. Reports show actual evidence and gaps; neither OpenSpec checkboxes nor map approval imply completion. Local approval records are not authenticated signatures.
+
 ## OpenSpec workflow (enabled by default)
 
-New installations enable OpenSpec automatically; `--no-openspec` explicitly opts out. Use OpenSpec as the source of feature requirements while harness records execution scope, approvals, tests and review. Native harness features remain supported. This adapter is pinned to OpenSpec 1.14.3 and requires Node >=20.19 plus npm for installation.
+New installations enable OpenSpec automatically; `--no-openspec` explicitly opts out. Use OpenSpec as the source of feature requirements while harness records execution scope, approvals, tests and review. Native harness features remain supported. This adapter is pinned to OpenSpec 2.1.0 and requires Node >=22.20 plus npm for installation. Skill initialization explicitly uses `--scope project` and requires Git with access to the official GitHub release; global skills are not installed.
 
 ```sh
 # During adoption (also retains the existing navigation-index setup):

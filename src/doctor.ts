@@ -58,7 +58,7 @@ export function doctor(root: string) {
   add(
     "node",
     nodeSupported(process.versions.node) ? "PASS" : "FAIL",
-    "Requires Node >=20.19 and <25.",
+    "Requires Node >=22.20 and <25.",
     "Use a supported Node runtime.",
   );
   test(
@@ -196,16 +196,16 @@ export function doctor(root: string) {
       () => {
         for (const name of [
           "propose",
-          "apply",
-          "archive",
+          "apply-change",
+          "archive-change",
           "explore",
-          "sync",
-          "update",
+          "sync-specs",
+          "update-change",
         ])
-          if (!read(root, `.github/prompts/opsx-${name}.prompt.md`))
+          if (!read(root, `.agents/skills/openspec-${name}/SKILL.md`))
             throw Error();
       },
-      "Run init for the selected Copilot agent; official OpenSpec prompts are required.",
+      "Run init for the selected Copilot agent; official shared OpenSpec skills are required.",
     );
     if (needsCopilotCLI(agent)) {
       const probe = probeCopilot(root);
@@ -507,8 +507,8 @@ function executionDiagnostics(options: ExecutionOptions, installation = false) {
     add("execution-requirements", "REQUIRED", false, "Selected Harness engine is missing.", "Restore the installed engine before launching.");
   }
   for (const [name, rel, args, expected, required] of [
-    ["codegraph", ".harness/tools/codegraph/node_modules/.bin/codegraph", ["version"], "1.6.2", navigation && navigationProviders.has("codegraph")],
-    ["graphify", ".harness/tools/graphify/bin/graphify", ["--version"], "graphify 0.9.27", navigation && navigationProviders.has("graphify")],
+    ["codegraph", ".harness/tools/codegraph/node_modules/.bin/codegraph", ["version"], "1.6.3", navigation && navigationProviders.has("codegraph")],
+    ["graphify", ".harness/tools/graphify/bin/graphify", ["--version"], "graphify 0.9.112", navigation && navigationProviders.has("graphify")],
     ["openspec", ".harness/tools/openspec/node_modules/.bin/openspec", ["--version"], OPENSPEC_VERSION, openspecRequired],
   ] as const) {
     const nativeRel = process.platform === "win32" ? (name === "graphify" ? ".harness/tools/graphify/Scripts/graphify.exe" : rel + ".cmd") : rel;
