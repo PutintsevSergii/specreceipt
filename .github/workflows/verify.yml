@@ -55,15 +55,24 @@ jobs:
           name: selected-test-plan
           path: ${{ runner.temp }}/test-plan.json
   python:
+    name: python (${{ matrix.os }}, shard ${{ matrix.shard }})
     needs: changes
     if: needs.changes.outputs.python == 'true'
-    timeout-minutes: 45
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - {os: ubuntu-latest, shard: 0, shards: 1}
+          - {os: macos-latest, shard: 0, shards: 1}
+          - {os: windows-latest, shard: 0, shards: 4}
+          - {os: windows-latest, shard: 1, shards: 4}
+          - {os: windows-latest, shard: 2, shards: 4}
+          - {os: windows-latest, shard: 3, shards: 4}
     runs-on: ${{ matrix.os }}
     env:
+      PYTHON_SHARD_INDEX: ${{ matrix.shard }}
+      PYTHON_SHARD_COUNT: ${{ matrix.shards }}
       HARNESS_REQUIRE_SYMLINK_TESTS: ${{ matrix.os == 'windows-latest' && '1' || '0' }}
     steps:
       - uses: actions/checkout@v4
@@ -90,7 +99,7 @@ jobs:
           plan_file = os.path.join(os.environ['RUNNER_TEMP'], 'test-plan.json')
           with open(plan_file) as f:
               plan = json.load(f)
-          subprocess.check_call([sys.executable, '-B', 'tests/run_scoped.py', '--profile', plan['profile'], '--plan-file', plan_file, '--language', 'python'])
+          subprocess.check_call([sys.executable, '-B', 'tests/run_scoped.py', '--profile', plan['profile'], '--plan-file', plan_file, '--language', 'python', '--shard-index', os.environ['PYTHON_SHARD_INDEX'], '--shard-count', os.environ['PYTHON_SHARD_COUNT']])
   verify:
     needs: changes
     if: needs.changes.outputs.node == 'true'
@@ -102,7 +111,8 @@ jobs:
         node: [22, 24]
     runs-on: ${{ matrix.os }}
     env:
-      HARNESS_PACKAGE_SELF_TEST_MODE: ${{ matrix.node == 24 && 'full' || 'smoke' }}
+      # Source suites run on every OS; repeat the full suite from the installed package once.
+      HARNESS_PACKAGE_SELF_TEST_MODE: ${{ matrix.os == 'ubuntu-latest' && matrix.node == 24 && 'full' || 'smoke' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -135,10 +145,10 @@ jobs:
     needs: changes
     if: needs.changes.outputs.node == 'true'
     runs-on: windows-latest
-    timeout-minutes: 45
+    timeout-minutes: 15
     env:
       HARNESS_REQUIRE_SYMLINK_TESTS: '1'
-      HARNESS_PACKAGE_SELF_TEST_MODE: ${{ matrix.node == 24 && 'full' || 'smoke' }}
+      HARNESS_PACKAGE_SELF_TEST_MODE: smoke
     strategy:
       fail-fast: false
       matrix:

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.1
+
+- Split Windows Python checks across four parallel jobs while preserving complete test selection and required failure gates.
+- Run the complete installed-package Python regression once on Ubuntu/Node 24; retain native Windows installation and integration checks without duplicating the full source suite.
+- Bound Python and Windows native CI jobs to 15 minutes and test shard coverage, uniqueness and invalid selections.
+
 ## 0.8.0
 
 - Launch the UI without a target, remember configured repositories, and isolate tasks and approvals per repository.

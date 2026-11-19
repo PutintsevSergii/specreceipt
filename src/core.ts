@@ -1,5 +1,5 @@
 /** Pure distribution contracts. No filesystem, process or terminal dependencies. */
-export const VERSION = "0.8.0";
+export const VERSION = "0.8.1";
 export const OPENSPEC_VERSION = "2.1.0";
 export const DEFAULTS = {
   agent: "codex",

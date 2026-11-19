@@ -228,6 +228,34 @@ class SelectionTests(unittest.TestCase):
             self.assertIn('-X', command['argv'])
             self.assertEqual(command['argv'][command['argv'].index('-X')+1], 'utf8')
 
+    def test_python_shards_cover_every_selected_module_once(self):
+        selection = self.select('core.py')
+        modules = []
+        validate = 0
+        for index in range(4):
+            plan = scoped.commands(self.root, self.config, selection, 'python', index, 4)
+            for command in plan:
+                if command['id'] == 'python':
+                    argv = command['argv']
+                    self.assertIn(scoped.PYTHON_RUNNER, argv)
+                    modules.extend(argv[argv.index(scoped.PYTHON_RUNNER)+1:])
+                validate += command['id'] == 'validate'
+        self.assertEqual(sorted(modules), sorted(self.config['python_modules']))
+        self.assertEqual(len(modules), len(set(modules)))
+        self.assertEqual(validate, 1)
+
+    def test_shards_reject_invalid_bounds_and_non_python(self):
+        selection = self.select('core.py')
+        for index, count, language in [(-1, 4, 'python'), (4, 4, 'python'), (0, 0, 'python'), (0, 4, 'node'), (0, 4, 'all')]:
+            with self.assertRaises(scoped.SelectionError):
+                scoped.commands(self.root, self.config, selection, language, index, count)
+
+    def test_sparse_scoped_shards_do_not_repeat_or_expand_checks(self):
+        selection = self.select('src/other.py')
+        plans = [scoped.commands(self.root, self.config, selection, 'python', i, 4) for i in range(4)]
+        self.assertEqual([len(p) for p in plans], [1, 0, 0, 0])
+        self.assertEqual(plans[0][0]['argv'][-1], 'test_other')
+
     def test_upgrade_prerequisites_are_explicit_blocker(self):
         with patch.dict(os.environ, {}, clear=True), self.assertRaises(scoped.SelectionError):
             scoped.execute(self.root, [{'id':'upgrade','argv':['node','script.mjs']}])

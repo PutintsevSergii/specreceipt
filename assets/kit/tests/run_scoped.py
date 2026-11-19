@@ -176,14 +176,19 @@ def select(root, config, profile, paths=(), manual=()):
     return {'profile': profile, 'coverage': label, 'full': full, 'changed_paths': list(paths), 'checks': reasons}
 
 
-def commands(root, config, selection, language='all'):
+def commands(root, config, selection, language='all', shard_index=0, shard_count=1):
+    if shard_count < 1 or not 0 <= shard_index < shard_count:
+        raise SelectionError('Shard index must be within shard count')
+    if shard_count > 1 and language != 'python':
+        raise SelectionError('Sharding is supported only for Python checks')
     checks = selection['checks']
     planned = []
-    python = [c[3:] for c in checks if c.startswith('py:')]
+    python = sorted(c[3:] for c in checks if c.startswith('py:'))
+    python = python[shard_index::shard_count]
     if language != 'node':
         if python:
-            planned.append({'id': 'python', 'argv': [sys.executable, '-B', '-X', 'utf8', str(root/'harness'), 'self-test'] if selection['full'] else [sys.executable, '-B', '-X', 'utf8', '-c', PYTHON_RUNNER, *sorted(python)]})
-        if 'validate' in checks:
+            planned.append({'id': 'python', 'argv': [sys.executable, '-B', '-X', 'utf8', str(root/'harness'), 'self-test'] if selection['full'] and shard_count == 1 else [sys.executable, '-B', '-X', 'utf8', '-c', PYTHON_RUNNER, *sorted(python)]})
+        if 'validate' in checks and shard_index == 0:
             planned.append({'id': 'validate', 'argv': [sys.executable, '-B', '-X', 'utf8', str(root/'harness'), 'validate']})
     if language != 'python':
         node = [c[5:] for c in checks if c.startswith('node:')]
@@ -249,6 +254,8 @@ def execute(root, plan, run=subprocess.run):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--profile', required=True, choices=['smoke','changed','full'])
+    parser.add_argument('--shard-index', type=int, default=0, help='Zero-based Python CI shard')
+    parser.add_argument('--shard-count', type=int, default=1)
     parser.add_argument('--base', help='Compare HEAD with merge-base(REF, HEAD), plus local changes')
     parser.add_argument('--language', choices=['all','python','node'], default='all')
     parser.add_argument('--suite', action='append', default=[], help='Explicit py:MODULE[.CLASS.METHOD] or node:FILE; manual coverage')
@@ -271,8 +278,11 @@ def main(argv=None):
             paths = changed_paths(ROOT, args.base) if args.profile == 'changed' and not args.suite else []
         selection = select(ROOT, config, args.profile, paths, args.suite)
         validate_python_names(ROOT, selection)
-        selection['commands'] = commands(ROOT, config, selection, args.language)
+        selection['commands'] = commands(ROOT, config, selection, args.language, args.shard_index, args.shard_count)
         selection['language'] = args.language
+        selection['shard'] = {'index': args.shard_index, 'count': args.shard_count}
+        if args.shard_count > 1:
+            selection['coverage'] = 'SHARD_OF_' + selection['coverage']
         selection['not_applicable'] = []
         if os.name == 'nt' and args.language != 'python':
             selection['not_applicable'] = [c for c in selection['checks'] if (c.startswith('node:') and c[5:] not in {'tests-node/windows.test.mjs', 'tests-node/engine-upgrade.test.mjs', 'tests-node/copilot.test.mjs', 'tests-node/ui.test.mjs'}) or c == 'wizard']
