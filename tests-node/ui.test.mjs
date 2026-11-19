@@ -104,3 +104,38 @@ case.verified(); case.review()
     assert.equal(engine(root, ['status', 'DEMO-001']).data.tasks[0].approvals.developer.status, 'CURRENT');
   }
 });
+
+test('repository selection isolates identical task IDs, questions and approval capabilities', async t => {
+  const base = realpathSync(mkdtempSync(join(tmpdir(), 'sr-ui-repos-')));
+  t.after(() => rmSync(base, { recursive: true, force: true }));
+  const roots = ['one', 'two'].map(n => { const r = join(base, n); mkdirSync(r); return r; });
+  const mutations = [];
+  const engine = (root, argv) => {
+    if (!roots.includes(root)) return { exitCode: 1, error: { message: 'Not an installed project' } };
+    if (argv[0] === 'status') return { exitCode: 0, data: { project: root, tasks: [{ task_id: 'TASK-001', documentation: 'formal' }] } };
+    if (argv[0] === 'approval-package') return { exitCode: 0, data: { result: 'PASS', acceptance_binding: 'identical-binding', paths: {} } };
+    mutations.push(root); return { exitCode: 0, data: {} };
+  };
+  const ui = await startUI(roots[0], 0, engine);
+  t.after(() => { ui.server.closeAllConnections(); ui.server.close(); });
+  const send = (path, repository, body, origin = ui.origin) => fetch(ui.origin + path, { method: body ? 'POST' : 'GET', headers: { Authorization: `Bearer ${ui.token}`, Origin: origin, ...(repository ? { 'X-SpecReceipt-Repository': repository } : {}), ...(body ? { 'Content-Type': 'application/json' } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}) });
+  assert.equal((await fetch(ui.origin + '/api/repositories')).status, 401);
+  const first = (await (await send('/api/repositories')).json()).repositories[0];
+  assert.equal((await send('/api/repositories', first.id, { path: roots[1] }, 'https://evil.test')).status, 403);
+  assert.equal((await send('/api/repositories', first.id, { path: 'relative' })).status, 400);
+  assert.equal((await send('/api/repositories', first.id, { path: base })).status, 400);
+  const second = (await (await send('/api/repositories', first.id, { path: roots[1] })).json()).repository;
+  assert.equal((await (await send('/api/repositories', first.id, { path: join(roots[1], '.') })).json()).repository.id, second.id);
+  assert.equal((await (await send('/api/repositories')).json()).repositories.length, 2);
+  assert.equal((await send('/api/status', 'unknown')).status, 404);
+  for (const repo of [first, second]) assert.equal((await (await send('/api/status', repo.id)).json()).project, repo.path);
+  const q = askQuestion(first.path, 'TASK-001', 'First repo only?', engine);
+  assert.equal((await send('/api/answer', second.id, { question_id: q.id, answer: 'Yes', by: 'Developer' })).status, 400);
+  assert.equal(questions(first.path)[0].answer, null);
+  const preview = await (await send('/api/package?task=TASK-001', first.id)).json();
+  const acceptance = { preview: preview.preview, by: 'Developer', confirm: true };
+  assert.equal((await send('/api/approve', second.id, acceptance)).status, 400);
+  assert.deepEqual(mutations, []);
+  assert.equal((await send('/api/approve', first.id, acceptance)).status, 200);
+  assert.deepEqual(mutations, [first.path]);
+});

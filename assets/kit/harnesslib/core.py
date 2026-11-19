@@ -182,7 +182,7 @@ class Harness:
         if event['type'] == 'workflow-assessed':
             from .reporting import invalidate_current
             invalidate_current(self, 'Workflow assessment changed; query live status after the bounded assessment.')
-        if event['type'] in {'interrupted','transition','verification','verification-stale','approval-recorded','workflow-selected','checkpoint','replanned','baseline-recognized','recovery-acknowledged','blocker','resolve'}:
+        if event['type'] in {'navigation-configured','interrupted','transition','verification','verification-stale','approval-recorded','workflow-selected','checkpoint','replanned','baseline-recognized','recovery-acknowledged','blocker','resolve'}:
             from .reporting import refresh_current, invalidate_current
             if getattr(self, '_report_depth', 0):
                 first = not getattr(self, '_report_dirty', False)
@@ -467,7 +467,7 @@ class Harness:
             self.ready(feature,task)
             verification.scope_changes(self,task)
             if feature['kind'] == 'application':
-                index_context.ensure(self.root)
+                index_context.ensure(self.root, task)
         if target in {'VERIFIED','DONE'}:
             verification.scope_changes(self,task)
             self.ready(feature,task)
@@ -565,7 +565,7 @@ class Harness:
         self.ready(feature,task)
         if not regression: verification.scope_changes(self,task)
         if feature['kind'] == 'application':
-            index_context.ensure(self.root)
+            index_context.ensure(self.root, task)
         mapping = verification.acceptance(task)
         closure = self.check_closure(task)
         cfg = read(self.root/'.harness/checks.json')

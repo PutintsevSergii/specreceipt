@@ -125,6 +125,12 @@ def parser():
     cg.add_parser('status')
     cg.add_parser('ensure')
     cgq = cg.add_parser('query'); cgq.add_argument('term'); cgq.add_argument('--limit',type=int,default=10)
+    navigation = sub.add_parser('navigation').add_subparsers(dest='action', required=True)
+    navigation.add_parser('show')
+    config = navigation.add_parser('set')
+    config.add_argument('--mode', choices=['source', 'auto', 'custom', 'required'], required=True)
+    config.add_argument('--providers', nargs='+', choices=['codegraph', 'graphify'])
+    config.add_argument('--expected')
     indexes = sub.add_parser('indexes').add_subparsers(dest='action',required=True)
     indexes.add_parser('status')
     indexes.add_parser('ensure')
@@ -193,7 +199,8 @@ def run(args,h):
         if args.execution_requirements:
             from .index_context import policy
             features = [h.task(args.task)[0]] if args.task else list(h.features().values())
-            providers = policy(h.root)['providers']
+            navigation_policy = policy(h.root)
+            providers = navigation_policy['providers'] if navigation_policy['mode'] == 'required' else []
             navigation = bool(providers)
             product = h.root/'.harness/product.json'
             configured = json.loads(product.read_text(encoding='utf-8')) if product.exists() else {}
@@ -212,7 +219,7 @@ def run(args,h):
             return {'result':'PASS','navigation_cli_required':navigation,'navigation_providers':providers,'openspec_required':openspec,'executables':executables,
                     'experience':workflow.policy(h).get('experience',{'version':1,'mode':'legacy'}),
                     'experience_next_action':'Use workflow propose for eligible FAST tasks' if compact.enabled(h) else 'Use workflow migrate to preview explicit compact opt-in; legacy rules remain active',
-                    'reason':'Required navigation providers: '+', '.join(providers) if navigation else 'Source navigation; no graph CLI required.'}
+                    'reason':'Required navigation providers: '+', '.join(providers) if navigation else 'Optional navigation; no graph CLI required.'}
         return {'result':'PASS','python':sys.version.split()[0],'runtime':('Python standard library; native Windows locking/process trees' if sys.platform == 'win32' else 'Python standard library; POSIX flock/process groups'),
                 'git':h.git(),'validation':h.validate(),'skills':len(list((h.root/'.agents/skills').glob('*/SKILL.md'))),
                 'permissions':'Runtime-managed; no hooks, merge protection, credentials or permission overrides installed.'}
@@ -250,6 +257,9 @@ def run(args,h):
         if args.action == 'status': return codegraph_tool.status(h.root)
         if args.action == 'ensure': return codegraph_tool.ensure(h.root)
         return codegraph_tool.query(h.root,args.term,args.limit)
+    if cmd == 'navigation':
+        if args.action == 'show': return index_context.show(h.root)
+        return index_context.configure(h, args.mode, args.providers, args.expected)
     if cmd == 'indexes':
         if args.action == 'status': return {'codegraph':codegraph_tool.status(h.root),'graphify':graphify_tool.status(h.root)}
         return index_context.ensure(h.root)
@@ -290,6 +300,7 @@ def main():
     h = Harness(args.root)
     try:
         readonly = (args.command=='workflow' and args.action=='migrate' and not args.by) or (args.command=='tools' and not args.apply) or (args.command=='openspec' and args.action in {'status','context','validate','list','instructions'}) or (args.command=='investigation' and args.action=='check') or args.command in {'status','validate','doctor','skills','readiness','next','approval-package'} or args.command=='graph' and args.action=='status' or args.command=='graphify' and args.action in {'status','query'} or args.command=='codegraph' and args.action in {'status','query'} or args.command=='indexes' and args.action=='status'
+        if args.command == 'navigation': readonly = args.action == 'show'
         if args.command == 'story': readonly = args.action in {'status', 'list', 'approval-package'} or (args.action == 'propose' and not args.apply)
         if args.command == 'quality': readonly = args.action != 'plan' or not args.apply
         if args.command == 'status' and (args.retain or args.retain_dir): readonly = False

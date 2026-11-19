@@ -1,14 +1,16 @@
 {
-  "dist/cli.js": "68ddd62001f257adbfecd0a8a64dda2180d5bfcfb8600161f25e8f59ed79a000",
+  "dist/cli.js": "a5e82a3a52f2b15f0962426cf83c373b8859532ac54898837161a60c9badbc20",
   "dist/copilot.js": "74202b0cdb9d63d4b51300e1f600447d3887f5931f2a4672981a44d4b6f01bdb",
-  "dist/core.js": "827949617c02e0fed8dae1db2ac819b39b61ac1bb287efff044e3b9571f4cf57",
+  "dist/core.js": "c3cbe73f66263107b49ade2a0916f944b2a2c30f06a18df4e18b1eba3c1301ad",
   "dist/doctor.js": "42b18e6aa3beb8f3332aed29a9bf372f022db484a5df9017aad6b15fde5b7796",
-  "dist/engine.js": "8eef2ba413c07062cccaf60fd6aa2b40c263c68e590c0390a55bcf5186176005",
+  "dist/engine.js": "c1947f2537a51fc929866ccd985094597b7ff38878f64ef5d075f1f2ae0e477a",
   "dist/filesystem.js": "7736b01e854836c66b311ee3f1f1a2260927d42e3f26b843f7a7b1ccd06f1390",
   "dist/install.js": "94b567e91b99e0bfeeed9611bb17456e2ac6242e438aa88e3c643222113c47f4",
-  "dist/integrations.js": "2a35c0f2902339ad809e056d1fcdaab7e1211bdaa7b0814a5b67d50aa3675cb2",
+  "dist/integrations.js": "5ccd47209759537af69850f75c71401c5d88b0bbf301364b7b2ef7c6af0ada8c",
   "dist/migrations.js": "a64cfb9300033e147037e8cc2c385babd3687b653452fd57f6fc81d03b4fb332",
-  "dist/ui-page.js": "cbdf10037a021223d98b4137881c42b8c7ac8439704eaaad2ec98042ac0d761a",
-  "dist/ui.js": "94b2e877f4251eff739864856de705df3c03818aff9b5a4dd5444870ea0a5f99",
+  "dist/ui-page.js": "c3c9801011c3f1273a45122482ba1addb155d7094b52455589ef13f19d932170",
+  "dist/ui-repositories.js": "7b73f76cf99181ccca95930e139154a21edf214bdec5d2c43df9f47f396d3eb2",
+  "dist/ui-setup.js": "91afcd776b39a70d74afc4d4301afccfb077d1c47ab66036a1e6b44369fa106a",
+  "dist/ui.js": "a40e7d462b83eb35b0a1c462344b5206b629d925f3e99db0b34f9c93680d231e",
   "dist/upgrade.js": "d56d84d755ac8d25a8fd5864b35c7c595a9145f11ed50732de2138fe8f13b134"
 }

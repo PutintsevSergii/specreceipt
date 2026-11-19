@@ -38,7 +38,8 @@
     "tests-node/product.test.mjs",
     "tests-node/windows.test.mjs",
     "tests-node/workflow.test.mjs",
-    "tests-node/ui.test.mjs"
+    "tests-node/ui.test.mjs",
+    "tests-node/ui-setup.test.mjs"
   ],
   "smoke": [
     "py:test_protocol.ProtocolTests",
@@ -198,7 +199,8 @@
       "checks": [
         "py:test_codegraph_tool",
         "py:test_installation",
-        "py:test_native_windows"
+        "py:test_native_windows",
+        "py:test_navigation_policy"
       ],
       "reason": "CodeGraph orchestration and native boundary"
     },
@@ -544,15 +546,21 @@
         "src/ui.ts",
         "src/ui-page.ts",
         "tests-node/ui.test.mjs",
-        "scripts/preview-ui.mjs"
+        "scripts/preview-ui.mjs",
+        "src/ui-setup.ts",
+        "tests-node/ui-setup.test.mjs",
+        "src/ui-repositories.ts"
       ],
       "checks": [
         "node:tests-node/ui.test.mjs",
         "py:test_reporting",
         "typecheck",
-        "package"
+        "package",
+        "node:tests-node/ui-setup.test.mjs",
+        "py:test_installation",
+        "py:test_navigation_policy"
       ],
-      "reason": "Local UI boundary, browser assets, answers and bound developer acceptance"
+      "reason": "Local UI, repository setup, installer safety, answers and bound developer acceptance"
     },
     {
       "paths": [

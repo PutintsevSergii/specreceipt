@@ -16,7 +16,7 @@ class CodeGraphToolTests(unittest.TestCase):
             class HarnessFixture:
                 root = Path(directory)
                 def binding(self): return 'fixture-binding'
-            with patch.object(index_context,'ensure',return_value={'result':'PASS'}), \
+            with patch.object(index_context,'ensure',return_value={'result':'PASS', 'decision':{'providers':['codegraph','graphify'], 'reason':'Fixture required policy'}}), \
                  patch.object(index_context.codegraph_tool,'query',return_value={'result':'PASS','answer':'token=fixture-secret'}), \
                  patch.object(index_context.graphify_tool,'query',return_value={'result':'PASS','answer':'app.py'}):
                 result = index_context.collect(HarnessFixture(),{'feature_id':'feature'},

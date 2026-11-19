@@ -125,3 +125,73 @@ class NavigationPolicyTests(unittest.TestCase):
         (self.root/'.harness/tools/openspec').mkdir(parents=True)
         adopt(KIT,self.root,False)
         self.assertEqual(index_context.policy(self.root)['mode'],'source')
+
+
+    def auto(self, providers=None):
+        atomic(self.root / '.harness/navigation.json',
+               {'schema_version': 2, 'mode': 'auto', 'providers': providers or ['codegraph', 'graphify']})
+
+    def test_auto_single_file_uses_source_without_probing(self):
+        self.auto()
+        with patch.object(index_context.codegraph_tool, 'status', side_effect=AssertionError('unnecessary probe')), \
+             patch.object(index_context.graphify_tool, 'status', side_effect=AssertionError('unnecessary probe')):
+            result = index_context.ensure(self.root, {'scope': ['src/main.py']})
+            self.assertEqual(result['decision']['providers'], [])
+            self.assertEqual(index_context.ensure(self.root)['decision']['providers'], [])
+
+    def test_auto_prefers_one_fresh_enabled_provider(self):
+        self.auto()
+        with patch.object(index_context.codegraph_tool, 'status', return_value={'installed': True, 'freshness': 'stale'}), \
+             patch.object(index_context.graphify_tool, 'status', return_value={'installed': True, 'freshness': 'fresh'}), \
+             patch.object(index_context.codegraph_tool, 'ensure') as code, \
+             patch.object(index_context.graphify_tool, 'ensure', return_value={'freshness': 'fresh'}) as graph:
+            result = index_context.ensure(self.root, {'scope': ['src/a.py', 'src/b.py']})
+            self.assertEqual(result['decision']['providers'], ['graphify'])
+            code.assert_not_called()
+            graph.assert_called_once()
+
+    def test_auto_disabled_provider_is_never_used_and_failure_falls_back(self):
+        self.auto(['codegraph'])
+        with patch.object(index_context.graphify_tool, 'status', side_effect=AssertionError('disabled provider')), \
+             patch.object(index_context.codegraph_tool, 'status', return_value={'installed': True, 'freshness': 'stale'}), \
+             patch.object(index_context.codegraph_tool, 'ensure', side_effect=HarnessError('unavailable')):
+            result = index_context.ensure(self.root, {'scope': ['src/**']})
+            self.assertEqual(result['result'], 'PASS')
+            self.assertEqual(result['decision']['providers'], [])
+            self.assertIn('source', result['decision']['reason'])
+
+    def test_auto_query_failure_records_source_fallback(self):
+        from types import SimpleNamespace
+        self.auto(['codegraph'])
+        with patch.object(index_context.codegraph_tool, 'status', return_value={'installed': True, 'freshness': 'fresh'}), \
+             patch.object(index_context.codegraph_tool, 'ensure', return_value={'freshness': 'fresh'}), \
+             patch.object(index_context.codegraph_tool, 'query', side_effect=HarnessError('query failed')):
+            result = index_context.collect(SimpleNamespace(root=self.root, binding=lambda: 'fixture'),
+                {'feature_id': 'feature'}, {'id': 'TEST-001', 'outcome': 'change callers', 'scope': ['src/**']})
+            self.assertEqual(result['decision']['providers'], [])
+            self.assertNotIn('codegraph', result)
+            self.assertIn('source', result['decision']['reason'])
+
+    def test_cli_settings_are_per_repo_audited_and_reject_stale_ui_revision(self):
+        import json, subprocess, sys
+        from harnesslib.adopt import adopt
+        from test_onboarding import KIT
+        first, second = self.root / 'first', self.root / 'second'
+        adopt(KIT, first, False); adopt(KIT, second, False)
+        def run(root, *args):
+            result = subprocess.run([sys.executable, '-B', str(root/'harness'), 'navigation', *args], capture_output=True, text=True)
+            return result, json.loads(result.stdout or result.stderr)
+        _, before = run(first, 'show')
+        result, configured = run(first, 'set', '--mode', 'auto', '--providers', 'codegraph', '--expected', before['revision'])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(configured['policy'], {'schema_version': 2, 'mode': 'auto', 'providers': ['codegraph']})
+        self.assertEqual(index_context.policy(second)['mode'], 'source')
+        result, failed = run(first, 'set', '--mode', 'source', '--expected', before['revision'])
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('changed', failed['error'])
+        self.assertEqual(index_context.policy(first)['mode'], 'auto')
+        result, custom = run(first, 'set', '--mode', 'custom', '--providers', 'graphify')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(custom['policy']['mode'], 'required')
+        events = [json.loads(line) for line in (first/'.harness/events.jsonl').read_text().splitlines()]
+        self.assertEqual(sum(e['type'] == 'navigation-configured' for e in events), 2)

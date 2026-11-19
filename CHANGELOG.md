@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.0
+
+- Launch the UI without a target, remember configured repositories, and isolate tasks and approvals per repository.
+- Set up repositories through the UI with installation previews, progress, Python bootstrap and optional OpenSpec installation.
+- Configure source-only, automatic or custom navigation per repository through the CLI and UI radio controls, with independent CodeGraph and Graphify settings.
+- Preserve approval and evidence integrity with repository-bound requests and revision-checked navigation updates.
+
 ## 0.7.0
 
 - Add a local browser UI for task status, agent questions and answers, and reviewing verified results with bound developer approvals.

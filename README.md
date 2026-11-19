@@ -104,8 +104,14 @@ Large requests can be managed as a reviewed story map with sequential OpenSpec b
 
 ### Local browser UI
 
-Run `specreceipt ui --target DIR` and open the printed local session URL. Three
-views cover task status, agent questions and answers, and reviewing/approving
-verified results. Works through the existing Node/Python CLI runtime and a browser;
-no desktop shell or cloud account is required. See [UI guide](assets/kit/docs/UI.md) for
-agent integration, approval semantics and the isolated design preview.
+Run `specreceipt ui` and open the printed local URL. Choose a remembered repository
+or add a project directory. New repositories enter setup automatically: review
+the installation, then follow progress as missing Python/OpenSpec dependencies
+and SpecReceipt integration are installed. Configured repositories are remembered
+across launches; tasks and approvals stay isolated per repository. `--target DIR`
+is an optional shortcut.
+
+The workspace shows task status, agent questions and answers, and verified results
+for approval. No desktop shell or cloud account is required. See the
+[UI guide](assets/kit/docs/UI.md) for setup, runtime requirements, agent integration
+and approval semantics.

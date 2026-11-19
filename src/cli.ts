@@ -21,11 +21,15 @@ import { checkedAgentLaunch, doctor, executionPreflight } from "./doctor.js";
 import { execute } from "./engine.js";
 import { dispatchCopilot } from "./copilot.js";
 import { prepareUpgrade, upgrade } from "./upgrade.js";
+import { uiRegistryDirectory } from './ui-repositories.js';
+import { prepareUIRuntime } from './ui-setup.js';
 import { startUI, askQuestion, questions } from "./ui.js";
 const help = `AI Engineering Harness ${VERSION}
 Usage: specreceipt init [--target DIR] [--agent codex|copilot|copilot-ide|codex,copilot --workflow openspec --quality strict --skills engineering-pack] [--yes] [--dry-run]
        specreceipt init --target DIR --recover
        specreceipt ui [--target DIR] [--port 4317]
+       specreceipt navigation show [--target DIR]
+       specreceipt navigation set --mode source|auto|custom [--providers codegraph graphify] [--target DIR]
        specreceipt ui ask --task ID --question TEXT [--target DIR]
        specreceipt ui questions [--target DIR]
        specreceipt doctor [--target DIR] [--json]
@@ -139,8 +143,9 @@ async function main() {
       console.log(JSON.stringify(questions(root), null, 2)); return;
     }
     if (positionals.length || values.task || values.question) throw Error("Usage: specreceipt ui [--target DIR] [--port PORT]");
-    const { server, url } = await startUI(root, Number(values.port ?? 4317));
-    console.log(`SpecReceipt UI — ${root}\n${url}\nKeep this session URL private. Ctrl+C to stop.`);
+    prepareUIRuntime();
+    const { server, url } = await startUI(values.target ? root : undefined, Number(values.port ?? 4317), undefined, uiRegistryDirectory());
+    console.log(`SpecReceipt UI${values.target ? " — " + root : ""}\n${url}\nKeep this session URL private. Ctrl+C to stop.`);
     for (const signal of ["SIGINT", "SIGTERM"] as const) process.once(signal, () => server.close());
     return;
   }
